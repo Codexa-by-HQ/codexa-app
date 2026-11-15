@@ -1,11 +1,9 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@codexa/cli@^1.1.0": "1.1.0",
+    "jsr:@codexa/cli@^1.2.0": "1.2.0",
     "jsr:@codexa/core@2.1.0": "2.1.0",
-    "jsr:@codexa/http@2.1.2": "2.1.2",
     "jsr:@codexa/http@^2.1.2": "2.1.2",
-    "jsr:@codexa/openapi@1.1.0": "1.1.0",
     "jsr:@codexa/sdk@1.1.0": "1.1.0",
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "jsr:@std/path@^1.1.6": "1.1.6",
@@ -14,8 +12,8 @@
     "npm:jetrouter@0.2": "0.2.0"
   },
   "jsr": {
-    "@codexa/cli@1.1.0": {
-      "integrity": "304c2fb24f4fde0b3886d2889171f0b3b8d75022834b5961e06d364d9ebbff04",
+    "@codexa/cli@1.2.0": {
+      "integrity": "bdc5e481b60e6e8925e572fbc7fbee0227c2dee86983b9c54b84ee84e63c77bb",
       "dependencies": [
         "jsr:@codexa/sdk",
         "jsr:@std/path",
@@ -23,26 +21,20 @@
       ]
     },
     "@codexa/core@2.1.0": {
-      "integrity": "c0a097b63f64177de5a51863b5a251961b474f182bdf1848b680ed7f6595a570"
+      "integrity": "c0a097b63f64177de5a51863b5a251961b474f182bdf1848b680ed7f6595a570",
+      "dependencies": [
+        "jsr:@zod/zod"
+      ]
     },
     "@codexa/http@2.1.2": {
       "integrity": "83d2fda923bb2088c08692cbf266085749f00ba1aed032f8ab34320a18c5ec68",
       "dependencies": [
-        "jsr:@std/path",
         "npm:jetrouter"
-      ]
-    },
-    "@codexa/openapi@1.1.0": {
-      "integrity": "a9f76dbc35a265ad108a1e1e7bfb583e59083ac6058519ecb82bdbbaed9a44a1",
-      "dependencies": [
-        "jsr:@codexa/http@2.1.2",
-        "jsr:@zod/zod"
       ]
     },
     "@codexa/sdk@1.1.0": {
       "integrity": "a2a0f683ae07a36cbdd8b7f87ecf4422b7de31be677eb8cb5b455336a7e15652",
       "dependencies": [
-        "jsr:@codexa/openapi",
         "jsr:@std/path"
       ]
     },
@@ -69,9 +61,27 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@codexa/cli@^1.1.0",
+      "jsr:@codexa/cli@^1.2.0",
       "jsr:@codexa/core@2.1.0",
       "jsr:@codexa/http@^2.1.2"
-    ]
+    ],
+    "members": {
+      "plugins/oauth": {
+        "dependencies": [
+          "jsr:@codexa/bus@^1.1.0",
+          "jsr:@codexa/core@2.1.0",
+          "jsr:@codexa/http@^2.1.2",
+          "jsr:@codexa/openapi@^1.1.0",
+          "jsr:@codexa/sdk@^1.1.0",
+          "npm:re2js@^2.10.0"
+        ]
+      },
+      "plugins/oauth-app": {
+        "dependencies": [
+          "jsr:@codexa/core@2.1.0",
+          "jsr:@codexa/http@^2.1.2"
+        ]
+      }
+    }
   }
 }

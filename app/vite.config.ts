@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/auth/",
+  base: "/app/",
   plugins: [react(), tailwindcss()],
   build: {
     outDir: "./dist",

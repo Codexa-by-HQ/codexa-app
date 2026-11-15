@@ -5,3 +5,7 @@ binaries/
 .env.*
 *.log
 host/*
+
+/plugins/
+/.codexa/
+/.codexa-plugin-install.lock
