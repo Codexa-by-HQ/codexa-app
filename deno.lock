@@ -1,0 +1,77 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@codexa/cli@^1.1.0": "1.1.0",
+    "jsr:@codexa/core@2.1.0": "2.1.0",
+    "jsr:@codexa/http@2.1.2": "2.1.2",
+    "jsr:@codexa/http@^2.1.2": "2.1.2",
+    "jsr:@codexa/openapi@1.1.0": "1.1.0",
+    "jsr:@codexa/sdk@1.1.0": "1.1.0",
+    "jsr:@std/internal@^1.0.14": "1.0.14",
+    "jsr:@std/path@^1.1.6": "1.1.6",
+    "jsr:@std/semver@1": "1.0.8",
+    "jsr:@zod/zod@^4.5.4": "4.6.7",
+    "npm:jetrouter@0.2": "0.2.0"
+  },
+  "jsr": {
+    "@codexa/cli@1.1.0": {
+      "integrity": "304c2fb24f4fde0b3886d2889171f0b3b8d75022834b5961e06d364d9ebbff04",
+      "dependencies": [
+        "jsr:@codexa/sdk",
+        "jsr:@std/path",
+        "jsr:@std/semver"
+      ]
+    },
+    "@codexa/core@2.1.0": {
+      "integrity": "c0a097b63f64177de5a51863b5a251961b474f182bdf1848b680ed7f6595a570"
+    },
+    "@codexa/http@2.1.2": {
+      "integrity": "83d2fda923bb2088c08692cbf266085749f00ba1aed032f8ab34320a18c5ec68",
+      "dependencies": [
+        "jsr:@std/path",
+        "npm:jetrouter"
+      ]
+    },
+    "@codexa/openapi@1.1.0": {
+      "integrity": "a9f76dbc35a265ad108a1e1e7bfb583e59083ac6058519ecb82bdbbaed9a44a1",
+      "dependencies": [
+        "jsr:@codexa/http@2.1.2",
+        "jsr:@zod/zod"
+      ]
+    },
+    "@codexa/sdk@1.1.0": {
+      "integrity": "a2a0f683ae07a36cbdd8b7f87ecf4422b7de31be677eb8cb5b455336a7e15652",
+      "dependencies": [
+        "jsr:@codexa/openapi",
+        "jsr:@std/path"
+      ]
+    },
+    "@std/internal@1.0.14": {
+      "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
+    },
+    "@std/path@1.1.6": {
+      "integrity": "c68485c2a4dfbb5ae3cc74fae4e8c4e5d874cf8a8ed12927917235c758b46cbe",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/semver@1.0.8": {
+      "integrity": "dc830e8b8b6a380c895d53fbfd1258dc253704ca57bbe1629ac65fd7830179b7"
+    },
+    "@zod/zod@4.6.7": {
+      "integrity": "6706868ce1e1907362e1bf008e298e482723345f0ba4125c43e5b9fd7960b186"
+    }
+  },
+  "npm": {
+    "jetrouter@0.2.0": {
+      "integrity": "sha512-KehnyAkBHcl+nG4GfChwkSjoW4wxUG231f/Un+zotv8MjKK/MbDuq2oVeeRXraaIz0hkya9HWVFDTAcpocnQ+A=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@codexa/cli@^1.1.0",
+      "jsr:@codexa/core@2.1.0",
+      "jsr:@codexa/http@^2.1.2"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+	"schemaVersion": 1,
+	"id": "codexa-app",
+	"name": "@codexa/codexa-app",
+	"version": "1.0.0",
+	"entrypoint": "./plugin.ts",
+	"codexaCore": ">=1.0.8 <3.0.0"
+}

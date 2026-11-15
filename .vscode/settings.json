@@ -1,0 +1,6 @@
+{
+  "deno.enable": true,
+  "deno.disablePaths": ["./app"],
+  "typescript.suggest.enabled": true,
+  "javascript.suggest.enabled": true
+}

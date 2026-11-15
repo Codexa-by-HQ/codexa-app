@@ -1,0 +1,79 @@
+{
+  "name": "@codexa/codexa-app",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Hamza Qureshi",
+  "repository": {
+    "type": "git",
+    "author": "Codexa-by-HQ",
+    "url": "https://github.com/Codexa-by-HQ/codexa-app.git"
+  },
+  "publish": false,
+  "fmt": {
+    "useTabs": true,
+    "lineWidth": 80,
+    "indentWidth": 4,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": [
+      "./"
+    ],
+    "exclude": [
+      "node_modules/",
+      "app/",
+      "binaries/"
+    ]
+  },
+  "lint": {
+    "include": [
+      "./"
+    ],
+    "exclude": [
+      "node_modules/",
+      "app/",
+      "binaries/"
+    ],
+    "rules": {
+      "tags": [
+        "recommended"
+      ],
+      "include": [
+        "ban-untagged-todo",
+        "no-explicit-any",
+        "no-non-null-assertion",
+        "prefer-as-const",
+        "no-unsafe-finally",
+        "ban-untagged-ignore",
+        "eqeqeq",
+        "camelcase",
+        "no-eval"
+      ],
+      "exclude": [
+        "no-unused-vars",
+        "no-console",
+        "require-await"
+      ]
+    }
+  },
+  "compilerOptions": {
+    "lib": [
+      "deno.window",
+      "deno.unstable",
+      "deno.ns"
+    ],
+    "strict": true
+  },
+  "exclude": [
+    "node_modules/"
+  ],
+  "minimumDependencyAge": 0,
+  "tasks": {
+    "dev": "deno run --watch --allow-net main.ts"
+  },
+  "imports": {
+    "@codexa/http": "jsr:@codexa/http@^2.1.2",
+    "@codexa/cli": "jsr:@codexa/cli@^1.1.0",
+    "@codexa/core/logger": "jsr:@codexa/core@2.1.0/logger"
+  }
+}
