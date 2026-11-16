@@ -10,3 +10,6 @@ host/*
 /plugins/
 /.codexa/
 /.codexa-plugin-install.lock
+
+# Browser test screenshots
+tests/e2e/screenshots/

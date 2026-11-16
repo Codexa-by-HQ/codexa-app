@@ -3,7 +3,7 @@ import {
 	type ICodexaHttpRouter,
 	serveStatic,
 } from '@codexa/http';
-import { CODEXA_APP_PATH } from '../config/app.config.ts';
+import { CODEXA_APP_HEADERS, CODEXA_APP_PATH } from '../config/app.config.ts';
 
 export function serveStaticApp(
 	assetsDirectory: URL,
@@ -20,6 +20,7 @@ export function serveStaticApp(
 				serveStatic(ctx, {
 					root: assetsDirectory,
 					spaFallback: true,
+					headers: CODEXA_APP_HEADERS,
 				}),
 			options: { name: 'codexa-app.static', openapi: { exclude: true } },
 		});

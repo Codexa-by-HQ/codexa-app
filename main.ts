@@ -1,3 +1,3 @@
-import { host } from './core/host.ts';
+import { host } from './host.ts';
 
 if (import.meta.main) await host();

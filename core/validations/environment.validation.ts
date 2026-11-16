@@ -101,6 +101,17 @@ const OAuthAppEnvironmentSchema = z.object({
 	).optional(),
 });
 
+// Codexa App plugin
+
+/** The OAuth client the Codexa App frontend signs in with. */
+const CodexaAppEnvironmentSchema = z.object({
+	// Public client from setup. Sign in stays off while this is unset.
+	CODEXA_APP_OAUTH_CLIENT_ID: z.string().trim().min(1).optional(),
+	// Space separated, and each must be allowed on that client.
+	CODEXA_APP_OAUTH_SCOPES: z.string().trim().default('profile email')
+		.transform((value) => value.split(/\s+/).filter(Boolean)),
+});
+
 // Composed schemas
 
 /** Everything the one time setup wizard needs, and nothing more. */
@@ -131,6 +142,7 @@ export const HostEnvironmentSchema = z.object({
 	...OAuthEnvironmentSchema.shape,
 	...SmtpEnvironmentSchema.shape,
 	...OAuthAppEnvironmentSchema.shape,
+	...CodexaAppEnvironmentSchema.shape,
 }).superRefine((config, ctx) => {
 	const input = smtpConfig(config);
 	if (input) {
@@ -150,7 +162,8 @@ export const HostEnvironmentSchema = z.object({
 		ctx.addIssue({
 			code: 'custom',
 			path: ['OAUTH_SMTP_HOST'],
-			message: 'Set the SMTP host when providing a sender or credentials.',
+			message:
+				'Set the SMTP host when providing a sender or credentials.',
 		});
 	}
 });

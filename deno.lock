@@ -7,7 +7,9 @@
     "jsr:@codexa/core@2.1.0": "2.1.0",
     "jsr:@codexa/http@^2.1.2": "2.1.2",
     "jsr:@codexa/sdk@1.1.0": "1.1.0",
+    "jsr:@std/assert@1": "1.0.19",
     "jsr:@std/dotenv@~0.225.8": "0.225.8",
+    "jsr:@std/internal@^1.0.12": "1.0.14",
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "jsr:@std/path@^1.1.6": "1.1.6",
     "jsr:@std/semver@1": "1.0.8",
@@ -17,6 +19,7 @@
     "npm:jetrouter@0.2": "0.2.0",
     "npm:mongodb@^7.6.0": "7.9.0",
     "npm:nodemailer@^10.6.0": "10.6.0",
+    "npm:playwright-core@^1.65.1": "1.65.1",
     "npm:re2js@2.9.0": "2.9.0"
   },
   "jsr": {
@@ -54,6 +57,12 @@
         "jsr:@std/path"
       ]
     },
+    "@std/assert@1.0.19": {
+      "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.12"
+      ]
+    },
     "@std/dotenv@0.225.8": {
       "integrity": "27b8c1a9d00cbf938345a5924487c04d9b27bdd7e7bd1983f54bcf76d0a0174a"
     },
@@ -63,7 +72,7 @@
     "@std/path@1.1.6": {
       "integrity": "c68485c2a4dfbb5ae3cc74fae4e8c4e5d874cf8a8ed12927917235c758b46cbe",
       "dependencies": [
-        "jsr:@std/internal"
+        "jsr:@std/internal@^1.0.14"
       ]
     },
     "@std/semver@1.0.8": {
@@ -148,6 +157,10 @@
     "nodemailer@10.6.0": {
       "integrity": "sha512-jWanL7D9GD3jvUDYKmoC5rWTiG8MnBgnN2yV68bgMKip1zUJhiSTyz7Eg+18y8sk5OvdVDzws5nZK5arSI4f5Q=="
     },
+    "playwright-core@1.65.1": {
+      "integrity": "sha512-hqPpz7blSMPxWVdoeE1yiBSzXsKiVOd2k+kjCvmUywD2GPO2Dd9HfcWnq9NN0GHbNZDFgZ9JfBFr+X5/BLo0qw==",
+      "bin": true
+    },
     "punycode@2.3.1": {
       "integrity": "sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg=="
     },
@@ -188,7 +201,9 @@
       "jsr:@codexa/cli@^1.2.0",
       "jsr:@codexa/core@2.1.0",
       "jsr:@codexa/http@^2.1.2",
-      "npm:nodemailer@^10.6.0"
+      "jsr:@std/assert@1",
+      "npm:nodemailer@^10.6.0",
+      "npm:playwright-core@^1.65.1"
     ],
     "members": {
       "plugins/oauth": {

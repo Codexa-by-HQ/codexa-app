@@ -1,4 +1,11 @@
+import type { MongoDatabaseConnection } from '@codexa/core/config';
 import type { OAuthBaseConfigInput } from '@codexa/oauth/config';
+import type { EmailDeliveryProvider } from '@codexa/oauth/validations';
+import type { OAuthBaseInstallConfig } from '@codexa/oauth';
+import { getDatabaseRequirements } from '../lib/database.ts';
+import type { HostDeployment } from '../lib/environment.ts';
+import { HostAccessTokenProvider } from '../providers/accessToken.provider.ts';
+import type { HostRuntimeOptions } from '../types/host.types.ts';
 import type {
 	HostEnvironment,
 	TokenLifetimeEnvironment,
@@ -42,5 +49,37 @@ export function createOAuthConfig(
 			trustedCrossAppIssuerAppIds:
 				environment.OAUTH_TRUSTED_CROSS_APP_ISSUER_APP_IDS,
 		},
+	};
+}
+
+export interface OAuthInstallContext {
+	/** Must already be connected. */
+	readonly connection: MongoDatabaseConnection;
+	readonly deployment: HostDeployment;
+	readonly emailProvider?: EmailDeliveryProvider;
+	readonly options: HostRuntimeOptions;
+}
+
+/** Everything installOAuthBasePlugin needs, built from the host environment. */
+export function createOAuthInstallConfig(
+	{ connection, deployment, emailProvider, options }: OAuthInstallContext,
+): OAuthBaseInstallConfig {
+	const { environment } = deployment;
+	return {
+		requirements: {
+			...getDatabaseRequirements(connection),
+			redisUrl: environment.REDIS_URL,
+			hostedAppUrl: deployment.hostedAppUrl,
+			managementAppUrl: deployment.managementAppUrl,
+			accountActionBaseUrl: deployment.accountActionBaseUrl,
+			emailProvider,
+			sessionLocationResolver: options.sessionLocationResolver,
+			accessTokenProvider: new HostAccessTokenProvider({
+				secret: environment.OAUTH_ACCESS_TOKEN_SIGNING_SECRET,
+				issuer: environment.OAUTH_ACCESS_TOKEN_ISSUER,
+				audience: environment.OAUTH_ACCESS_TOKEN_AUDIENCE,
+			}),
+		},
+		config: createOAuthConfig(environment),
 	};
 }

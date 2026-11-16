@@ -11,12 +11,19 @@ type PluginSource =
 type ManagedPlugin = { readonly id: string } & PluginSource;
 
 /**
+ * `--oauth-source` installs OAuth Base from its sibling source folder instead
+ * of the pinned commit, to verify OAuth Base changes before they are pushed.
+ * Running without it restores the pinned commit.
+ */
+const OAUTH_FROM_SOURCE = Deno.args.includes('--oauth-source');
+
+/**
  * Plugins this host installs, in dependency order. OAuth Base is pinned to a
  * pushed commit. OAuth App installs from its sibling source folder, so local
  * edits reach the host on every run.
  */
 const PLUGINS: readonly ManagedPlugin[] = [
-	{
+	OAUTH_FROM_SOURCE ? { id: 'oauth', sourceDirectory: '../oauth-base' } : {
 		id: 'oauth',
 		repository: 'https://github.com/Codexa-by-HQ/oauth-base.git',
 		ref: '70f8eb9325a974230b91c0f2f2b09e233f79a0d9',
@@ -42,12 +49,14 @@ for (const plugin of PLUGINS) {
 	// The CLI cannot refresh an install, so reverse the old one first.
 	await uninstallPlugin(projectRoot, plugin.id);
 	const { id: _id, ...source } = plugin;
-	const result = await installPlugin({
-		projectRoot,
-		...source,
-		runDenoCheck: true,
-		runDenoInstall: false,
-	} satisfies PluginInstallOptions);
+	const result = await installPlugin(
+		{
+			projectRoot,
+			...source,
+			runDenoCheck: true,
+			runDenoInstall: false,
+		} satisfies PluginInstallOptions,
+	);
 	const at = result.commit ? ` at ${result.commit.slice(0, 7)}` : '';
 	console.log(
 		`Installed ${result.name}@${result.version} in ${result.directory}${at}`,
@@ -101,7 +110,9 @@ async function readJson(
 ): Promise<Record<string, unknown> | undefined> {
 	try {
 		const value: unknown = JSON.parse(await Deno.readTextFile(path));
-		if (!isRecord(value)) throw new Error(`Expected a JSON object: ${path}`);
+		if (!isRecord(value)) {
+			throw new Error(`Expected a JSON object: ${path}`);
+		}
 		return value;
 	} catch (error) {
 		if (error instanceof Deno.errors.NotFound) return undefined;

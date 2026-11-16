@@ -1,5 +1,6 @@
 import { definePlugin, type ICodexaHttp } from '@codexa/http';
 import { serveStaticApp } from './routes/index.ts';
+import { createClientRouter } from './routes/client.ts';
 import {
 	type CodexaAppConfigInput,
 	CodexaAppConfigSchema,
@@ -50,8 +51,11 @@ export async function installCodexaAppPlugin(
 			},
 			setup(scope, config) {
 				// extract requirements
-				const { assetsDirectory, mountPath, onShutdown } =
+				const { assetsDirectory, mountPath, oauth, onShutdown } =
 					config.requirements;
+
+				// root redirect and the frontend runtime config
+				scope.mount(createClientRouter(mountPath, oauth));
 
 				// mount the router and serve app
 				scope.mount(serveStaticApp(assetsDirectory, mountPath));

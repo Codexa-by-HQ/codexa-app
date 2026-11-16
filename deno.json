@@ -71,7 +71,9 @@
 	"tasks": {
 		"dev": "deno run --watch --allow-net --allow-read --allow-env --allow-sys main.ts",
 		"setup": "deno run --allow-net --allow-read --allow-env --allow-sys core/scripts/setup.ts",
-		"plugins:local": "deno run --allow-read --allow-write --allow-run=deno,git core/scripts/install-local.ts"
+		"plugins:local": "deno run --allow-read --allow-write --allow-run=deno,git core/scripts/install-local.ts",
+		"test": "deno test --allow-net --allow-read --allow-env --allow-sys tests/",
+		"test:e2e": "deno test -A tests/e2e/signin.e2e.ts tests/e2e/branding.e2e.ts"
 	},
 	"exports": {
 		".": "./plugin.ts"
@@ -82,9 +84,13 @@
 		"@codexa/core/config": "jsr:@codexa/core@2.1.0/config",
 		"@codexa/core/crypto": "jsr:@codexa/core@2.1.0/crypto",
 		"@codexa/core/logger": "jsr:@codexa/core@2.1.0/logger",
+		"@codexa/core/providers/mongodb": "jsr:@codexa/core@2.1.0/providers/mongodb",
 		"@codexa/core/providers/zod": "jsr:@codexa/core@2.1.0/providers/zod",
 		"@codexa/core/ttl": "jsr:@codexa/core@2.1.0/ttl",
-		"nodemailer": "npm:nodemailer@^10.6.0"
+		"nodemailer": "npm:nodemailer@^10.6.0",
+		"@codexa/core/providers/dotenv": "jsr:@codexa/core@2.1.0/providers/dotenv",
+		"@std/assert": "jsr:@std/assert@^1.0.0",
+		"playwright-core": "npm:playwright-core@^1.65.1"
 	},
 	"minimumDependencyAge": "0",
 	"workspace": [
