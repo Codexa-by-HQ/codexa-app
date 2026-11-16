@@ -37,7 +37,7 @@ export async function loadEnvironment(
 export function resolveHostDeployment(
 	environment: HostEnvironment,
 ): HostDeployment {
-	const origin = environment.OAUTH_PUBLIC_ORIGIN ??
+	const origin = environment.PUBLIC_ORIGIN ??
 		getListenerOrigin(environment);
 	const hostedAppUrl = origin + environment.OAUTH_APP_MOUNT_PATH;
 	return Object.freeze({

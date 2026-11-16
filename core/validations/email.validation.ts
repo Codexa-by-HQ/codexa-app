@@ -30,6 +30,9 @@ export const HostEmailConfigSchema = z.object({
 	from: EmailAddressSchema,
 	username: z.string().trim().min(1).optional(),
 	password: z.string().min(1).optional(),
+	connectionTimeoutMs: z.number().int().positive(),
+	greetingTimeoutMs: z.number().int().positive(),
+	socketTimeoutMs: z.number().int().positive(),
 }).strict().superRefine((value, ctx) => {
 	if (Boolean(value.username) !== Boolean(value.password)) {
 		ctx.addIssue({

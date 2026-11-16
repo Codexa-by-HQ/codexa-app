@@ -83,6 +83,7 @@
 		"@codexa/core/crypto": "jsr:@codexa/core@2.1.0/crypto",
 		"@codexa/core/logger": "jsr:@codexa/core@2.1.0/logger",
 		"@codexa/core/providers/zod": "jsr:@codexa/core@2.1.0/providers/zod",
+		"@codexa/core/ttl": "jsr:@codexa/core@2.1.0/ttl",
 		"nodemailer": "npm:nodemailer@^10.6.0"
 	},
 	"minimumDependencyAge": "0",

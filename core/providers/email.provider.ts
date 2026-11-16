@@ -27,9 +27,9 @@ export class HostEmailProvider implements EmailDeliveryProvider {
 			auth: config.username
 				? { user: config.username, pass: config.password }
 				: undefined,
-			connectionTimeout: 10_000, // 10 sec
-			greetingTimeout: 10_000, // 10 sec
-			socketTimeout: 30_000, // 30 sec
+			connectionTimeout: config.connectionTimeoutMs,
+			greetingTimeout: config.greetingTimeoutMs,
+			socketTimeout: config.socketTimeoutMs,
 		});
 	}
 

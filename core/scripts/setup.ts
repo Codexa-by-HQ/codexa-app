@@ -1,6 +1,6 @@
 import { env } from '@codexa/core/config';
 import { createOAuthBaseScripts } from '@codexa/oauth/scripts';
-import { tokenLifetimes } from '../config/oauth.config.ts';
+import { createTokenLifetimes } from '../config/oauth.config.ts';
 import { loadMongodb } from '../lib/database.ts';
 import { getListenerHostname, getListenerOrigin } from '../lib/listener.ts';
 import { SetupEnvironmentSchema } from '../validations/environment.validation.ts';
@@ -26,7 +26,7 @@ async function setup(): Promise<void> {
 		loadFiles: true,
 		schema: SetupEnvironmentSchema,
 	});
-	if (config.OAUTH_PUBLIC_ORIGIN) {
+	if (config.PUBLIC_ORIGIN) {
 		throw new Error(
 			'The setup listener serves plain HTTP. Run setup locally before configuring the public HTTPS origin.',
 		);
@@ -34,7 +34,7 @@ async function setup(): Promise<void> {
 
 	const scripts = createOAuthBaseScripts({
 		connection: loadMongodb(config),
-		config: { tokenLifetimes },
+		config: { tokenLifetimes: createTokenLifetimes(config) },
 	});
 	await scripts.setup({
 		hostname: getListenerHostname(config),

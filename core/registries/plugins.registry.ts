@@ -3,7 +3,7 @@ import type { ICodexaHttp } from '@codexa/http';
 import { installOAuthBasePlugin } from '@codexa/oauth';
 import { installOAuthAppPlugin } from '@codexa/oauth-app';
 import type { EmailDeliveryProvider } from '@codexa/oauth/validations';
-import { oauthConfig } from '../config/oauth.config.ts';
+import { createOAuthConfig } from '../config/oauth.config.ts';
 import { getDatabaseRequirements } from '../lib/database.ts';
 import type { HostDeployment } from '../lib/environment.ts';
 import { installCodexaAppPlugin } from '../../plugin.ts';
@@ -39,7 +39,7 @@ export async function installPlugins(
 				audience: environment.OAUTH_ACCESS_TOKEN_AUDIENCE,
 			}),
 		},
-		config: oauthConfig,
+		config: createOAuthConfig(environment),
 	});
 
 	const assetsUrl = environment.OAUTH_APP_ASSETS_URL;
