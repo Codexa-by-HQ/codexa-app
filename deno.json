@@ -1,6 +1,7 @@
 {
 	"name": "@codexa/codexa-app",
 	"version": "1.0.0",
+	"description": "Codexa App host and assembler. Installs the official OAuth plugins, serves the OAuth sign in UI and the product dashboard, and hosts official plugin interfaces.",
 	"license": "MIT",
 	"author": "Hamza Qureshi",
 	"repository": {
@@ -68,8 +69,9 @@
 		"node_modules/"
 	],
 	"tasks": {
-		"dev": "deno run --watch --allow-net --allow-read main.ts",
-		"plugins:local": "deno run --allow-read --allow-write --allow-run=deno scripts/install-local.ts"
+		"dev": "deno run --watch --allow-net --allow-read --allow-env --allow-sys main.ts",
+		"setup": "deno run --allow-net --allow-read --allow-env --allow-sys core/scripts/setup.ts",
+		"plugins:local": "deno run --allow-read --allow-write --allow-run=deno,git core/scripts/install-local.ts"
 	},
 	"exports": {
 		".": "./plugin.ts"
@@ -77,9 +79,13 @@
 	"imports": {
 		"@codexa/http": "jsr:@codexa/http@^2.1.2",
 		"@codexa/cli": "jsr:@codexa/cli@^1.2.0",
+		"@codexa/core/config": "jsr:@codexa/core@2.1.0/config",
+		"@codexa/core/crypto": "jsr:@codexa/core@2.1.0/crypto",
 		"@codexa/core/logger": "jsr:@codexa/core@2.1.0/logger",
-		"@codexa/core/providers/zod": "jsr:@codexa/core@2.1.0/providers/zod"
+		"@codexa/core/providers/zod": "jsr:@codexa/core@2.1.0/providers/zod",
+		"nodemailer": "npm:nodemailer@^10.6.0"
 	},
+	"minimumDependencyAge": "0",
 	"workspace": [
 		"./plugins/oauth",
 		"./plugins/oauth-app"
