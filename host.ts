@@ -1,35 +1,59 @@
 import { createApp, type ICodexaHttp } from '@codexa/http';
 import { installOAuthBasePlugin } from '@codexa/oauth';
 import { installOAuthAppPlugin } from '@codexa/oauth-app';
+import { installOAuthDevicePlugin } from '@codexa/oauth-device';
+import { installOAuthMagicLinkPlugin } from '@codexa/oauth-magic-link';
+import { installOAuthMfaPlugin } from '@codexa/oauth-mfa';
+import { installOAuthOidcPlugin } from '@codexa/oauth-oidc';
+import { installOAuthPasskeyPlugin } from '@codexa/oauth-passkey';
+import { installOAuthSsoPlugin } from '@codexa/oauth-sso';
+import { createLogger } from '@codexa/core/logger';
 import { installCodexaAppPlugin } from './plugin.ts';
 import {
 	createOAuthInstallConfig,
 	type OAuthInstallContext,
 } from './core/config/oauth.config.ts';
+import { createCodexaAppInstallConfig } from './core/config/codexaApp.config.ts';
 import { createOAuthAppInstallConfig } from './core/config/oauthApp.config.ts';
+import { createOAuthDeviceInstallConfig } from './core/config/oauthDevice.config.ts';
+import { createOAuthMagicLinkInstallConfig } from './core/config/oauthMagicLink.config.ts';
+import { createOAuthMfaInstallConfig } from './core/config/oauthMfa.config.ts';
+import { createOAuthOidcInstallConfig } from './core/config/oauthOidc.config.ts';
+import { createOAuthPasskeyInstallConfig } from './core/config/oauthPasskey.config.ts';
+import { createOAuthSsoInstallConfig } from './core/config/oauthSso.config.ts';
 import { loadMongodb } from './core/lib/database.ts';
 import {
 	loadEnvironment,
 	resolveHostDeployment,
 } from './core/lib/environment.ts';
+import { loadHostKeys } from './core/lib/keys.ts';
 import { getListenerHostname, getListenerOrigin } from './core/lib/listener.ts';
+import { rememberClientAddress } from './core/lib/clientAddress.ts';
 import { HostEmailProvider } from './core/providers/email.provider.ts';
 import { registerHostHooks } from './core/registries/hooks.registry.ts';
-import type { HostRuntimeOptions } from './core/types/host.types.ts';
+import type {
+	HostRuntimeOptions,
+	OptionalPluginConfig,
+} from './core/types/host.types.ts';
 import { smtpConfig } from './core/validations/environment.validation.ts';
+
+const logger = createLogger('CodexaApp:Host');
 
 /**
  * Run the Codexa App host. Load configuration, connect MongoDB, install OAuth,
- * OAuth App and Codexa App in that order, boot, then listen until stopped. The
- * host owns shutdown and reports the operation error together with any
- * cleanup error.
+ * its optional sign in plugins, OAuth App and Codexa App in that order, boot,
+ * then listen until stopped. The host owns shutdown and reports the operation
+ * error together with any cleanup error.
  */
 export async function host(options: HostRuntimeOptions = {}): Promise<void> {
 	if (options.signal?.aborted) return;
 	const environment = await loadEnvironment(options.environment);
 	if (options.signal?.aborted) return;
 
-	const deployment = resolveHostDeployment(environment);
+	const deployment = resolveHostDeployment(
+		environment,
+		await loadHostKeys(environment),
+	);
 	const connection = loadMongodb(environment);
 	const app = registerHostHooks(createApp('codexa-app'));
 
@@ -71,7 +95,10 @@ export async function host(options: HostRuntimeOptions = {}): Promise<void> {
 			hostname: getListenerHostname(environment),
 			port: environment.SERVER_PORT,
 			signal: controller.signal,
-		}, installedApp.dispatch);
+		}, (request, info) => {
+			rememberClientAddress(request, info);
+			return installedApp.dispatch(request);
+		});
 		options.onListening?.(getListenerOrigin(environment));
 
 		serverAwaited = true;
@@ -117,24 +144,68 @@ export async function host(options: HostRuntimeOptions = {}): Promise<void> {
 	if (failed) throw failure;
 }
 
-/** Install OAuth, then OAuth App, then Codexa App, in dependency order. */
+/**
+ * Install OAuth, its optional sign in plugins, OAuth App, then Codexa App, in
+ * dependency order. Each optional plugin depends only on OAuth, and installs
+ * when core has what it needs, or logs why it is off.
+ */
 async function installPlugins(app: ICodexaHttp, context: OAuthInstallContext) {
 	const withOAuth = await installOAuthBasePlugin(
 		app,
 		createOAuthInstallConfig(context),
 	);
+	const { deployment, connection, emailProvider } = context;
+
+	await installOptional(
+		'oauth-mfa',
+		await createOAuthMfaInstallConfig(deployment),
+		(config) => installOAuthMfaPlugin(withOAuth, config),
+	);
+	await installOptional(
+		'oauth-passkey',
+		createOAuthPasskeyInstallConfig(deployment),
+		(config) => installOAuthPasskeyPlugin(withOAuth, config),
+	);
+	await installOptional(
+		'oauth-magic-link',
+		createOAuthMagicLinkInstallConfig(deployment, emailProvider),
+		(config) => installOAuthMagicLinkPlugin(withOAuth, config),
+	);
+	await installOptional(
+		'oauth-sso',
+		await createOAuthSsoInstallConfig(deployment, connection),
+		(config) => installOAuthSsoPlugin(withOAuth, config),
+	);
+	await installOptional(
+		'oauth-oidc',
+		await createOAuthOidcInstallConfig(deployment),
+		(config) => installOAuthOidcPlugin(withOAuth, config),
+	);
+	installOAuthDevicePlugin(
+		withOAuth,
+		createOAuthDeviceInstallConfig(deployment),
+	);
+
 	const withOAuthApp = await installOAuthAppPlugin(
 		withOAuth,
 		createOAuthAppInstallConfig(context.deployment, context.options),
 	);
 	// Codexa App is the product. Its frontend starts the OAuth flow itself.
-	const { environment } = context.deployment;
-	return await installCodexaAppPlugin(withOAuthApp, {
-		requirements: {
-			oauth: {
-				clientId: environment.CODEXA_APP_OAUTH_CLIENT_ID,
-				scopes: environment.CODEXA_APP_OAUTH_SCOPES,
-			},
-		},
-	});
+	return await installCodexaAppPlugin(
+		withOAuthApp,
+		createCodexaAppInstallConfig(context.deployment),
+	);
+}
+
+/** Install an optional plugin, or log why the host leaves it off. */
+async function installOptional<T>(
+	id: string,
+	plugin: OptionalPluginConfig<T>,
+	install: (config: T) => unknown,
+): Promise<void> {
+	if ('off' in plugin) {
+		logger.info(`${id} is off: ${plugin.off}.`);
+		return;
+	}
+	await install(plugin.config);
 }

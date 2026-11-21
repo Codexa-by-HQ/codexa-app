@@ -1,9 +1,21 @@
 import { parse } from '@codexa/core/providers/dotenv';
 import { host } from '../../host.ts';
-import type { HostEnvironmentInput } from '../../core/validations/environment.validation.ts';
+import { type HostKeys, loadHostKeys } from '../../core/lib/keys.ts';
+import {
+	type HostEnvironmentInput,
+	KeyFilesEnvironmentSchema,
+} from '../../core/validations/environment.validation.ts';
 
 /** The .env file, including the Tests section the host itself ignores. */
 export const dotenv = parse(await Deno.readTextFile('.env').catch(() => ''));
+
+let keys: Promise<HostKeys> | undefined;
+
+/** The host's keys from certs/, read the way the host reads them, so a test can skip a plugin that is off. */
+export function hostKeys(): Promise<HostKeys> {
+	keys ??= loadHostKeys(KeyFilesEnvironmentSchema.parse(dotenv));
+	return keys;
+}
 
 /**
  * Boot the real host, run the checks against its origin, then stop it.

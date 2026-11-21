@@ -11,7 +11,7 @@ export function getListenerHostname(config: ListenerConfig): string {
 export function getListenerOrigin(config: ListenerConfig): string {
 	const hostname = getListenerHostname(config);
 	const browserHostname = hostname === '0.0.0.0'
-		? '127.0.0.1'
+		? 'localhost'
 		: hostname === '::'
 		? '[::1]'
 		: hostname.includes(':')

@@ -65,8 +65,7 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 	});
 	// Both apps read these before their first paint.
 	await context.addInitScript(([theme, language]) => {
-		localStorage.setItem('codexa-oauth-theme', theme);
-		localStorage.setItem('codexa-app-theme', theme);
+		localStorage.setItem('codexa-theme', theme);
 		localStorage.setItem('i18nextLng', language);
 	}, [variant.theme, variant.language]);
 	const page = await context.newPage();
@@ -99,27 +98,31 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 			await page.screenshot({ path: `${directory}/${file}` });
 		}
 	};
-	const openUserMenu = async () => {
-		// On a phone the sidebar is a sheet behind the header trigger.
-		if (variant.device === 'phone') await page.locator('[data-sidebar="trigger"]').click();
-		await page.locator('[data-slot="sidebar-footer"] button').click();
-		await page.locator('[data-slot="dropdown-menu-item"]').first().waitFor();
+	const phone = variant.device === 'phone';
+	// A desktop sheet slides in from the side. A phone's rises as a drawer.
+	const overlay = page.locator('[data-slot="sheet-content"], [data-slot="drawer-content"]').first();
+	// The profile menu is a dropdown on a desktop and a drawer on a phone.
+	const openProfile = async () => {
+		await page.locator('[data-shell="profile"]:visible').click();
+		await (phone
+			? page.locator('[data-slot="drawer-content"] [data-slot="item"]').first()
+			: page.locator('[data-slot="dropdown-menu-item"]').first()).waitFor();
 	};
 
 	const username = 'ui_' + crypto.randomUUID().slice(0, 8);
 	const password = 'UiTest' + crypto.randomUUID().slice(0, 6) + '9';
 
 	await page.goto(`${origin}/`);
-	await page.locator('main [data-slot="button"]').waitFor();
+	await page.locator('[data-shell="sign-in"]').waitFor();
 	await check('app-sign-in');
 
-	await page.locator('main [data-slot="button"]').click();
+	await page.locator('[data-shell="sign-in"]').click();
 	await page.waitForURL(/\/auth\/login\?authTxnId=/);
 	await page.locator('input[name="username"]').waitFor();
 	await check('oauth-login');
 
-	await page.locator('a[href*="/register"]').click();
-	await page.waitForURL(/\/auth\/register\?authTxnId=/);
+	await page.locator('a[href*="/signup"]').click();
+	await page.waitForURL(/\/auth\/signup\?authTxnId=/);
 	await page.locator('input[name="confirmPassword"]').waitFor();
 	await check('oauth-register');
 	await page.locator('input[name="username"]').fill(username);
@@ -133,32 +136,60 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 	await check('oauth-consent');
 	await page.locator('button[value="allow"]').click();
 
-	await page.waitForURL((url) => /^\/app\/?$/.test(url.pathname));
-	await page.locator('main h1').waitFor();
+	await page.waitForURL((url) => /^\/app\/[a-f\d]{24}\/?$/.test(url.pathname));
+	await page.locator('main h1:not(.sr-only)').waitFor();
 	await check('app-overview');
 
 	await page.goto(`${origin}/app/account`);
-	await page.locator('main h1').waitFor();
+	await page.locator('main h1:not(.sr-only)').waitFor();
 	await check('app-account');
 
 	await page.goto(`${origin}/app/missing-page`);
-	await page.locator('main h1').waitFor();
+	await page.locator('main h1:not(.sr-only)').waitFor();
 	await check('app-not-found');
 
-	await openUserMenu();
+	await openProfile();
 	await check('app-user-menu');
-	await page.locator('[data-slot="dropdown-menu-item"]').first().click();
-	await page.locator('[data-slot="sheet-content"]').waitFor();
+	if (!phone) {
+		await page.locator('[data-slot="dropdown-menu-sub-trigger"]').last().hover();
+		await page.locator('[data-slot="dropdown-menu-sub-content"]').waitFor();
+		await check('app-user-menu-appearance');
+		await page.keyboard.press('Escape');
+		await page.locator('[data-slot="dropdown-menu-sub-content"]').waitFor({ state: 'hidden' });
+		if (!(await page.locator('[data-slot="dropdown-menu-item"]').first().isVisible())) await openProfile();
+	}
+	await page.locator('[data-shell="session-details"]:visible').click();
+	await page.getByRole('textbox').first().waitFor();
 	await check('app-session-sheet');
 	await page.keyboard.press('Escape');
-	await page.locator('[data-slot="sheet-content"]').waitFor({ state: 'hidden' });
+	await overlay.waitFor({ state: 'hidden' });
 
-	await openUserMenu();
-	await page.locator('[data-slot="dropdown-menu-item"][data-variant="destructive"]').click();
+	await page.goto(`${origin}/app/settings/users`);
+	await page.locator('main h1:not(.sr-only)').waitFor();
+	await check('app-settings-users');
+
+	await page.keyboard.press('Control+k');
+	await page.locator('[data-slot="command-input"]').waitFor();
+	await check('app-search');
+	await page.keyboard.press('Escape');
+	await page.locator('[data-slot="command-input"]').waitFor({ state: 'hidden' });
+
+	if (phone) {
+		await page.locator('[data-shell="menu"]').click();
+		await page.locator('[data-slot="sheet-content"]').waitFor();
+		await check('app-mobile-nav');
+		await page.keyboard.press('Escape');
+		await page.locator('[data-slot="sheet-content"]').waitFor({ state: 'hidden' });
+	}
+
+	await openProfile();
+	await (phone
+		? page.locator('[data-slot="drawer-content"] [data-slot="button"]').last()
+		: page.locator('[data-slot="dropdown-menu-item"][data-variant="destructive"]')).click();
 	await page.locator('[role="alertdialog"]').waitFor();
 	await check('app-sign-out-confirm');
 	await page.locator('[role="alertdialog"] [data-slot="button"]').last().click();
-	await page.locator('main [data-slot="button"]').waitFor();
+	await page.locator('[data-shell="sign-in"]').waitFor();
 	await check('app-signed-out');
 
 	await context.close();

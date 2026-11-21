@@ -1,5 +1,7 @@
 import { assert, assertEquals } from '@std/assert';
 import { dotenv, withHost } from '../support/host.ts';
+import { CODEXA_APP_REQUIRED_SCOPES } from '../../core/config/codexaApp.config.ts';
+import { PRODUCT_CATALOG } from '../../config/app.config.ts';
 
 /**
  * What the Codexa App frontend relies on from its plugin: the root redirect,
@@ -34,11 +36,15 @@ Deno.test({
 					body.oauth.clientId,
 					dotenv.CODEXA_APP_OAUTH_CLIENT_ID ?? null,
 				);
-				assertEquals(
-					body.oauth.scopes,
-					(dotenv.CODEXA_APP_OAUTH_SCOPES ?? 'profile email')
-						.split(/\s+/),
-				);
+				// Core's required scopes always come first, then the product's.
+				assertEquals(body.oauth.scopes, [
+					...new Set([
+						...CODEXA_APP_REQUIRED_SCOPES,
+						...(PRODUCT_CATALOG.scopes ?? []).map(({ name }) =>
+							name
+						),
+					]),
+				]);
 			});
 
 			await t.step('the app sends its security headers', async () => {

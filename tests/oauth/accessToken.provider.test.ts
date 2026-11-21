@@ -3,7 +3,7 @@ import { HostAccessTokenProvider } from '../../core/providers/accessToken.provid
 
 const config = {
 	secret: 'x'.repeat(32),
-	issuer: 'http://127.0.0.1:8000',
+	issuer: 'http://localhost:8000',
 	audience: 'codexa',
 };
 const provider = new HostAccessTokenProvider(config);

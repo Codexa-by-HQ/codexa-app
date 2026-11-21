@@ -3,13 +3,17 @@ import type { OAuthBaseConfigInput } from '@codexa/oauth/config';
 import type { EmailDeliveryProvider } from '@codexa/oauth/validations';
 import type { OAuthBaseInstallConfig } from '@codexa/oauth';
 import { getDatabaseRequirements } from '../lib/database.ts';
+import { OAUTH_APP_PAGES } from './pages.config.ts';
 import type { HostDeployment } from '../lib/environment.ts';
 import { HostAccessTokenProvider } from '../providers/accessToken.provider.ts';
+import { createHostStorage } from '../providers/storage.provider.ts';
+import { createClientAddressResolver } from '../lib/clientAddress.ts';
 import type { HostRuntimeOptions } from '../types/host.types.ts';
 import type {
 	HostEnvironment,
 	TokenLifetimeEnvironment,
 } from '../validations/environment.validation.ts';
+import { AVATAR_MEDIA_PURPOSE } from '@codexa/oauth/config';
 
 /**
  * Credential lifetimes from the OAUTH_*_TTL variables. Normal startup and the
@@ -49,6 +53,17 @@ export function createOAuthConfig(
 			trustedCrossAppIssuerAppIds:
 				environment.OAUTH_TRUSTED_CROSS_APP_ISSUER_APP_IDS,
 		},
+		media: {
+			folder: environment.OAUTH_CLOUDINARY_FOLDER,
+			purposes: {
+				[AVATAR_MEDIA_PURPOSE]: {
+					assetType: 'image',
+					contentTypes: environment.OAUTH_PICTURE_TYPES,
+					maxBytes: environment.OAUTH_PICTURE_MAX_BYTES,
+				},
+			},
+		},
+		accounts: { maxDepth: environment.OAUTH_ACCOUNT_MAX_DEPTH },
 	};
 }
 
@@ -70,15 +85,35 @@ export function createOAuthInstallConfig(
 			...getDatabaseRequirements(connection),
 			redisUrl: environment.REDIS_URL,
 			hostedAppUrl: deployment.hostedAppUrl,
+			hostedAppPaths: {
+				login: OAUTH_APP_PAGES.login,
+				register: OAUTH_APP_PAGES.register,
+				consent: OAUTH_APP_PAGES.consent,
+			},
 			managementAppUrl: deployment.managementAppUrl,
 			accountActionBaseUrl: deployment.accountActionBaseUrl,
 			emailProvider,
 			sessionLocationResolver: options.sessionLocationResolver,
 			accessTokenProvider: new HostAccessTokenProvider({
-				secret: environment.OAUTH_ACCESS_TOKEN_SIGNING_SECRET,
+				secret: deployment.keys.accessToken,
 				issuer: environment.OAUTH_ACCESS_TOKEN_ISSUER,
 				audience: environment.OAUTH_ACCESS_TOKEN_AUDIENCE,
 			}),
+			// Codexa App's refresh token lives in OAuth's httpOnly cookie, never
+			// in page scripts, so it stays signed in across tabs and restarts.
+			storage: createHostStorage(environment),
+			clientAddress: createClientAddressResolver(environment.TRUST_PROXY),
+			browserSessions: environment.CODEXA_APP_OAUTH_CLIENT_ID
+				? {
+					clientIds: [environment.CODEXA_APP_OAUTH_CLIENT_ID],
+					origins: [deployment.origin],
+					cookie: {
+						name: 'oauth-refresh',
+						path: '/oauth',
+						sameSite: 'Strict',
+					},
+				}
+				: undefined,
 		},
 		config: createOAuthConfig(environment),
 	};

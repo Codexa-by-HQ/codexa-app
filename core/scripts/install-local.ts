@@ -11,23 +11,59 @@ type PluginSource =
 type ManagedPlugin = { readonly id: string } & PluginSource;
 
 /**
- * `--oauth-source` installs OAuth Base from its sibling source folder instead
- * of the pinned commit, to verify OAuth Base changes before they are pushed.
- * Running without it restores the pinned commit.
+ * Official plugins pinned to pushed commits, in dependency order: OAuth first,
+ * then the optional sign in plugins, which depend only on OAuth. Each entry
+ * names the plugin ID, its sibling source folder and its GitHub repository.
  */
-const OAUTH_FROM_SOURCE = Deno.args.includes('--oauth-source');
+const PINNED = [
+	['oauth', 'oauth-base', '211396cb732fa0450533383dc43bb725225f1183'],
+	['oauth-mfa', 'oauth-mfa', 'b199766d58a0bb0f8f98e4542baf609f62823427'],
+	[
+		'oauth-passkey',
+		'oauth-passkey',
+		'd57111cf8ee655ab2be72b62c1b191c138717105',
+	],
+	[
+		'oauth-magic-link',
+		'oauth-magic-link',
+		'81147885238c63a605b863238acf8316eab25b09',
+	],
+	['oauth-sso', 'oauth-sso', 'a6cf4bc27d90823d631a3e3100e7c9f6270cae9d'],
+	['oauth-oidc', 'oauth-oidc', '8a00dff7070d145be758f399a768da857a792b5e'],
+	[
+		'oauth-device',
+		'oauth-device',
+		'86094d704f6f19c34972119a119dfe9571bab1ac',
+	],
+] as const;
 
 /**
- * Plugins this host installs, in dependency order. OAuth Base is pinned to a
- * pushed commit. OAuth App installs from its sibling source folder, so local
- * edits reach the host on every run.
+ * `--source=oauth,oauth-sso` installs the named plugins from their sibling
+ * source folders instead of their pinned commits, to verify changes before
+ * they are pushed. Running without it restores every pinned commit.
+ */
+const fromSource = new Set(
+	Deno.args.find((arg) => arg.startsWith('--source='))
+		?.slice('--source='.length).split(',').map((id) => id.trim()) ?? [],
+);
+for (const id of fromSource) {
+	if (!PINNED.some(([pinned]) => pinned === id)) {
+		throw new Error(`--source names an unknown plugin: ${id}`);
+	}
+}
+
+/**
+ * Plugins this host installs, in dependency order. OAuth App installs from its
+ * sibling source folder, so local edits reach the host on every run.
  */
 const PLUGINS: readonly ManagedPlugin[] = [
-	OAUTH_FROM_SOURCE ? { id: 'oauth', sourceDirectory: '../oauth-base' } : {
-		id: 'oauth',
-		repository: 'https://github.com/Codexa-by-HQ/oauth-base.git',
-		ref: '70f8eb9325a974230b91c0f2f2b09e233f79a0d9',
-	},
+	...PINNED.map(([id, folder, ref]): ManagedPlugin =>
+		fromSource.has(id) ? { id, sourceDirectory: `../${folder}` } : {
+			id,
+			repository: `https://github.com/Codexa-by-HQ/${folder}.git`,
+			ref,
+		}
+	),
 	{ id: 'oauth-app', sourceDirectory: '../oauth-app' },
 ];
 

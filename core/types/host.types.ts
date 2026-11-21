@@ -4,6 +4,14 @@ import type { SessionLocationResolver } from '@codexa/oauth/types';
 import type { EmailDeliveryProvider } from '@codexa/oauth/validations';
 import type { HostEnvironmentInput } from '../validations/environment.validation.ts';
 
+/**
+ * An optional plugin's install config, or why the host leaves it off, such as
+ * a missing key. The host logs the reason so a skipped plugin is never silent.
+ */
+export type OptionalPluginConfig<T> =
+	| { readonly config: T }
+	| { readonly off: string };
+
 export interface HostRuntimeOptions {
 	/** Use this environment instead of loading .env and Deno.env. */
 	readonly environment?: HostEnvironmentInput;

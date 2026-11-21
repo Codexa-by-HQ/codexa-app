@@ -16,6 +16,10 @@ export function createOAuthAppInstallConfig(
 			mountPath: environment.OAUTH_APP_MOUNT_PATH,
 			assetsDirectory: options.oauthApp?.assetsDirectory ??
 				(assetsUrl ? new URL(assetsUrl) : undefined),
+			// Profile pictures upload from the page straight to the provider.
+			connectOrigins: environment.OAUTH_STORAGE_PROVIDER === 'cloudinary'
+				? ['https://api.cloudinary.com']
+				: [],
 		},
 	};
 }

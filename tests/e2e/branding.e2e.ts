@@ -80,9 +80,9 @@ async function check(page: Page, origin: string, appName: string) {
 		);
 
 	await page.goto(`${origin}/`);
-	await page.getByRole('button', { name: 'Sign in' }).click();
+	await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 	await page.waitForURL(/\/auth\/login\?authTxnId=/);
-	await page.getByRole('heading', { level: 1, name: 'Sign in' }).waitFor();
+	await page.getByRole('heading', { level: 1, name: 'Sign in', exact: true }).waitFor();
 
 	// The header names the application instead of Codexa OAuth.
 	assert(await page.getByText(appName, { exact: true }).first().isVisible());

@@ -1,5 +1,5 @@
 node_modules/
-app/node_modules/
+apps/*/node_modules/
 binaries/
 .env
 .env.*
@@ -13,3 +13,10 @@ host/*
 
 # Browser test screenshots
 tests/e2e/screenshots/
+
+# Generated keys. Only the README is kept.
+certs/*
+!certs/README.md
+
+# all tests
+tests/*

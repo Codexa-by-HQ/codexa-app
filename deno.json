@@ -22,7 +22,7 @@
 		],
 		"exclude": [
 			"node_modules/",
-			"app/",
+			"apps/",
 			"binaries/"
 		]
 	},
@@ -32,7 +32,7 @@
 		],
 		"exclude": [
 			"node_modules/",
-			"app/",
+			"apps/",
 			"binaries/"
 		],
 		"rules": {
@@ -72,8 +72,10 @@
 		"dev": "deno run --watch --allow-net --allow-read --allow-env --allow-sys main.ts",
 		"setup": "deno run --allow-net --allow-read --allow-env --allow-sys core/scripts/setup.ts",
 		"plugins:local": "deno run --allow-read --allow-write --allow-run=deno,git core/scripts/install-local.ts",
-		"test": "deno test --allow-net --allow-read --allow-env --allow-sys tests/",
-		"test:e2e": "deno test -A tests/e2e/signin.e2e.ts tests/e2e/branding.e2e.ts"
+		"keys:generate": "deno run --allow-read --allow-write --allow-env --allow-net --allow-sys core/scripts/keys.ts generate",
+		"keys:rotate": "deno run --allow-read --allow-write --allow-env --allow-net --allow-sys core/scripts/keys.ts rotate",
+		"test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-sys tests/",
+		"test:e2e": "deno test -A tests/e2e/signin.e2e.ts tests/e2e/branding.e2e.ts tests/e2e/methods.e2e.ts tests/e2e/session.e2e.ts tests/e2e/expired.e2e.ts tests/e2e/recovery.e2e.ts tests/e2e/shell.e2e.ts tests/e2e/account.e2e.ts tests/e2e/sso.e2e.ts tests/e2e/manage.e2e.ts tests/e2e/tenant.e2e.ts tests/e2e/developers.e2e.ts tests/e2e/device.e2e.ts tests/e2e/providers.e2e.ts tests/e2e/invite.e2e.ts"
 	},
 	"exports": {
 		".": "./plugin.ts"
@@ -83,6 +85,7 @@
 		"@codexa/cli": "jsr:@codexa/cli@^1.2.0",
 		"@codexa/core/config": "jsr:@codexa/core@2.1.0/config",
 		"@codexa/core/crypto": "jsr:@codexa/core@2.1.0/crypto",
+		"@codexa/core/storage": "jsr:@codexa/core@2.1.0/storage",
 		"@codexa/core/logger": "jsr:@codexa/core@2.1.0/logger",
 		"@codexa/core/providers/mongodb": "jsr:@codexa/core@2.1.0/providers/mongodb",
 		"@codexa/core/providers/zod": "jsr:@codexa/core@2.1.0/providers/zod",
@@ -94,7 +97,13 @@
 	},
 	"minimumDependencyAge": "0",
 	"workspace": [
+		"./plugins/oauth-passkey",
+		"./plugins/oauth-magic-link",
 		"./plugins/oauth",
+		"./plugins/oauth-mfa",
+		"./plugins/oauth-sso",
+		"./plugins/oauth-oidc",
+		"./plugins/oauth-device",
 		"./plugins/oauth-app"
 	]
 }

@@ -1,0 +1,771 @@
+{
+  "shell": {
+    "product": "Codexa App",
+    "subtitle": "Your workspace",
+    "loading": "Loading",
+    "poweredBy": "Powered by",
+    "theme": "Theme: {{theme}}",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "Match device"
+    },
+    "switchLanguage": "Change language",
+    "copyright": "© {{year}} Codexa",
+    "toggleSidebar": "Toggle sidebar",
+    "sections": "Sections",
+    "menu": "Menu",
+    "themeLabel": "Dark mode",
+    "language": "Language",
+    "appearance": "Appearance"
+  },
+  "panel": {
+    "title": "Your Codexa workspace",
+    "description": "Your account, your team and the official Codexa plugins, in one place.",
+    "points": {
+      "signIn": {
+        "title": "One secure sign in",
+        "description": "Codexa OAuth signs you in, and the app never sees your password."
+      },
+      "workspace": {
+        "title": "Built for your team",
+        "description": "Accounts, roles and access stay organised as your team grows."
+      },
+      "plugins": {
+        "title": "Official plugins in one hub",
+        "description": "Every official Codexa plugin is managed from here."
+      }
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "copied": "Copied",
+    "copyFailed": "Could not copy. Select the value and copy it by hand.",
+    "copyValue": "Copy {{value}}",
+    "close": "Close",
+    "empty": "Not set",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "nav": {
+    "workspace": "Workspace",
+    "overview": "Overview",
+    "account": "Session",
+    "home": "Home",
+    "settings": "Settings",
+    "application": "Application",
+    "device": "Connect a device"
+  },
+  "session": {
+    "title": "Session",
+    "description": "What OAuth reports about this sign in.",
+    "app": "Application",
+    "appFallback": "Codexa",
+    "user": "User",
+    "account": "Account",
+    "access": "Access"
+  },
+  "user": {
+    "menu": "Account menu",
+    "signedIn": "Signed in",
+    "sessionDetails": "This sign in",
+    "manageAccount": "Manage your account",
+    "accountFailed": "Could not open your account. Please try again.",
+    "userId": "User ID",
+    "accountId": "Account ID",
+    "changeTenant": "Accounts",
+    "currentTenant": "Current",
+    "switchFailed": "Could not switch account. Please try again.",
+    "createAccount": "Create account"
+  },
+  "account": {
+    "title": "Session",
+    "description": "Your signed in session, and signing out.",
+    "signOut": "Sign out",
+    "signOutTitle": "Sign out of Codexa App?",
+    "signOutDescription": "This ends the session in every tab that shares it. You can sign in again at any time.",
+    "signOutFailed": "You are signed out here, but the server could not be told. The session ends when it expires."
+  },
+  "signIn": {
+    "title": "Sign in",
+    "description": "Continue to your Codexa dashboard with your Codexa account.",
+    "button": "Sign in",
+    "notConfigured": "Sign in is not configured yet. Set CODEXA_APP_OAUTH_CLIENT_ID on the host.",
+    "failure": {
+      "denied": "Sign in was cancelled.",
+      "failed": "Sign in could not be completed. Please try again.",
+      "state": "This sign in link is no longer valid. Please start again."
+    }
+  },
+  "overview": {
+    "title": "Overview",
+    "description": "You are signed in to {{app}}.",
+    "emptyTitle": "Your dashboard starts here",
+    "emptyDescription": "Add your own pages and widgets in src/overrides/routes.tsx. Your session details are in the profile menu."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "path": "Nothing at {{path}}",
+    "description": "This page does not exist or has moved.",
+    "home": "Back to overview"
+  },
+  "routeError": {
+    "title": "Something went wrong",
+    "description": "This page could not be loaded. Reloading usually fixes it.",
+    "reload": "Reload"
+  },
+  "search": {
+    "title": "Search screens",
+    "description": "Find any page you can open.",
+    "placeholder": "Search screens",
+    "empty": "No screen matches that.",
+    "open": "Search screens (Ctrl K)",
+    "section": "Search {{section}}"
+  },
+  "list": {
+    "noMatches": "Nothing matches these filters.",
+    "paging": "Pages",
+    "summary": "Page {{page}} of {{pages}}, {{total}} in total",
+    "previous": "Previous page",
+    "next": "Next page",
+    "view": "Layout",
+    "grid": "Grid",
+    "table": "Table",
+    "actions": "Actions",
+    "rowActions": "Actions for {{name}}",
+    "open": "Open",
+    "details": "View details",
+    "filter": "Filter",
+    "clearFilters": "Clear filters"
+  },
+  "fields": {
+    "id": "ID",
+    "name": "Name",
+    "slug": "Slug",
+    "type": "Type",
+    "active": "Active",
+    "created": "Created",
+    "username": "Username",
+    "email": "Email",
+    "status": "Status",
+    "mfa": "Two step",
+    "role": "Role",
+    "owner": "Owner",
+    "joined": "Joined",
+    "expires": "Expires",
+    "key": "Key",
+    "system": "System",
+    "assignable": "Assignable",
+    "description": "Description",
+    "updated": "Updated",
+    "app": "App",
+    "method": "Sign in method",
+    "device": "Device",
+    "started": "Started",
+    "scopes": "Access",
+    "approved": "Approved",
+    "ipAddress": "IP address",
+    "lastActive": "Last active",
+    "level": "Level",
+    "parent": "Directly under",
+    "within": "Anywhere under",
+    "path": "Path",
+    "grant": "Grant"
+  },
+  "settings": {
+    "groups": {
+      "organisation": "Organisation",
+      "people": "People",
+      "access": "Access",
+      "apps": "Apps and sessions"
+    },
+    "accounts": {
+      "title": "Accounts",
+      "description": "The accounts in this workspace.",
+      "empty": "No accounts yet.",
+      "create": "New account"
+    },
+    "users": {
+      "title": "Users",
+      "description": "Everyone who can sign in to this app.",
+      "empty": "No users yet."
+    },
+    "members": {
+      "title": "Members",
+      "description": "People who belong to this account, and their roles.",
+      "empty": "No members yet."
+    },
+    "invites": {
+      "title": "Invites",
+      "description": "Invitations waiting to be accepted.",
+      "empty": "No invites yet.",
+      "create": "Invite someone"
+    },
+    "roles": {
+      "title": "Roles",
+      "description": "Roles group permissions to assign to members.",
+      "empty": "No roles yet.",
+      "create": "New role"
+    },
+    "policies": {
+      "title": "Policies",
+      "description": "Policies grant permissions under conditions.",
+      "empty": "No policies yet.",
+      "create": "New policy"
+    },
+    "applications": {
+      "title": "Applications",
+      "description": "OAuth applications and their clients.",
+      "empty": "No applications yet.",
+      "create": "New application"
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Who is signed in to this account, and where.",
+      "empty": "No sessions."
+    },
+    "consents": {
+      "title": "Consents",
+      "description": "Which apps people allowed to access their data.",
+      "empty": "No consents yet."
+    },
+    "actions": {
+      "archive": {
+        "label": "Archive",
+        "title": "Archive this?",
+        "description": "It stops working straight away. Its history is kept.",
+        "done": "Archived"
+      },
+      "remove": {
+        "label": "Remove",
+        "title": "Remove this member?",
+        "description": "They lose access to this account straight away.",
+        "done": "Member removed"
+      },
+      "revoke": {
+        "label": "Revoke",
+        "title": "Revoke this?",
+        "description": "It stops working straight away and cannot be undone.",
+        "done": "Revoked"
+      },
+      "revokeCredential": {
+        "label": "Revoke",
+        "title": "Revoke this credential?",
+        "description": "Apps using this client ID stop signing in straight away. This cannot be undone.",
+        "done": "Credential revoked"
+      }
+    }
+  },
+  "form": {
+    "optional": "(optional)",
+    "remove": "Remove {{value}}",
+    "noOptions": "No matches.",
+    "failed": "Not saved",
+    "forbidden": "You do not have permission to do that. You can only give, change or remove access you hold yourself.",
+    "unexpected": "Something went wrong. Please try again.",
+    "add": "Add “{{value}}”",
+    "noMatchCreate": "No matches. Type a new value to add it.",
+    "cannotAdd": "Use letters, numbers and colons, such as invoices:approve."
+  },
+  "validation": {
+    "required": "Fill this in.",
+    "tooLong": "This is too long.",
+    "url": "Enter full URLs starting with https:// or http://, one per line.",
+    "roleKey": "Start with a lowercase letter, then lowercase letters, numbers, \"-\" or \"_\", up to 50.",
+    "slug": "Use lowercase letters, numbers and \"-\", up to 60.",
+    "email": "Enter a valid email address.",
+    "number": "Enter a whole number.",
+    "pickOne": "Choose at least one.",
+    "conditionField": "Use a context and a field, such as account.type.",
+    "afterStart": "Must be after the start.",
+    "pickPermission": "Allow or deny at least one permission."
+  },
+  "filters": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "any": "Any",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "clear": "Clear",
+    "searchColumns": "Filter by",
+    "noColumns": "No such column.",
+    "applied": "Applied",
+    "operator": "Operator for {{column}}",
+    "value": "Value of {{column}}",
+    "remove": "Remove the {{column}} filter",
+    "operatorsHeading": "Operators",
+    "textPlaceholder": "Type to filter",
+    "from": "From",
+    "to": "To",
+    "searchOptions": "Search",
+    "noOptions": "Nothing found.",
+    "selected_one": "{{count}} selected",
+    "selected_other": "{{count}} selected",
+    "operators": {
+      "contains": "contains",
+      "does not contain": "does not contain",
+      "is": "is",
+      "is not": "is not",
+      "is greater than": "is more than",
+      "is greater than or equal to": "is at least",
+      "is less than": "is less than",
+      "is less than or equal to": "is at most",
+      "is between": "is between",
+      "is not between": "is not between",
+      "is before": "is before",
+      "is on or after": "is on or after",
+      "is after": "is after",
+      "is on or before": "is on or before",
+      "is any of": "is any of",
+      "is none of": "is none of",
+      "include": "includes",
+      "exclude": "excludes",
+      "include any of": "includes any of",
+      "include all of": "includes all of",
+      "exclude if any of": "excludes any of",
+      "exclude if all": "excludes all of"
+    },
+    "targets": {
+      "role": "Roles",
+      "user": "People",
+      "account": "This account",
+      "collaborator": "Members",
+      "global": "Everyone"
+    },
+    "methods": {
+      "password": "Password",
+      "magic_link": "Magic link",
+      "passkey": "Passkey",
+      "sso": "SSO"
+    },
+    "grants": {
+      "authorization_code": "Sign in",
+      "refresh_token": "Refresh",
+      "client_credentials": "Machine",
+      "device_code": "Device"
+    },
+    "devices": {
+      "desktop": "Desktop",
+      "mobile": "Phone",
+      "tablet": "Tablet",
+      "tv": "TV",
+      "cli": "Command line",
+      "unknown": "Unknown"
+    }
+  },
+  "statuses": {
+    "active": "Active",
+    "pending_verification": "Pending verification",
+    "suspended": "Suspended",
+    "banned": "Banned",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "expired": "Expired",
+    "revoked": "Revoked"
+  },
+  "accountTypes": {
+    "org": "Organisation",
+    "team": "Team",
+    "department": "Department",
+    "lab": "Lab",
+    "project": "Project",
+    "personal": "Personal",
+    "custom": "Custom"
+  },
+  "forms": {
+    "create": "Create",
+    "save": "Save changes",
+    "saved": "Changes saved",
+    "edit": "Edit",
+    "choose": "Choose",
+    "descriptionPlaceholder": "What it is for",
+    "accounts": {
+      "createTitle": "New account",
+      "createDescription": "A team, department or project inside this workspace.",
+      "editTitle": "Edit account",
+      "namePlaceholder": "Acme Marketing",
+      "slugHint": "Used in links. It cannot change later.",
+      "customType": "Type name",
+      "customTypePlaceholder": "Region",
+      "activeHint": "An inactive account cannot be signed in to.",
+      "created": "Account created",
+      "parent": "Parent account",
+      "parentPlaceholder": "The current account",
+      "parentHint": "The account this one sits under. Accounts nest a limited number of levels.",
+      "createSub": "New sub-account"
+    },
+    "users": {
+      "editTitle": "Edit user",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Alex Morgan",
+      "statusHint": "Suspended and banned users cannot sign in."
+    },
+    "members": {
+      "editTitle": "Edit member",
+      "activeHint": "An inactive member keeps their place but cannot use this account."
+    },
+    "invites": {
+      "createTitle": "Invite someone",
+      "createDescription": "They get an email with a link to join this account.",
+      "emailPlaceholder": "alex@example.com",
+      "message": "Message",
+      "messagePlaceholder": "A note for the email",
+      "send": "Send invitation",
+      "sent": "Invitation sent",
+      "sentTitle": "Invitation sent",
+      "sentDescription": "An email is on its way to {{email}}. You can also share this link. Only the account with that email can accept it.",
+      "link": "Invitation link"
+    },
+    "roles": {
+      "createTitle": "New role",
+      "createDescription": "A role names a set of people. Policies decide what it may do.",
+      "editTitle": "Edit role",
+      "labelPlaceholder": "Billing admin",
+      "keyHint": "The name policies and code use. It cannot change later.",
+      "assignableHint": "Whether people can be given this role when invited or edited.",
+      "activeHint": "An inactive role cannot be given, and its people lose its access.",
+      "created": "Role created"
+    },
+    "policies": {
+      "createTitle": "New policy",
+      "createDescription": "Grant or deny permissions to roles, members or everyone.",
+      "editTitle": "Edit policy",
+      "namePlaceholder": "Billing team access",
+      "appliesTo": "Applies to",
+      "targets": {
+        "role": "Roles",
+        "collaborator": "Members",
+        "global": "Everyone in this app",
+        "account": "Accounts"
+      },
+      "rolePlaceholder": "Choose roles",
+      "memberPlaceholder": "Choose members",
+      "allow": "Allow",
+      "deny": "Deny",
+      "permissionPlaceholder": "Search or type a permission",
+      "allowHint": "Pick or type permissions, such as invoices:approve. \"*\" allows everything.",
+      "denyHint": "A deny always wins over an allow, from any policy.",
+      "priority": "Priority",
+      "priorityHint": "Lower numbers are checked first. It never lets an allow beat a deny.",
+      "created": "Policy created",
+      "accountPlaceholder": "Choose accounts",
+      "accountHint": "Everyone who belongs to these accounts.",
+      "aboutTitle": "About",
+      "whoTitle": "Who",
+      "whoDescription": "The roles, members or accounts this policy applies to.",
+      "whatTitle": "What",
+      "whatDescription": "Allow or deny each permission. A deny always wins, from any policy.",
+      "whenTitle": "When",
+      "whenDescription": "Optional rules that must hold, and the window the policy is active in.",
+      "permissions": "Permissions",
+      "activeFrom": "Active from",
+      "activeUntil": "Active until",
+      "createAnother": "Create and add another"
+    },
+    "applications": {
+      "createTitle": "New application",
+      "createDescription": "An app people sign in to, with the credential it signs in with.",
+      "editTitle": "Edit application",
+      "namePlaceholder": "Customer portal",
+      "created": "Application created",
+      "aboutTitle": "Application",
+      "aboutDescription": "The name people see when they sign in and approve access.",
+      "descriptionPlaceholder": "What people use it for",
+      "signInTitle": "How it signs in",
+      "signInDescription": "Its first credential. You can add more later from the application's page."
+    },
+    "credentials": {
+      "add": "Add credential",
+      "createTitle": "New credential",
+      "createDescription": "A client ID an app uses to sign people in, or to call the API itself.",
+      "editTitle": "Edit credential",
+      "namePlaceholder": "Web dashboard",
+      "kind": "Used by",
+      "kinds": {
+        "browser": "Web or mobile app",
+        "server": "Server app",
+        "machine": "Machine or API key",
+        "device": "TV or command line"
+      },
+      "kindHints": {
+        "browser": "A browser or phone app. It signs people in with PKCE and holds no secret.",
+        "server": "A backend that signs people in. It gets a secret it must keep private.",
+        "machine": "A service calling the API as itself, with a secret, acting as one member.",
+        "device": "A device without a browser. People approve it with a code on another screen."
+      },
+      "redirectUris": "Redirect URLs",
+      "logoutUris": "After sign out URLs",
+      "urlsHint": "Exact URLs, one per line.",
+      "actsAs": "Role",
+      "actsAsPlaceholder": "Choose a role",
+      "actsAsHint": "OAuth creates a service identity for this key in this account, with this role. The key gets exactly that role's access, and you can only pick a role whose access you hold.",
+      "scopes": "Allowed access",
+      "scopePlaceholder": "Search scopes",
+      "consent": "Ask for consent",
+      "consentHint": "People approve the requested access the first time they sign in.",
+      "created": "Credential created",
+      "name": "Credential name",
+      "nameHint": "For you, to tell its credentials apart.",
+      "scopesHint": "Pick or type the scopes it may ask for."
+    }
+  },
+  "application": {
+    "description": "An app people sign in to, and its credentials.",
+    "credentials": "Credentials",
+    "credentialsDescription": "Each client ID that signs in to this app, and how.",
+    "noCredentials": "No credentials yet.",
+    "clientId": "Client ID",
+    "clientSecret": "Client secret",
+    "grants": "Grants",
+    "lastUsed": "Last used",
+    "disable": "Disable",
+    "enable": "Enable",
+    "disabledDone": "Credential disabled",
+    "enabledDone": "Credential enabled",
+    "rotate": "Rotate secret",
+    "rotateTitle": "Rotate the secret?",
+    "rotateDescription": "A new secret is made and the old one stops working straight away.",
+    "secretTitle": "Copy the secret now",
+    "secretDescription": "It is shown only once. Store it somewhere safe, such as your server's secret manager.",
+    "secretSaved": "I have saved it",
+    "issuedDescription": "Use this client ID in the app's sign in settings.",
+    "secretWarning": "It is shown only this once. Store it in your server's secret manager.",
+    "open": "Open application",
+    "manage": "Manage",
+    "states": {
+      "active": "Active",
+      "disabled": "Disabled",
+      "revoked": "Revoked"
+    },
+    "revokedNote": "This credential is revoked. It can never sign in again, so it has no actions.",
+    "rotated": "Secret rotated"
+  },
+  "pageError": {
+    "forbidden": {
+      "title": "No access",
+      "heading": "You cannot open this page",
+      "description": "Your role does not include it. Ask an administrator of this account for access."
+    },
+    "missing": {
+      "title": "Not found",
+      "heading": "This item no longer exists",
+      "description": "It may have been removed or archived, or the link is wrong."
+    },
+    "failed": {
+      "title": "Something went wrong",
+      "heading": "This page could not load",
+      "description": "Check your connection and try again."
+    }
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Administrator",
+    "editor": "Editor",
+    "viewer": "Viewer",
+    "member": "Member",
+    "service": "Service"
+  },
+  "details": {
+    "details": "Details",
+    "activity": "Activity",
+    "identifiers": "Identifiers",
+    "description": "Everything about this record, and what you can do with it.",
+    "policyWhen": "When",
+    "policyCount_one": "{{count}} in {{kind}}",
+    "policyCount_other": "{{count}} in {{kind}}",
+    "policyWho": "Who",
+    "policyWhat": "What",
+    "policyState": "Right now",
+    "policyRules": "Only when",
+    "policyNoRules": "Always, with no extra rules",
+    "policyStates": {
+      "live": "In effect",
+      "scheduled": "Starts later",
+      "ended": "Ended",
+      "off": "Archived"
+    }
+  },
+  "permissions": {
+    "search": "Search permissions",
+    "everything": "Everything",
+    "everythingHint": "* · every permission, now and later",
+    "custom": "Your own permissions",
+    "customPlaceholder": "invoices:approve",
+    "addCustom": "Add a permission",
+    "add": "Add",
+    "allow": "Allow",
+    "deny": "Deny",
+    "wholeResource": "All of {{resource}}",
+    "allowedCount": "{{count}} allowed",
+    "deniedCount": "{{count}} denied",
+    "inherited": {
+      "allow": "allowed by the whole resource",
+      "deny": "denied by the whole resource"
+    },
+    "resources": {
+      "accounts": "Accounts",
+      "users": "Users",
+      "collaborators": "Members",
+      "invites": "Invitations",
+      "roles": "Roles",
+      "policies": "Policies",
+      "applications": "Applications",
+      "credentials": "Credentials",
+      "sessions": "Sessions",
+      "consents": "Consents"
+    },
+    "actions": {
+      "list": "See the list",
+      "read": "View details",
+      "create": "Create",
+      "update": "Edit",
+      "archive": "Archive",
+      "remove": "Remove",
+      "revoke": "Revoke",
+      "rotate": "Rotate secrets",
+      "enable": "Turn on and off"
+    }
+  },
+  "conditions": {
+    "always": "No conditions. The policy always applies while it is active.",
+    "mode": "How rules combine",
+    "modes": {
+      "and": "Match all rules",
+      "or": "Match any rule"
+    },
+    "and": "and",
+    "or": "or",
+    "not": "Not",
+    "notLabel": "Apply the opposite",
+    "addRule": "Add rule",
+    "addGroup": "Add group",
+    "removeRule": "Remove rule",
+    "removeGroup": "Remove group",
+    "root": "Context",
+    "field": "Field",
+    "operator": "Comparison",
+    "value": "Value",
+    "valuePlaceholder": "team",
+    "listPlaceholder": "team, org",
+    "refPlaceholder": "user.attributes.region",
+    "compareField": "Compare with a field",
+    "isSet": "is set",
+    "isNotSet": "is not set",
+    "exists": "is set",
+    "missing": "is not set",
+    "tooDeep": "This condition was written with more nesting than the editor shows. It is kept exactly as it is when you save.",
+    "roots": {
+      "user": "User",
+      "account": "Account",
+      "collaborator": "Member",
+      "role": "Role",
+      "session": "Session",
+      "app": "App",
+      "credential": "Client",
+      "request": "Request",
+      "resource": "Resource",
+      "environment": "Environment"
+    },
+    "operators": {
+      "eq": "equals",
+      "ne": "does not equal",
+      "gt": "is more than",
+      "gte": "is at least",
+      "lt": "is less than",
+      "lte": "is at most",
+      "in": "is one of",
+      "nin": "is none of",
+      "exists": "exists",
+      "regex": "matches pattern"
+    },
+    "rootHints": {
+      "user": "The person signed in",
+      "account": "The account they work in",
+      "collaborator": "Their membership in that account",
+      "role": "Their role in that account",
+      "session": "How they signed in",
+      "app": "The application they use",
+      "credential": "The client that got the token",
+      "request": "The call itself: method, path and time",
+      "resource": "The record acted on, such as a post",
+      "environment": "Other values your route passes in"
+    },
+    "rootHelp": {
+      "user": "Fields of the signed in person, such as id, username or attributes.department.",
+      "account": "Fields of the current account, such as type, isActive or attributes.plan.",
+      "collaborator": "The person's membership, such as isOwner or attributes.team.",
+      "role": "The person's role in this account, such as name.",
+      "session": "The session, such as authMethod, which is password, passkey, magic_link or sso.",
+      "app": "The application, such as name or attributes.region.",
+      "credential": "The client the token was issued to, such as name or type.",
+      "request": "The call itself: method such as GET, path such as /api/posts, or timestamp in milliseconds.",
+      "resource": "The record your route checks, which its guard passes in. Name the field as it is on the record, such as title or ownerId, not the collection. The permission says which kind of record it is, such as posts:update. To let only owners act, compare ownerId with the field session.user.",
+      "environment": "Anything else your route passes in, such as country or deviceType."
+    }
+  },
+  "ids": {
+    "label": "IDs",
+    "open": "Your identifiers",
+    "you": "You",
+    "account": "Account"
+  },
+  "device": {
+    "title": "Connect a device",
+    "description": "Approve a TV, console or command line that shows you a code.",
+    "enterTitle": "Enter the code",
+    "enterDescription": "Type the code your device shows.",
+    "code": "Device code",
+    "continue": "Continue",
+    "asks": "{{app}} wants to sign in",
+    "codeIs": "Code",
+    "accessIntro": "It asks for this access. Leave out anything you do not want to give.",
+    "approve": "Approve",
+    "deny": "Deny",
+    "approved": "Device connected",
+    "approvedDescription": "You can go back to your device. It signs in by itself.",
+    "denied": "Request denied",
+    "deniedDescription": "The device was not signed in.",
+    "invalid": "That code does not work",
+    "invalidDescription": "It may be mistyped or expired. Ask the device for a new one.",
+    "unavailable": "Device sign in is off",
+    "unavailableDescription": "This server does not offer sign in with a device code.",
+    "failed": "That did not work. The code may have expired.",
+    "scopes": {
+      "openid": "Know who you are",
+      "profile": "Your name and profile",
+      "email": "Your email address",
+      "phone": "Your phone number",
+      "offline_access": "Stay signed in",
+      "api:read": "Read your data",
+      "api:write": "Change your data"
+    }
+  },
+  "providers": {
+    "title": "Sign in providers",
+    "description": "Let people sign in to this app with an account they already have, such as Google. Your host decides which providers are offered.",
+    "none": "No providers offered",
+    "noneDescription": "The host has not approved a sign in provider for this app.",
+    "notAdded": "Not added",
+    "on": "On",
+    "off": "Off",
+    "signUp": "New people can sign up",
+    "add": "Add",
+    "added": "Provider added",
+    "manage": "Manage",
+    "remove": "Remove",
+    "removed": "Provider removed",
+    "removeTitle": "Remove {{name}}?",
+    "removeDescription": "Its button leaves the sign in page. People already linked keep their link and can sign in again once you add it back.",
+    "addTitle": "Add a sign in provider",
+    "editTitle": "Sign in provider",
+    "name": "Button name",
+    "nameHint": "Shown on the sign in page, as in “Continue with Google”.",
+    "enabled": "On",
+    "enabledHint": "When off, its button is hidden and nobody can sign in with it.",
+    "registration": "New people can sign up",
+    "registrationHint": "When off, only people who already have an account here can use it.",
+    "registrationLocked": "The host does not let this provider create accounts, so only existing people can use it."
+  }
+}

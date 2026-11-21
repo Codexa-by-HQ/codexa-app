@@ -17,12 +17,12 @@ Codexa App is split so that official wiring never mixes with your own code.
 | Path | Owner | Contents |
 |---|---|---|
 | `core/` | official | host lifecycle, plugin installation, providers, environment schemas, setup and install scripts |
-| `app/src/core/` | official | the dashboard shell, sign in, session, built in pages and shared UI |
-| `plugin.ts`, `config/`, `routes/`, `types/`, the rest of `app/` | you | the Codexa App plugin, your dashboard routes, pages and strings |
+| `apps/dashboard/src/core/` | official | the dashboard shell, sign in, session, built in pages and shared UI |
+| `plugin.ts`, `config/`, `routes/`, `types/`, the rest of `apps/` | you | the Codexa App plugin, your dashboard routes, pages and strings |
 | `main.ts` | you | the entry point, which only starts the host |
 | `host.ts` | you | the host lifecycle, and the installers for `oauth`, `oauth-app` and `codexa-app` |
 
-Build your product outside `core/` and `app/src/core/`. Official plugin
+Build your product outside `core/` and `apps/dashboard/src/core/`. Official plugin
 configuration, providers, setup and dashboard UI live only inside them.
 
 ## Requirements
@@ -38,15 +38,22 @@ configuration, providers, setup and dashboard UI live only inside them.
 ```sh
 cp .env.example .env              # then fill in the required values
 deno task plugins:local           # install the official plugins
+deno task keys:generate           # create the access token, MFA and OIDC keys in certs/
 deno task setup                   # first run wizard, with the host stopped
 deno task dev                     # start the host
 ```
 
 Setup prints a one time URL and token. Open the URL, enter the token and create
 the first account, administrator and OAuth client. Then start the host and open
-`http://127.0.0.1:8000/app`.
+`http://localhost:8000/app`. The host listens on `localhost`, because WebAuthn
+refuses an IP origin, so passkeys work in development.
 
 Check that it is up with `GET /oauth/health`.
+
+The generated keys live in `certs/`, never in `.env`. `deno task keys:rotate`
+replaces them with the host stopped: the access token and OIDC keys end every
+session, and the MFA key re-seals every authenticator secret so nobody enrolls
+again. `certs/README.md` describes each file and every option.
 
 ## Tasks
 
@@ -54,9 +61,26 @@ Check that it is up with `GET /oauth/health`.
 |---|---|
 | `dev` | runs the host with watch mode |
 | `setup` | runs the OAuth first run wizard on the host address and database |
-| `plugins:local` | installs or refreshes the official plugins. `--oauth-source` installs OAuth Base from `../oauth-base` instead of its pinned commit, to test changes before they are pushed |
+| `plugins:local` | installs or refreshes the official plugins. `--source=oauth,oauth-sso` installs the named plugins from their sibling folders instead of their pinned commits, to test changes before they are pushed |
 | `test` | runs the unit and integration tests in `tests/` |
 | `test:e2e` | signs in through a real browser, see Tests |
+
+## Optional OAuth plugins
+
+Core installs each optional plugin after OAuth when its settings are present,
+and logs why one is off. Their settings have their own `.env` sections.
+
+| Plugin | On when | Pages it uses |
+|---|---|---|
+| `oauth-mfa` | `certs/mfa/` holds a key | `/auth/mfa`, account Security |
+| `oauth-passkey` | the origin is localhost or an HTTPS domain | login, account Security |
+| `oauth-magic-link` | email delivery is configured | `/auth/magic-link` |
+| `oauth-sso` | the three `OAUTH_SSO_GOOGLE` values are set | login, signup, account Security |
+| `oauth-oidc` | `certs/oidc-signing.jwk.json` exists | `/auth/logout` |
+| `oauth-device` | always | `/app/device` |
+
+Google's redirect URI is `<origin>/oauth/sso/callback/<OAUTH_SSO_GOOGLE_PROVIDER_ID>`.
+Page names live in `core/config/pages.config.ts`.
 
 ## Official plugins
 
@@ -87,9 +111,10 @@ with its default.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `SERVER_HOSTNAME` | `127.0.0.1` | listen address |
+| `SERVER_HOSTNAME` | `localhost` | listen address. An IP such as `127.0.0.1` turns passkeys off |
 | `SERVER_PORT` | `8000` | listen port |
 | `PUBLIC_ORIGIN` | unset | public HTTPS origin behind a proxy |
+| `TRUST_PROXY` | `false` | read client addresses from X-Forwarded-For. Only behind your own proxy |
 | `DATABASE_URL` | required | MongoDB replica set URL |
 | `DATABASE_NAME` | required | database shared by the host and setup |
 | `REDIS_URL` | required | `redis://` or `rediss://` URL |
@@ -98,7 +123,9 @@ with its default.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `OAUTH_ACCESS_TOKEN_SIGNING_SECRET` | required | HS256 secret, at least 32 characters |
+| `OAUTH_ACCESS_TOKEN_KEY_FILE` | `certs/access-token.key` | the HS256 access token key. `deno task keys:generate` creates it, see `certs/README.md` |
+| `OAUTH_MFA_KEYS_DIR` | `certs/mfa` | oauth-mfa's key ring, one `v<n>.key` per key |
+| `OAUTH_OIDC_SIGNING_KEY_FILE` | `certs/oidc-signing.jwk.json` | oauth-oidc's RS256 private key |
 | `OAUTH_ACCESS_TOKEN_ISSUER` | required | token issuer URL |
 | `OAUTH_ACCESS_TOKEN_AUDIENCE` | required | token audience |
 | `OAUTH_ACCESS_TOKEN_TTL` | `15m` | access token lifetime |
@@ -111,8 +138,22 @@ with its default.
 | `OAUTH_RATE_LIMIT_WINDOW` | `5m` | rate limit window for password sign in and account recovery |
 | `OAUTH_PASSWORD_LOGIN_MAX_ATTEMPTS` | `5` | password attempts per window |
 | `OAUTH_TRUSTED_CROSS_APP_ISSUER_APP_IDS` | empty | comma separated app ids |
+| `OAUTH_ACCOUNT_MAX_DEPTH` | `5` | how deep accounts nest below a root |
 
 Setup reads the three lifetime variables too, so both agree.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `OAUTH_STORAGE_PROVIDER` | unset | `cloudinary` turns on signed uploads for pictures and the media service |
+| `OAUTH_CLOUDINARY_CLOUD_NAME` | required with Cloudinary | from the Cloudinary console |
+| `OAUTH_CLOUDINARY_API_KEY` | required with Cloudinary | from the Cloudinary console |
+| `OAUTH_CLOUDINARY_API_SECRET` | required with Cloudinary | never leaves the server |
+| `OAUTH_CLOUDINARY_FOLDER` | `oauth` | the folder every key starts with |
+| `OAUTH_PICTURE_TYPES` | `image/png,image/jpeg,image/webp` | what a profile picture may be. The account area saves the cropped photo as the first of WebP, JPEG and PNG that is allowed |
+| `OAUTH_PICTURE_MAX_BYTES` | `2097152` | the largest profile picture, from 10240 to 20971520 bytes |
+
+With Cloudinary on, OAuth App's CSP also allows `https://api.cloudinary.com`
+for the upload itself, and nothing else.
 
 ### OAuth email delivery
 
@@ -144,7 +185,6 @@ password reset email is not sent.
 | Variable | Default | Purpose |
 |---|---|---|
 | `CODEXA_APP_OAUTH_CLIENT_ID` | unset | public client from setup that the frontend signs in with. Sign in stays off while unset |
-| `CODEXA_APP_OAUTH_SCOPES` | `profile email` | space separated scopes, each allowed on that client |
 
 It mounts at `/app`, set in `config/app.config.ts`.
 
@@ -155,7 +195,7 @@ Read only by `deno task test`. The host ignores them.
 | Variable | Default | Purpose |
 |---|---|---|
 | `OAUTH_TEST_CLIENT_ID` | unset | public client created by setup. The flow test is skipped while unset |
-| `OAUTH_TEST_REDIRECT_URI` | `http://127.0.0.1:8000/app/callback` | a redirect URI registered on that client |
+| `OAUTH_TEST_REDIRECT_URI` | `http://localhost:8000/app/callback` | a redirect URI registered on that client |
 | `OAUTH_TEST_PORT` | `8199` | port the test host uses, so tests run alongside the dev host |
 
 ## Tests
@@ -166,7 +206,20 @@ Tests live in `tests/`, grouped by plugin, and run with `deno task test`.
 |---|---|
 | `tests/oauth/accessToken.provider.test.ts` | the access token provider: round trip, tampering, `alg none`, malformed input, foreign issuer or secret, expiry |
 | `tests/oauth/flow.test.ts` | the full OAuth flow against the real host, MongoDB and Redis, then the management lists (paging, order, joins, search), session revocation and the collaborator cap |
+| `tests/oauth/plugins.test.ts` | the optional plugins as core wires them: sign in methods, OAuth App page names, Google's redirect and callback, OIDC discovery and keys, Device client authentication |
+| `tests/oauth/delegation.test.ts` | delegated administration never escalates: a member trusted with policies, roles and invites cannot grant `*`, a permission or namespace they lack, deny the owner by role, global, account, user or member target, widen or archive a restriction on themselves, promote themselves or invite an administrator, while the owner keeps full authority |
 | `tests/codexa-app/client.test.ts` | the root redirect, `/app/config.json`, the `/app` security headers and the callback page |
+| `tests/oauth/catalog.test.ts` | the catalog's namespace rules and undo, plugins' settings kept apart and validated, and through the host: every plugin's entries listed, owners given their capabilities, new administrators given their permissions |
+| `tests/oauth/setup.test.ts` | the first run setup against a throwaway database: the plugins' scopes offered, any other refused, and administrators given every registered permission |
+| `tests/codexa-app/keys.test.ts` | reading and refusing key files without echoing them, the MFA ring order, generated OIDC keys, and re-sealing stored MFA secrets with a new key against the real database |
+| `tests/oauth/conditions.test.ts` | policy conditions are enforced as written: every comparison, and, or, not, nested groups, field references, a conditional deny and the active window, and malformed conditions refused |
+| `tests/oauth/listFilters.test.ts` | every filter operator to MongoDB and back, literal text, refused malformed filters, and on the accounts list the hierarchy filters, the tenant boundary and the depth limit |
+| `tests/oauth/security.test.ts` | a penetration pass: foreign account ids, bad tokens, injection, cross tenant reads and writes, mass assignment, open redirects, PKCE and code replay, disallowed grants, CORS, account switch escalation, password guessing, revoked sessions, security headers and idempotency |
+| `tests/oauth/tenancy.test.ts` | roles and policies stay inside the account that made them, built in roles stay shared and read only |
+| `tests/oauth/credentials.test.ts` | a machine credential with a role gets a service identity and a client credentials token, and every misuse is refused |
+| `tests/oauth/media.test.ts` | inlined pictures and their limits, device naming and client addresses, and with Cloudinary on a real signed upload, its check, another person's refusal, a fake file and deletion of replaced files |
+| `tests/codexa-app/settings.test.ts` | every Settings list the session's capabilities allow answers `{ items, total }` |
+| `tests/oauth-app/account.test.ts` | the account area reads answer for a signed in user, and a plugin read answers 404 when that plugin is off |
 
 `tests/support/host.ts` boots the real host on `OAUTH_TEST_PORT` for any test
 that needs it, and `tests/support/browser.ts` finds a browser and opens pages
@@ -174,8 +227,29 @@ for the browser tests.
 
 ### Browser tests
 
-`deno task test:e2e` runs `tests/e2e/signin.e2e.ts` and
-`tests/e2e/branding.e2e.ts`. The second brands the setup app for one run and
+`deno task test:e2e` runs `tests/e2e/signin.e2e.ts`,
+`tests/e2e/branding.e2e.ts`, `tests/e2e/methods.e2e.ts`,
+`tests/e2e/session.e2e.ts`, `tests/e2e/expired.e2e.ts`,
+`tests/e2e/recovery.e2e.ts`, `tests/e2e/shell.e2e.ts`,
+`tests/e2e/account.e2e.ts`, `tests/e2e/sso.e2e.ts`, `tests/e2e/manage.e2e.ts`,
+`tests/e2e/tenant.e2e.ts`, `tests/e2e/developers.e2e.ts`, `tests/e2e/device.e2e.ts` and
+`tests/e2e/providers.e2e.ts`.
+
+`manage.e2e.ts` drives Settings as a new account owner: roles, policies with a
+custom permission added with Enter and text that cannot be one refused,
+applications with each kind of credential and a secret rotation, invitations,
+accounts, a text filter that runs on the server, a filter that survives a reload, row menus and
+the grid view. `tenant.e2e.ts` signs a person with two accounts in, opens a URL
+without an account, switches from the profile menu and through consent, follows
+a link back to the first account, falls back from an account they are not in,
+and checks that a second tab follows a switch. `developers.e2e.ts` drives OAuth App's Developers page (redirect URLs, the issued example, rotation, revocation and deleting an app), the phone picker and passkeys. `device.e2e.ts` approves a device code after signing in from the device page, denies one, and explains a mistyped one. `providers.e2e.ts` makes a new person an administrator of the platform account through a membership fixture, then adds, renames, removes and restores a sign in provider on the platform app, putting its settings back afterwards. `sso.e2e.ts` checks that the
+Google button reaches Google. The rest cover the dead end pages and their way back to
+the app, forgot password, refused reset and verification links, Ctrl K search,
+the rail and the phone menu, and the account area: turning on two step
+verification with a real code, a refused and a successful password change,
+and signing in again after each, since both sign every session out. The third enrolls a
+real authenticator through oauth-mfa, then drives two step verification with a
+code and with a recovery code, the password rules and the magic link request. The second brands the setup app for one run and
 checks that OAuth App wears it in light and dark under the real CSP, then
 restores the original branding. The first drives a real headless Chrome or Edge
 through the actual screens:
@@ -185,7 +259,7 @@ through the actual screens:
 3. A new account is registered.
 4. Consent returns to the Overview, with its tab title.
 5. The user menu opens the shared session sheet.
-6. The sidebar opens the Account page.
+6. The sidebar opens the Session page.
 7. An unknown path shows the not found page.
 8. A reload keeps the session.
 9. Sign out asks first, then returns to sign in.
@@ -214,8 +288,8 @@ registers one throwaway user named `flowtest_` followed by random characters.
 ## Sign in
 
 The Codexa App frontend signs in as a public OAuth client, using the
-authorization code flow with PKCE. The code lives in `app/src/core/lib/oauth.ts`
-and `app/src/core/lib/session.ts`.
+authorization code flow with PKCE. The code lives in `apps/dashboard/src/core/lib/oauth.ts`
+and `apps/dashboard/src/core/lib/session.ts`.
 
 1. Opening `/` redirects to `/app/`. Until signed in, every dashboard URL shows
    the sign in page.
@@ -224,23 +298,103 @@ and `app/src/core/lib/session.ts`.
 3. OAuth sends the browser to OAuth App at `/auth/login`, which handles sign in
    and consent.
 4. The browser returns to `/app/callback`. The app checks the `state`, exchanges
-   the code at `/oauth/token`, replaces the URL with `/app`, and shows the
-   dashboard.
+   the code at `/oauth/token`, and replaces the URL with the page the sign in
+   started from, inside the session's account, such as `/app/<accountId>/`.
 5. Sign out asks first, then revokes the refresh token, which ends its whole
-   token family.
+   token family, and every open tab signs out with it.
 
-Tokens are kept in `sessionStorage`, scoped to one tab and cleared when it
-closes. They are never written to `localStorage`.
+### How the session stays signed in and safe
+
+Core lists Codexa App's client in OAuth Base's `browserSessions`, so OAuth
+keeps the refresh token in an httpOnly, SameSite=Strict cookie on `/oauth`.
+
+- No script can read the refresh token, and the access token lives only in
+  memory for minutes, so nothing long lived is in `localStorage` or
+  `sessionStorage`.
+- Each tab and each reload gets its own access token by refreshing through the
+  cookie, so a sign in reaches every tab and survives a browser restart.
+- Tabs refresh one at a time through `navigator.locks`. Refresh tokens rotate,
+  and a reused one revokes the whole family, so a stolen copy dies on use.
+- Signing in or out is broadcast to every tab on a `BroadcastChannel`.
+- The PKCE verifier waits in `localStorage` under its `state` for up to 15
+  minutes and is used once, so a sign in can finish in another tab, as when a
+  magic link opens from an email.
+
+`tests/e2e/session.e2e.ts` proves each point, including the negative cases: a
+replayed refresh token, a cross site request and a forged `Origin` all fail.
+
+A future Capacitor build keeps the same flow but stores the refresh token in
+the device's secure storage, because a native app does not run on a listed
+web origin and so uses the standard body exchange.
 
 The redirect URI the app sends is the page origin plus `/app/callback`, and it
 must exactly match one registered on the client. With the setup client that is
-`http://127.0.0.1:8000/app/callback`, so open the app at
-`http://127.0.0.1:8000`, not `localhost`.
+`http://localhost:8000/app/callback`, so open the app at
+`http://localhost:8000`. A client set up before the move to `localhost` needs
+that URI added, and Google's console needs
+`http://localhost:8000/oauth/sso/callback/<provider id>`.
+
+### Accounts in the URL
+
+Every dashboard page lives under `/app/<accountId>/...`, so a link names the
+account it belongs to. The router's basename is `/app/<accountId>`, decided
+once per page load in `routerBasename()`, so every link inside the app stays
+relative to the account and moving to another account always loads the page
+again.
+
+- A URL without an account, such as `/app/settings/roles`, opens the same page
+  in the session's account.
+- A URL naming another account the person belongs to switches to it through
+  `POST /oauth/account-switch`. OAuth binds a new authorization code to that
+  membership, can never add scopes, shows consent the first time for that
+  account, and rotates the old session when the code is exchanged. The page is
+  kept.
+- A URL naming an account the person is not in opens their own account.
+- The browser holds one session, so when one tab switches, the others load
+  their new account's page instead of showing the old one's data.
+- "Change account" in the profile menu, and its own section on a phone, lists
+  `/auth/management/accounts/memberships`, only when there is more than one.
+
+### List filters
+
+Each Settings list declares its filter columns once in
+`apps/dashboard/src/core/config/navigation.ts` with the builders in
+`core/config/filters.ts`, using the same column ids as OAuth Base. The
+Filter button picks a column and then its value, and each applied filter is
+a chip of column, operator and value. A text filter, such as Name, replaces a
+separate search box. Filters and page live in the URL through
+`useListParams`, so a filtered list can be shared and reloaded.
+
+### Permissions in the UI
+
+Policies are written in one sheet: who they apply to, a permission matrix
+grouped by resource where each permission is allowed, denied or left out, a
+condition builder over the signed in person, account, membership, role and
+session, and an active window. The matrix and the credential forms read
+OAuth's catalog from `GET /auth/management/catalog`, so every permission and
+scope OAuth, its plugins and your product register is offered, and nothing is
+copied. A permission not registered yet can still be typed in.
+
+Your product's own scopes and permissions are declared once in
+`config/app.config.ts` as `PRODUCT_CATALOG`. Codexa App registers it at
+startup, the dashboard asks for its scopes when signing in, and Settings offers
+it.
+
+OAuth evaluates what the session may do and returns it as `capabilities` from
+`GET /auth/management/session`. The sidebar, list actions, create and edit
+buttons, and the application page show only what those allow. A route with a
+capability refuses a typed or shared URL before its loader runs and shows "No
+access" inside the shell. All of this is convenience, because OAuth's guards
+decide every call, including delegation: nobody grants, denies or archives
+more than they hold.
 
 ## Dashboard frontend
 
-The frontend in `app/` is a React dashboard. `app/src/core/` is official and
-read only for you. Everything else in `app/src` is yours.
+The frontend in `apps/dashboard/` is a React dashboard served at `/app`.
+`apps/dashboard/src/core/` is official and read only for you. Everything else
+in `apps/dashboard/src` is yours. Each frontend lives in its own folder under
+`apps/`, so another app sits beside the dashboard, such as `apps/storefront`,
+and you serve its `dist` with `serveStatic` under a route of your own.
 
 | Path | Purpose |
 |---|---|
@@ -251,8 +405,20 @@ read only for you. Everything else in `app/src` is yours.
 | `src/core/lib/routes.ts` | merges the built in routes with yours and builds the sidebar |
 | `src/core/lib/api.ts` | every endpoint core calls, as one object of `{ id, execute }` entries |
 | `src/core/lib/request.ts` | the transport behind them: timeouts, form bodies and errors that name their endpoint |
-| `src/core/lib/branding.ts` | wears the OAuth application's logo, colours, radius and font from the session |
-| `src/core/hooks/` | `useSession`, `useSessionInfo`, `useAsyncAction`, `useConfirm`, `useSheet`, `useSignOut`, `useCopy`, `useTheme` |
+| `src/core/lib/oauth.ts` | sign in with PKCE, the in memory access token, refreshes and sign out |
+| `src/core/lib/loaders.ts` | the session loader, which settles who is signed in before any page renders |
+| `src/core/lib/utils.ts` | `cn` and every helper, such as the branding stylesheet |
+| `src/core/types.ts` | every core type, including the route types your overrides use |
+| `src/core/contexts/` | `Session` (`useSession`, `useSignedInSession`, `useBranding`), `Theme` (`useTheme`), `Sheet` (`sheet`, `useSheet`) and `Confirm` (`confirm`, `useConfirm`) |
+| `src/core/hooks/` | `useAsyncAction`, `useSignOut`, `useCopy`, `useDashboardNav` |
+| `src/core/config/navigation.ts` | the built in rail sections and the Settings lists, each with its management API path, columns, filters, create and edit capabilities and actions |
+| `src/core/config/permissions.ts` | the roots and fields the condition builder suggests. Permissions and scopes come from OAuth's catalog |
+| `src/core/layouts/dashboard/` | the admin shell: `IconRail`, `SectionSidebar` and `MobileNav`, which share `NavTree` for grouped pages, `PageBreadcrumb`, `SearchCommand` (Ctrl K), and `ProfileMenu` with the Language and Appearance submenus |
+| `src/core/pages/settings/Application.tsx` | one application: its details, credentials by kind with their state, and oauth-sso's sign in providers when the plugin is installed |
+| `src/core/pages/ResourceList.tsx` | the one Settings list page: filters, paging, a table on a desktop, items on a phone, a create button, and details with Edit and actions in the sheet |
+| `src/core/pages/settings/` | `forms.tsx` (every create and edit form), `RecordDetails.tsx` (the details sheet and its confirmed actions) and `Application.tsx` (an app with its credentials) |
+| `src/core/components/form/` | `SheetForm` and the fields every form uses: text, text area, switch, select and chips |
+| `src/overrides/sections.ts` | your rail sections |
 | `src/core/components/` | `PageHeader`, `EmptyState`, `CopyField`, `IconTile` and other shared pieces |
 
 Add a page by giving it a key in `src/overrides/routes.tsx`. A route with a
@@ -322,13 +488,13 @@ npm --prefix app run build        # the dashboard frontend
 npm --prefix app run dev          # frontend dev server
 ```
 
-`app/.env.example` lists the frontend dev settings. Copy it to `app/.env` to
+`apps/dashboard/.env.example` lists the frontend dev settings. Copy it to `apps/dashboard/.env` to
 change them. They are read only by `vite.config.ts` and never reach browser
 code.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `CODEXA_HOST_URL` | `http://127.0.0.1:8000` | host the dev server proxies `/oauth`, `/auth` and `/app/config.json` to |
+| `CODEXA_HOST_URL` | `http://localhost:8000` | host the dev server proxies `/oauth`, `/auth` and `/app/config.json` to |
 | `DEV_PORT` | `5173` | `npm run dev` port |
 | `PREVIEW_PORT` | `4173` | `npm run preview` port |
 
@@ -346,7 +512,7 @@ changing one. All are optional.
 | `VITE_ENABLE_LANGUAGE_SWITCHER` | `true` | shows the language picker |
 
 Signing in from the dev server needs a redirect URI for its origin, such as
-`http://127.0.0.1:5173/app/callback`, registered on the client. The production
+`http://localhost:5173/app/callback`, registered on the client. The production
 build served by the host needs no extra redirect URI.
 
 After changing an official plugin, run `deno task plugins:local` and type check

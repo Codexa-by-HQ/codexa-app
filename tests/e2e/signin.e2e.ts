@@ -41,8 +41,8 @@ async function run(
 	/** The dashboard is up: its user menu shows in the sidebar. */
 	const signedIn = () =>
 		page.getByRole('button', { name: 'Account menu' }).waitFor();
-	/** The dashboard root, which the router writes as /app or /app/. */
-	const atDashboardRoot = () => ['/app', '/app/'].includes(new URL(page.url()).pathname);
+	/** The dashboard root of the signed in account, /app/<accountId>/. */
+	const atDashboardRoot = () => /^\/app\/[a-f\d]{24}\/?$/.test(new URL(page.url()).pathname);
 
 	let shots = 0;
 	/** Save the current screen when E2E_SCREENSHOT_DIR is set. */
@@ -58,20 +58,20 @@ async function run(
 	await t.step('the root opens the app signed out', async () => {
 		await page.goto(`${origin}/`);
 		assert(new URL(page.url()).pathname === '/app/');
-		await page.getByRole('button', { name: 'Sign in' }).waitFor();
+		await page.getByRole('button', { name: 'Sign in', exact: true }).waitFor();
 		await capture('app-signed-out');
 	});
 
 	await t.step('Sign in hands over to OAuth App', async () => {
-		await page.getByRole('button', { name: 'Sign in' }).click();
+		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 		await page.waitForURL(/\/auth\/login\?authTxnId=/);
-		await page.getByRole('heading', { name: 'Sign in' }).waitFor();
+		await page.getByRole('heading', { name: 'Sign in', exact: true }).waitFor();
 		await capture('oauth-sign-in');
 	});
 
 	await t.step('register a new account', async () => {
 		await page.getByRole('link', { name: 'Create account' }).click();
-		await page.waitForURL(/\/auth\/register\?authTxnId=/);
+		await page.waitForURL(/\/auth\/signup\?authTxnId=/);
 		await capture('oauth-register');
 		await page.getByLabel('Username').fill(username);
 		await page.getByLabel('Password', { exact: true }).fill(password);
@@ -80,9 +80,7 @@ async function run(
 	});
 
 	await t.step('consent returns to the app signed in', async () => {
-		await page.getByRole('heading', { name: 'Allow access' }).waitFor();
-		await page.getByText('Codexa App wants to access your Codexa account.')
-			.waitFor();
+		await page.getByRole('heading', { level: 1, name: 'Codexa App wants to access your Codexa account' }).waitFor();
 		await capture('oauth-consent');
 		await page.getByRole('button', { name: 'Allow' }).click();
 		await signedIn();
@@ -96,7 +94,7 @@ async function run(
 
 	await t.step('the user menu opens the shared session sheet', async () => {
 		await page.getByRole('button', { name: 'Account menu' }).click();
-		await page.getByRole('menuitem', { name: 'Session details' }).click();
+		await page.getByRole('menuitem', { name: 'This sign in' }).click();
 		const sheet = page.getByRole('dialog', { name: 'Session' });
 		await sheet.getByRole('textbox', { name: 'User' }).waitFor();
 		await capture('app-session-sheet');
@@ -104,10 +102,10 @@ async function run(
 		await sheet.waitFor({ state: 'hidden' });
 	});
 
-	await t.step('the sidebar opens the account page', async () => {
-		await page.getByRole('link', { name: 'Account' }).first().click();
-		await page.waitForURL('**/app/account');
-		await page.getByRole('heading', { level: 1, name: 'Account' }).waitFor();
+	await t.step('the Settings section opens the session page', async () => {
+		await page.getByRole('link', { name: 'Settings' }).first().click();
+		await page.waitForURL((url) => /^\/app\/[a-f\d]{24}\/account$/.test(url.pathname));
+		await page.getByRole('heading', { level: 1, name: 'Session' }).waitFor();
 		await capture('app-account');
 	});
 
@@ -131,23 +129,23 @@ async function run(
 		const dialog = page.getByRole('alertdialog', { name: 'Sign out of Codexa App?' });
 		await capture('app-sign-out-confirm');
 		await dialog.getByRole('button', { name: 'Sign out' }).click();
-		await page.getByRole('button', { name: 'Sign in' }).waitFor();
+		await page.getByRole('button', { name: 'Sign in', exact: true }).waitFor();
 		await dialog.waitFor({ state: 'hidden' });
 	});
 
 	await t.step('a wrong password shows an error', async () => {
-		await page.getByRole('button', { name: 'Sign in' }).click();
+		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 		await page.waitForURL(/\/auth\/login\?authTxnId=/);
 		await page.getByLabel('Username').fill(username);
 		await page.getByLabel('Password', { exact: true }).fill(password + 'x');
-		await page.getByRole('button', { name: 'Sign in' }).click();
+		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 		await page.getByText('Username or password is incorrect.').waitFor();
 		await capture('oauth-wrong-password');
 	});
 
 	await t.step('signing in again skips the remembered consent', async () => {
 		await page.getByLabel('Password', { exact: true }).fill(password);
-		await page.getByRole('button', { name: 'Sign in' }).click();
+		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 		await signedIn();
 		assert(atDashboardRoot(), page.url());
 		await page.getByText('You are signed in to Codexa.').waitFor();

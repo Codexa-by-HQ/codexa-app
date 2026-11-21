@@ -18,7 +18,7 @@ import type { HostEnvironmentInput } from '../../core/validations/environment.va
 const dotenv = parse(await Deno.readTextFile('.env').catch(() => ''));
 const CLIENT_ID = dotenv.OAUTH_TEST_CLIENT_ID;
 const REDIRECT_URI = dotenv.OAUTH_TEST_REDIRECT_URI ??
-	'http://127.0.0.1:8000/app/callback';
+	'http://localhost:8000/app/callback';
 // A separate port, so the test can run while the dev host is up.
 const PORT = dotenv.OAUTH_TEST_PORT ?? '8199';
 
@@ -374,6 +374,12 @@ async function run(t: Deno.TestContext, api: ReturnType<typeof client>) {
 			})).body.total,
 			0,
 		);
+
+		// The tenant chooser offers only accounts a switch would accept.
+		const memberships = await list('/auth/management/accounts/memberships');
+		assertEquals(memberships.status, 200, JSON.stringify(memberships.body));
+		assertEquals(memberships.body.length, 1);
+		assertEquals(memberships.body[0].accountId, newer.account_id);
 
 		const members = await list('/auth/management/collaborators');
 		assertEquals(members.status, 200, JSON.stringify(members.body));

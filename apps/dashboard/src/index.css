@@ -1,0 +1,478 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@import "@fontsource-variable/figtree";
+
+@import "tw-animate-css";
+/* Bundled here because the CSP blocks the <style> sonner would inject. */
+@import "sonner/dist/styles.css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * 
+ * Theme: Codexa emerald
+ *
+ * Shared with the OAuth setup wizard, so every official screen looks the same.
+ * Re-theming the Codexa App frontend only requires editing this file. Components read
+ * colours, radii, fonts, the brand panel artwork and every animation from
+ * these tokens.
+ * 
+ */
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --background: oklch(0.985 0.004 160);
+  --foreground: oklch(0.2 0.02 165);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.02 165);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.02 165);
+
+  /* Actions */
+  --primary: oklch(0.58 0.14 160);
+  --primary-foreground: oklch(0.99 0.005 160);
+  --secondary: oklch(0.955 0.012 160);
+  --secondary-foreground: oklch(0.28 0.04 162);
+  --muted: oklch(0.96 0.008 160);
+  --muted-foreground: oklch(0.5 0.02 165);
+  --accent: oklch(0.94 0.03 160);
+  --accent-foreground: oklch(0.3 0.07 160);
+  --destructive: oklch(0.577 0.245 27.325);
+  --warning: oklch(0.75 0.16 70);
+
+  /* Lines */
+  --border: oklch(0.91 0.012 160);
+  --input: oklch(0.9 0.012 160);
+  --ring: oklch(0.58 0.14 160 / 0.55);
+
+  /* Desktop frame around the two rounded halves */
+  --frame: oklch(0.9 0.018 160);
+  --frame-radius: 1.75rem;
+
+  /* Brand panel: one flat emerald surface */
+  --panel: oklch(0.95 0.035 158);
+  --panel-border: oklch(0.88 0.05 158);
+  /* Halftone leaf: dot colour and the light that sweeps across it */
+  --panel-pattern: oklch(0.58 0.14 160 / 0.2);
+  --panel-pattern-shine: oklch(0.58 0.14 160 / 0.5);
+
+  --chart-1: oklch(0.85 0.12 160);
+  --chart-2: oklch(0.72 0.15 160);
+  --chart-3: oklch(0.6 0.14 160);
+  --chart-4: oklch(0.48 0.11 162);
+  --chart-5: oklch(0.38 0.08 165);
+
+  --radius: 0.75rem;
+
+  /* Motion */
+  --stagger-step: 55ms;
+  --rise-distance: 10px;
+
+  --sidebar: oklch(0.975 0.006 160);
+  --sidebar-foreground: oklch(0.2 0.02 165);
+  --sidebar-primary: oklch(0.58 0.14 160);
+  --sidebar-primary-foreground: oklch(0.99 0.005 160);
+  --sidebar-accent: oklch(0.94 0.03 160);
+  --sidebar-accent-foreground: oklch(0.3 0.07 160);
+  --sidebar-border: oklch(0.91 0.012 160);
+  --sidebar-ring: oklch(0.58 0.14 160 / 0.55);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: oklch(0.125 0.016 168);
+  --foreground: oklch(0.96 0.012 160);
+  --card: oklch(0.155 0.02 166);
+  --card-foreground: oklch(0.96 0.012 160);
+  --popover: oklch(0.17 0.022 166);
+  --popover-foreground: oklch(0.96 0.012 160);
+
+  --primary: oklch(0.78 0.16 158);
+  --primary-foreground: oklch(0.2 0.045 165);
+  --secondary: oklch(0.2 0.026 165);
+  --secondary-foreground: oklch(0.94 0.02 160);
+  --muted: oklch(0.19 0.022 166);
+  --muted-foreground: oklch(0.72 0.03 160);
+  --accent: oklch(0.22 0.04 162);
+  --accent-foreground: oklch(0.9 0.08 158);
+  --destructive: oklch(0.704 0.191 22.216);
+  --warning: oklch(0.8 0.15 75);
+
+  --border: oklch(0.82 0.08 160 / 0.09);
+  --input: oklch(0.82 0.08 160 / 0.12);
+  --ring: oklch(0.78 0.16 158 / 0.5);
+
+  --frame: oklch(0.085 0.012 168);
+
+  --panel: oklch(0.18 0.045 162);
+  --panel-border: oklch(0.82 0.08 160 / 0.12);
+  --panel-pattern: oklch(0.78 0.16 158 / 0.16);
+  --panel-pattern-shine: oklch(0.85 0.17 158 / 0.45);
+
+  --sidebar: oklch(0.155 0.02 166);
+  --sidebar-foreground: oklch(0.96 0.012 160);
+  --sidebar-primary: oklch(0.78 0.16 158);
+  --sidebar-primary-foreground: oklch(0.2 0.045 165);
+  --sidebar-accent: oklch(0.22 0.04 162);
+  --sidebar-accent-foreground: oklch(0.9 0.08 158);
+  --sidebar-border: oklch(0.82 0.08 160 / 0.11);
+  --sidebar-ring: oklch(0.78 0.16 158 / 0.5);
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Figtree Variable', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-frame: var(--frame);
+  --radius-frame: var(--frame-radius);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * 
+ * Motion. Use as Tailwind utilities: animate-enter, animate-pop, …
+ * 
+ */
+@theme {
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-enter: enter 0.5s var(--ease-out-soft) both;
+  --animate-enter-step: enter-step 0.35s var(--ease-out-soft) both;
+  --animate-pop: pop 0.5s var(--ease-out-soft) both;
+  --animate-shine: shine 9s ease-in-out infinite;
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes enter-step {
+    from {
+      opacity: 0;
+      transform: translateX(calc(var(--step-direction, 1) * 14px));
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* A band of light slowly passing over the halftone dots. */
+  @keyframes shine {
+
+    0%,
+    15% {
+      background-position: 100% 0;
+    }
+
+    85%,
+    100% {
+      background-position: 0% 0;
+    }
+  }
+
+  @keyframes pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+
+    60% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--rise-distance));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Step slide direction for `animate-enter-step`, mirrored in RTL. */
+[data-step-direction="back"] {
+  --step-direction: -1;
+}
+
+[dir="rtl"] [data-step-direction="forward"] {
+  --step-direction: -1;
+}
+
+[dir="rtl"] [data-step-direction="back"] {
+  --step-direction: 1;
+}
+
+/*
+ * 
+ * Brand panel: a single flat emerald surface.
+ * 
+ */
+@layer components {
+  .brand-panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--panel);
+    border-color: var(--panel-border);
+  }
+
+  /* The Codexa leaf as a dot-matrix halftone (src/assets/leaf-halftone.svg). */
+  .brand-panel-halftone {
+    position: absolute;
+    z-index: -1;
+    bottom: -14%;
+    inset-inline-end: -22%;
+    width: 110%;
+    aspect-ratio: 1;
+    pointer-events: none;
+    background: linear-gradient(110deg,
+        var(--panel-pattern) 35%,
+        var(--panel-pattern-shine) 50%,
+        var(--panel-pattern) 65%);
+    background-size: 300% 100%;
+    mask: url("./assets/leaf-halftone.svg") center / contain no-repeat;
+  }
+
+  /*
+   * One-by-one entrance. .stagger animates its children; .stagger-deep
+   * animates its grandchildren (e.g. the fields inside a step's FieldGroup).
+   * Re-mounting the container (a new key) replays it.
+   */
+  .stagger>*,
+  .stagger-deep>*>* {
+    animation: rise 0.5s var(--ease-out-soft) both;
+  }
+
+  .stagger> :nth-child(1),
+  .stagger-deep>*> :nth-child(1) {
+    animation-delay: calc(0 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(2),
+  .stagger-deep>*> :nth-child(2) {
+    animation-delay: calc(1 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(3),
+  .stagger-deep>*> :nth-child(3) {
+    animation-delay: calc(2 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(4),
+  .stagger-deep>*> :nth-child(4) {
+    animation-delay: calc(3 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(5),
+  .stagger-deep>*> :nth-child(5) {
+    animation-delay: calc(4 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(6),
+  .stagger-deep>*> :nth-child(6) {
+    animation-delay: calc(5 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(7),
+  .stagger-deep>*> :nth-child(7) {
+    animation-delay: calc(6 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(8),
+  .stagger-deep>*> :nth-child(8) {
+    animation-delay: calc(7 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(9),
+  .stagger-deep>*> :nth-child(9) {
+    animation-delay: calc(8 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(10),
+  .stagger-deep>*> :nth-child(10) {
+    animation-delay: calc(9 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(11),
+  .stagger-deep>*> :nth-child(11) {
+    animation-delay: calc(10 * var(--stagger-step));
+  }
+
+  .stagger> :nth-child(12),
+  .stagger-deep>*> :nth-child(12) {
+    animation-delay: calc(11 * var(--stagger-step));
+  }
+
+  /* Thin, theme-coloured scrollbars for inner scroll areas. */
+  .scroll-area {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+}
+
+/*
+ *
+ * Route changes. Links pass `viewTransition`, so the browser snapshots the
+ * page: the old content fades out while the new content rises in through
+ * .stagger. Everything outside the named area holds still.
+ *
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(page) {
+  animation: page-out 160ms var(--ease-out-soft) both;
+}
+
+::view-transition-new(page) {
+  animation: none;
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Motion is decoration: honour the OS setting. */
+@media (prefers-reduced-motion: reduce) {
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* The brand loader: the leaf breathes inside a ring that turns. */
+.brand-loader {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.brand-loader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid color-mix(in oklch, var(--primary) 16%, transparent);
+  border-top-color: var(--primary);
+  animation: brand-loader-spin 0.9s linear infinite;
+}
+
+.brand-loader > img {
+  width: 2.25rem;
+  height: 2.25rem;
+  animation: brand-loader-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes brand-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes brand-loader-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

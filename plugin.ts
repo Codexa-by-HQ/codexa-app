@@ -4,6 +4,7 @@ import { createClientRouter } from './routes/client.ts';
 import {
 	type CodexaAppConfigInput,
 	CodexaAppConfigSchema,
+	PRODUCT_CATALOG,
 } from './config/app.config.ts';
 import type {} from './types/base.d.ts';
 
@@ -39,6 +40,7 @@ export async function installCodexaAppPlugin(
 	const { assetsDirectory, mountPath, onReady } = requirements;
 
 	let registered = false;
+	let unregisterCatalog: (() => void) | undefined;
 	pending.add(app);
 	try {
 		const plugin = definePlugin({
@@ -54,6 +56,11 @@ export async function installCodexaAppPlugin(
 				const { assetsDirectory, mountPath, oauth, onShutdown } =
 					config.requirements;
 
+				// the product's scopes and permissions, beside OAuth's and the plugins'
+				unregisterCatalog = scope.getService('oauth', 'catalog')
+					.register(
+						PRODUCT_CATALOG,
+					);
 				// root redirect and the frontend runtime config
 				scope.mount(createClientRouter(mountPath, oauth));
 
@@ -67,12 +74,16 @@ export async function installCodexaAppPlugin(
 
 		const installed = app.install(plugin, { requirements });
 		registered = true;
+		app.onShutdown(() => unregisterCatalog?.());
 
 		// calling ready hook
 		await onReady?.({ mountPath, assetsDirectory });
 
 		return installed;
 	} catch (failure) {
+		// A failed install leaves nothing behind, so it can be retried. After a
+		// failed onReady the plugin stays installed, and so do its entries.
+		if (!registered) unregisterCatalog?.();
 		throw new AggregateError(
 			[failure],
 			registered

@@ -1,7 +1,8 @@
 import type { Hook } from '@codexa/http';
 import { zod as z } from '@codexa/core/providers/zod';
+import type { OAuthCatalogEntry } from '@codexa/oauth/types';
 
-const dist = new URL('../app/dist/', import.meta.url);
+const dist = new URL('../apps/dashboard/dist/', import.meta.url);
 export const CODEXA_APP_PATH = '/app';
 export const CODEXA_APP_HEADERS = {
 	'cache-control': 'no-store',
@@ -10,6 +11,27 @@ export const CODEXA_APP_HEADERS = {
 	'content-security-policy':
 		"default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; connect-src 'self'; img-src 'self' data: https:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
 } as const;
+
+/**
+ * Your product's own entries in OAuth's catalog: the scopes its clients may ask
+ * for and the permissions its policies may grant. Codexa App registers them at
+ * startup, its dashboard asks for these scopes when signing in, and Settings
+ * offers them in the policy editor and the credential forms. Guard your own
+ * routes with the same names. Each permission sits in one of your namespaces,
+ * such as `invoices` for `invoices:read`, and no namespace may be one OAuth or
+ * a plugin owns.
+ *
+ * Example:
+ *   namespaces: ['invoices'],
+ *   scopes: [{ name: 'invoices', description: 'Use invoices' }],
+ *   permissions: [{ name: 'invoices:read', description: 'See invoices' }],
+ */
+export const PRODUCT_CATALOG: OAuthCatalogEntry = {
+	plugin: 'codexa-app',
+	namespaces: [],
+	scopes: [],
+	permissions: [],
+};
 
 /** The OAuth client the Codexa App frontend signs in with. */
 export const CodexaAppOAuthSchema = z.object({

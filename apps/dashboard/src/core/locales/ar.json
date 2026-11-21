@@ -1,0 +1,779 @@
+{
+  "shell": {
+    "product": "تطبيق Codexa",
+    "subtitle": "مساحة عملك",
+    "loading": "جارٍ التحميل",
+    "poweredBy": "مدعوم من",
+    "theme": "السمة: {{theme}}",
+    "themes": {
+      "light": "فاتح",
+      "dark": "داكن",
+      "system": "مطابقة الجهاز"
+    },
+    "switchLanguage": "تغيير اللغة",
+    "copyright": "© {{year}} Codexa",
+    "toggleSidebar": "إظهار الشريط الجانبي أو إخفاؤه",
+    "sections": "الأقسام",
+    "menu": "القائمة",
+    "themeLabel": "الوضع الداكن",
+    "language": "اللغة",
+    "appearance": "المظهر"
+  },
+  "panel": {
+    "title": "مساحة عمل Codexa الخاصة بك",
+    "description": "حسابك وفريقك وإضافات Codexa الرسمية في مكان واحد.",
+    "points": {
+      "signIn": {
+        "title": "تسجيل دخول واحد آمن",
+        "description": "يسجّل Codexa OAuth دخولك، ولا يرى التطبيق كلمة مرورك أبدًا."
+      },
+      "workspace": {
+        "title": "مصمم لفريقك",
+        "description": "تبقى الحسابات والأدوار والصلاحيات منظمة مع نمو فريقك."
+      },
+      "plugins": {
+        "title": "الإضافات الرسمية في مركز واحد",
+        "description": "تُدار كل إضافات Codexa الرسمية من هنا."
+      }
+    }
+  },
+  "common": {
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "copied": "تم النسخ",
+    "copyFailed": "تعذّر النسخ. حدّد القيمة وانسخها يدويًا.",
+    "copyValue": "نسخ {{value}}",
+    "close": "إغلاق",
+    "empty": "غير محدد",
+    "yes": "نعم",
+    "no": "لا"
+  },
+  "nav": {
+    "workspace": "مساحة العمل",
+    "overview": "نظرة عامة",
+    "account": "الجلسة",
+    "home": "الرئيسية",
+    "settings": "الإعدادات",
+    "application": "التطبيق",
+    "device": "ربط جهاز"
+  },
+  "session": {
+    "title": "الجلسة",
+    "description": "ما يعرضه OAuth عن تسجيل الدخول هذا.",
+    "app": "التطبيق",
+    "appFallback": "Codexa",
+    "user": "المستخدم",
+    "account": "الحساب",
+    "access": "الصلاحيات"
+  },
+  "user": {
+    "menu": "قائمة الحساب",
+    "signedIn": "تم تسجيل الدخول",
+    "sessionDetails": "تسجيل الدخول هذا",
+    "manageAccount": "إدارة حسابك",
+    "accountFailed": "تعذّر فتح حسابك. حاول مرة أخرى.",
+    "userId": "معرّف المستخدم",
+    "accountId": "معرّف الحساب",
+    "changeTenant": "الحسابات",
+    "currentTenant": "الحالي",
+    "switchFailed": "تعذّر تبديل الحساب. حاول مرة أخرى.",
+    "createAccount": "إنشاء حساب"
+  },
+  "account": {
+    "title": "الجلسة",
+    "description": "جلسة تسجيل دخولك وتسجيل الخروج.",
+    "signOut": "تسجيل الخروج",
+    "signOutTitle": "تسجيل الخروج من تطبيق Codexa؟",
+    "signOutDescription": "سيؤدي هذا إلى إنهاء الجلسة في كل علامة تبويب تشاركها. يمكنك تسجيل الدخول مجددًا في أي وقت.",
+    "signOutFailed": "تم تسجيل خروجك هنا، لكن تعذّر إبلاغ الخادم. تنتهي الجلسة عند انقضاء صلاحيتها."
+  },
+  "signIn": {
+    "title": "تسجيل الدخول",
+    "description": "تابع إلى لوحة Codexa بحساب Codexa الخاص بك.",
+    "button": "تسجيل الدخول",
+    "notConfigured": "لم يُضبط تسجيل الدخول بعد. اضبط CODEXA_APP_OAUTH_CLIENT_ID على الخادم.",
+    "failure": {
+      "denied": "تم إلغاء تسجيل الدخول.",
+      "failed": "تعذّر إكمال تسجيل الدخول. يُرجى المحاولة مرة أخرى.",
+      "state": "رابط تسجيل الدخول هذا لم يعد صالحًا. يُرجى البدء من جديد."
+    }
+  },
+  "overview": {
+    "title": "نظرة عامة",
+    "description": "لقد سجّلت الدخول إلى {{app}}.",
+    "emptyTitle": "لوحتك تبدأ من هنا",
+    "emptyDescription": "أضف صفحاتك وعناصرك في src/overrides/routes.tsx. تفاصيل جلستك في قائمة الملف الشخصي."
+  },
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "path": "لا يوجد شيء في {{path}}",
+    "description": "هذه الصفحة غير موجودة أو تم نقلها.",
+    "home": "العودة إلى النظرة العامة"
+  },
+  "routeError": {
+    "title": "حدث خطأ ما",
+    "description": "تعذّر تحميل هذه الصفحة. غالبًا ما تحل إعادة التحميل المشكلة.",
+    "reload": "إعادة التحميل"
+  },
+  "search": {
+    "title": "البحث في الشاشات",
+    "description": "اعثر على أي صفحة يمكنك فتحها.",
+    "placeholder": "البحث في الشاشات",
+    "empty": "لا توجد شاشة مطابقة.",
+    "open": "البحث في الشاشات (Ctrl K)",
+    "section": "البحث في {{section}}"
+  },
+  "list": {
+    "noMatches": "لا شيء يطابق عوامل التصفية هذه.",
+    "paging": "الصفحات",
+    "summary": "الصفحة {{page}} من {{pages}}، {{total}} إجمالًا",
+    "previous": "الصفحة السابقة",
+    "next": "الصفحة التالية",
+    "view": "التخطيط",
+    "grid": "شبكة",
+    "table": "جدول",
+    "actions": "الإجراءات",
+    "rowActions": "إجراءات {{name}}",
+    "open": "فتح",
+    "details": "عرض التفاصيل",
+    "filter": "تصفية",
+    "clearFilters": "مسح عوامل التصفية"
+  },
+  "fields": {
+    "id": "المعرّف",
+    "name": "الاسم",
+    "slug": "المعرّف النصي",
+    "type": "النوع",
+    "active": "نشط",
+    "created": "تاريخ الإنشاء",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "status": "الحالة",
+    "mfa": "التحقق بخطوتين",
+    "role": "الدور",
+    "owner": "المالك",
+    "joined": "تاريخ الانضمام",
+    "expires": "ينتهي في",
+    "key": "المفتاح",
+    "system": "نظامي",
+    "assignable": "قابل للتعيين",
+    "description": "الوصف",
+    "updated": "آخر تحديث",
+    "app": "التطبيق",
+    "method": "طريقة تسجيل الدخول",
+    "device": "الجهاز",
+    "started": "البداية",
+    "scopes": "الصلاحيات",
+    "approved": "تمت الموافقة",
+    "ipAddress": "عنوان IP",
+    "lastActive": "آخر نشاط",
+    "level": "المستوى",
+    "parent": "مباشرة تحت",
+    "within": "في أي مكان تحت",
+    "path": "المسار",
+    "grant": "المنح"
+  },
+  "settings": {
+    "groups": {
+      "organisation": "المؤسسة",
+      "people": "الأشخاص",
+      "access": "الوصول",
+      "apps": "التطبيقات والجلسات"
+    },
+    "accounts": {
+      "title": "الحسابات",
+      "description": "الحسابات في مساحة العمل هذه.",
+      "empty": "لا توجد حسابات بعد.",
+      "create": "حساب جديد"
+    },
+    "users": {
+      "title": "المستخدمون",
+      "description": "كل من يمكنه تسجيل الدخول إلى هذا التطبيق.",
+      "empty": "لا يوجد مستخدمون بعد."
+    },
+    "members": {
+      "title": "الأعضاء",
+      "description": "الأشخاص المنتمون إلى هذا الحساب وأدوارهم.",
+      "empty": "لا يوجد أعضاء بعد."
+    },
+    "invites": {
+      "title": "الدعوات",
+      "description": "الدعوات التي تنتظر القبول.",
+      "empty": "لا توجد دعوات بعد.",
+      "create": "دعوة شخص"
+    },
+    "roles": {
+      "title": "الأدوار",
+      "description": "تجمع الأدوار الصلاحيات لتعيينها للأعضاء.",
+      "empty": "لا توجد أدوار بعد.",
+      "create": "دور جديد"
+    },
+    "policies": {
+      "title": "السياسات",
+      "description": "تمنح السياسات الصلاحيات وفق شروط.",
+      "empty": "لا توجد سياسات بعد.",
+      "create": "سياسة جديدة"
+    },
+    "applications": {
+      "title": "التطبيقات",
+      "description": "تطبيقات OAuth وعملاؤها.",
+      "empty": "لا توجد تطبيقات بعد.",
+      "create": "تطبيق جديد"
+    },
+    "sessions": {
+      "title": "الجلسات",
+      "description": "من سجّل الدخول إلى هذا الحساب ومن أين.",
+      "empty": "لا توجد جلسات."
+    },
+    "consents": {
+      "title": "الموافقات",
+      "description": "التطبيقات التي سمح لها الأشخاص بالوصول إلى بياناتهم.",
+      "empty": "لا توجد موافقات بعد."
+    },
+    "actions": {
+      "archive": {
+        "label": "أرشفة",
+        "title": "أرشفة هذا العنصر؟",
+        "description": "يتوقف عن العمل فورًا ويُحفظ سجله.",
+        "done": "تمت الأرشفة"
+      },
+      "remove": {
+        "label": "إزالة",
+        "title": "إزالة هذا العضو؟",
+        "description": "يفقد الوصول إلى هذا الحساب فورًا.",
+        "done": "تمت إزالة العضو"
+      },
+      "revoke": {
+        "label": "إلغاء",
+        "title": "إلغاء هذا العنصر؟",
+        "description": "يتوقف عن العمل فورًا ولا يمكن التراجع.",
+        "done": "تم الإلغاء"
+      },
+      "revokeCredential": {
+        "label": "إلغاء",
+        "title": "إلغاء بيانات الاعتماد هذه؟",
+        "description": "تتوقف التطبيقات التي تستخدم معرّف العميل هذا عن تسجيل الدخول فورًا. لا يمكن التراجع.",
+        "done": "تم إلغاء بيانات الاعتماد"
+      }
+    }
+  },
+  "form": {
+    "optional": "(اختياري)",
+    "remove": "إزالة {{value}}",
+    "noOptions": "لا توجد نتائج.",
+    "failed": "لم يتم الحفظ",
+    "forbidden": "ليس لديك إذن للقيام بذلك. يمكنك فقط منح الوصول الذي تملكه أنت أو تغييره أو إزالته.",
+    "unexpected": "حدث خطأ ما. حاول مرة أخرى.",
+    "add": "إضافة «{{value}}»",
+    "noMatchCreate": "لا نتائج. اكتب قيمة جديدة لإضافتها.",
+    "cannotAdd": "استخدم الحروف والأرقام والنقطتين، مثل invoices:approve."
+  },
+  "validation": {
+    "required": "املأ هذا الحقل.",
+    "tooLong": "هذا طويل جدًا.",
+    "url": "أدخل روابط كاملة تبدأ بـ https:// أو http://، رابطًا في كل سطر.",
+    "roleKey": "ابدأ بحرف إنجليزي صغير، ثم أحرف صغيرة أو أرقام أو \"-\" أو \"_\"، حتى 50.",
+    "slug": "استخدم أحرفًا إنجليزية صغيرة وأرقامًا و\"-\"، حتى 60.",
+    "email": "أدخل بريدًا إلكترونيًا صالحًا.",
+    "number": "أدخل رقمًا صحيحًا.",
+    "pickOne": "اختر عنصرًا واحدًا على الأقل.",
+    "conditionField": "استخدم سياقًا وحقلًا، مثل account.type.",
+    "afterStart": "يجب أن يكون بعد البداية.",
+    "pickPermission": "اسمح بصلاحية واحدة على الأقل أو امنعها."
+  },
+  "filters": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "any": "الكل",
+    "enabled": "مفعّل",
+    "disabled": "معطّل",
+    "clear": "مسح",
+    "searchColumns": "تصفية حسب",
+    "noColumns": "لا يوجد عمود كهذا.",
+    "applied": "مطبّق",
+    "operator": "عامل {{column}}",
+    "value": "قيمة {{column}}",
+    "remove": "إزالة تصفية {{column}}",
+    "operatorsHeading": "العوامل",
+    "textPlaceholder": "اكتب للتصفية",
+    "from": "من",
+    "to": "إلى",
+    "searchOptions": "بحث",
+    "noOptions": "لا نتائج.",
+    "selected_zero": "{{count}} محدد",
+    "selected_one": "{{count}} محدد",
+    "selected_two": "{{count}} محددان",
+    "selected_few": "{{count}} محددة",
+    "selected_many": "{{count}} محددًا",
+    "selected_other": "{{count}} محدد",
+    "operators": {
+      "contains": "يحتوي",
+      "does not contain": "لا يحتوي",
+      "is": "هو",
+      "is not": "ليس",
+      "is greater than": "أكبر من",
+      "is greater than or equal to": "على الأقل",
+      "is less than": "أقل من",
+      "is less than or equal to": "على الأكثر",
+      "is between": "بين",
+      "is not between": "ليس بين",
+      "is before": "قبل",
+      "is on or after": "في أو بعد",
+      "is after": "بعد",
+      "is on or before": "في أو قبل",
+      "is any of": "أي من",
+      "is none of": "ليس أيًا من",
+      "include": "يتضمن",
+      "exclude": "يستبعد",
+      "include any of": "يتضمن أيًا من",
+      "include all of": "يتضمن كل",
+      "exclude if any of": "يستبعد أيًا من",
+      "exclude if all": "يستبعد كل"
+    },
+    "targets": {
+      "role": "الأدوار",
+      "user": "الأشخاص",
+      "account": "هذا الحساب",
+      "collaborator": "الأعضاء",
+      "global": "الجميع"
+    },
+    "methods": {
+      "password": "كلمة المرور",
+      "magic_link": "رابط سحري",
+      "passkey": "مفتاح مرور",
+      "sso": "SSO"
+    },
+    "grants": {
+      "authorization_code": "تسجيل دخول",
+      "refresh_token": "تحديث",
+      "client_credentials": "آلة",
+      "device_code": "جهاز"
+    },
+    "devices": {
+      "desktop": "حاسوب",
+      "mobile": "هاتف",
+      "tablet": "جهاز لوحي",
+      "tv": "تلفاز",
+      "cli": "سطر أوامر",
+      "unknown": "غير معروف"
+    }
+  },
+  "statuses": {
+    "active": "نشط",
+    "pending_verification": "بانتظار التحقق",
+    "suspended": "موقوف",
+    "banned": "محظور",
+    "pending": "قيد الانتظار",
+    "accepted": "مقبولة",
+    "declined": "مرفوضة",
+    "expired": "منتهية",
+    "revoked": "ملغاة"
+  },
+  "accountTypes": {
+    "org": "مؤسسة",
+    "team": "فريق",
+    "department": "قسم",
+    "lab": "مختبر",
+    "project": "مشروع",
+    "personal": "شخصي",
+    "custom": "مخصص"
+  },
+  "forms": {
+    "create": "إنشاء",
+    "save": "حفظ التغييرات",
+    "saved": "تم حفظ التغييرات",
+    "edit": "تعديل",
+    "choose": "اختر",
+    "descriptionPlaceholder": "الغرض منه",
+    "accounts": {
+      "createTitle": "حساب جديد",
+      "createDescription": "فريق أو قسم أو مشروع داخل مساحة العمل هذه.",
+      "editTitle": "تعديل الحساب",
+      "namePlaceholder": "تسويق أكمي",
+      "slugHint": "يُستخدم في الروابط ولا يمكن تغييره لاحقًا.",
+      "customType": "اسم النوع",
+      "customTypePlaceholder": "منطقة",
+      "activeHint": "لا يمكن تسجيل الدخول إلى حساب غير نشط.",
+      "created": "تم إنشاء الحساب",
+      "parent": "الحساب الأب",
+      "parentPlaceholder": "الحساب الحالي",
+      "parentHint": "الحساب الذي يقع هذا الحساب تحته. للتداخل عدد محدود من المستويات.",
+      "createSub": "حساب فرعي جديد"
+    },
+    "users": {
+      "editTitle": "تعديل المستخدم",
+      "displayName": "الاسم المعروض",
+      "displayNamePlaceholder": "سارة أحمد",
+      "statusHint": "لا يستطيع المستخدمون الموقوفون والمحظورون تسجيل الدخول."
+    },
+    "members": {
+      "editTitle": "تعديل العضو",
+      "activeHint": "يحتفظ العضو غير النشط بمكانه لكنه لا يستطيع استخدام هذا الحساب."
+    },
+    "invites": {
+      "createTitle": "دعوة شخص",
+      "createDescription": "يصله بريد إلكتروني برابط للانضمام إلى هذا الحساب.",
+      "emailPlaceholder": "alex@example.com",
+      "message": "رسالة",
+      "messagePlaceholder": "ملاحظة تُضاف إلى البريد",
+      "send": "إرسال الدعوة",
+      "sent": "تم إرسال الدعوة",
+      "sentTitle": "أُرسلت الدعوة",
+      "sentDescription": "رسالة في طريقها إلى {{email}}. يمكنك أيضًا مشاركة هذا الرابط. لا يقبلها إلا الحساب الذي يملك هذا البريد.",
+      "link": "رابط الدعوة"
+    },
+    "roles": {
+      "createTitle": "دور جديد",
+      "createDescription": "الدور يسمّي مجموعة من الأشخاص، والسياسات تحدد ما يمكنه فعله.",
+      "editTitle": "تعديل الدور",
+      "labelPlaceholder": "مسؤول الفوترة",
+      "keyHint": "الاسم الذي تستخدمه السياسات والشيفرة. لا يمكن تغييره لاحقًا.",
+      "assignableHint": "هل يمكن منح هذا الدور للأشخاص عند دعوتهم أو تعديلهم.",
+      "activeHint": "لا يمكن منح دور غير نشط، ويفقد أصحابه صلاحياته.",
+      "created": "تم إنشاء الدور"
+    },
+    "policies": {
+      "createTitle": "سياسة جديدة",
+      "createDescription": "امنح الأذونات أو امنعها لأدوار أو أعضاء أو للجميع.",
+      "editTitle": "تعديل السياسة",
+      "namePlaceholder": "صلاحيات فريق الفوترة",
+      "appliesTo": "تنطبق على",
+      "targets": {
+        "role": "الأدوار",
+        "collaborator": "الأعضاء",
+        "global": "الجميع في هذا التطبيق",
+        "account": "الحسابات"
+      },
+      "rolePlaceholder": "اختر الأدوار",
+      "memberPlaceholder": "اختر الأعضاء",
+      "allow": "السماح",
+      "deny": "المنع",
+      "permissionPlaceholder": "ابحث عن إذن أو اكتبه",
+      "allowHint": "اختر أذونات أو اكتبها، مثل invoices:approve. \"*\" تسمح بكل شيء.",
+      "denyHint": "المنع يتغلب دائمًا على السماح، من أي سياسة.",
+      "priority": "الأولوية",
+      "priorityHint": "الأرقام الأصغر تُفحص أولًا، ولا تجعل السماح يتغلب على المنع.",
+      "created": "تم إنشاء السياسة",
+      "accountPlaceholder": "اختر الحسابات",
+      "accountHint": "كل من ينتمي إلى هذه الحسابات.",
+      "aboutTitle": "عن السياسة",
+      "whoTitle": "لمن",
+      "whoDescription": "الأدوار أو الأعضاء أو الحسابات التي تنطبق عليها.",
+      "whatTitle": "ماذا",
+      "whatDescription": "اسمح بكل صلاحية أو امنعها. المنع يغلب دائمًا.",
+      "whenTitle": "متى",
+      "whenDescription": "قواعد اختيارية يجب أن تتحقق، ومدة فعالية السياسة.",
+      "permissions": "الصلاحيات",
+      "activeFrom": "فعّالة من",
+      "activeUntil": "فعّالة حتى",
+      "createAnother": "أنشئ وأضف أخرى"
+    },
+    "applications": {
+      "createTitle": "تطبيق جديد",
+      "createDescription": "تطبيق يسجّل الناس الدخول إليه، مع بيانات الاعتماد التي يستخدمها.",
+      "editTitle": "تعديل التطبيق",
+      "namePlaceholder": "بوابة العملاء",
+      "created": "تم إنشاء التطبيق",
+      "aboutTitle": "التطبيق",
+      "aboutDescription": "الاسم الذي يراه الناس عند تسجيل الدخول والموافقة على الوصول.",
+      "descriptionPlaceholder": "ما يستخدمه الناس من أجله",
+      "signInTitle": "طريقة تسجيل الدخول",
+      "signInDescription": "أول بيانات اعتماد له. يمكنك إضافة المزيد لاحقًا من صفحة التطبيق."
+    },
+    "credentials": {
+      "add": "إضافة بيانات اعتماد",
+      "createTitle": "بيانات اعتماد جديدة",
+      "createDescription": "معرّف عميل يستخدمه تطبيق لتسجيل دخول الناس أو لاستدعاء الواجهة البرمجية بنفسه.",
+      "editTitle": "تعديل بيانات الاعتماد",
+      "namePlaceholder": "لوحة الويب",
+      "kind": "يستخدمها",
+      "kinds": {
+        "browser": "تطبيق ويب أو جوال",
+        "server": "تطبيق خادم",
+        "machine": "آلة أو مفتاح API",
+        "device": "تلفاز أو سطر أوامر"
+      },
+      "kindHints": {
+        "browser": "تطبيق متصفح أو جوال. يسجّل دخول الناس عبر PKCE ولا يحمل سرًا.",
+        "server": "خادم يسجّل دخول الناس. يحصل على سر يجب أن يبقى خاصًا.",
+        "machine": "خدمة تستدعي الواجهة البرمجية بنفسها بسر، وتعمل باسم عضو واحد.",
+        "device": "جهاز بلا متصفح. يوافق عليه الناس برمز على شاشة أخرى."
+      },
+      "redirectUris": "روابط إعادة التوجيه",
+      "logoutUris": "روابط ما بعد تسجيل الخروج",
+      "urlsHint": "روابط مطابقة تمامًا، رابط في كل سطر.",
+      "actsAs": "الدور",
+      "actsAsPlaceholder": "اختر دورًا",
+      "actsAsHint": "ينشئ OAuth هوية خدمة لهذا المفتاح في هذا الحساب بهذا الدور. يحصل المفتاح على صلاحيات الدور فقط، ولا يمكنك اختيار دور يمنح أكثر مما تملك.",
+      "scopes": "الوصول المسموح",
+      "scopePlaceholder": "ابحث في النطاقات",
+      "consent": "طلب الموافقة",
+      "consentHint": "يوافق الناس على الوصول المطلوب عند أول تسجيل دخول.",
+      "created": "تم إنشاء بيانات الاعتماد",
+      "name": "اسم بيانات الاعتماد",
+      "nameHint": "لك، لتمييز بيانات اعتماده عن بعضها.",
+      "scopesHint": "اختر النطاقات التي يمكنه طلبها أو اكتبها."
+    }
+  },
+  "application": {
+    "description": "تطبيق يسجّل الناس الدخول إليه، مع بيانات اعتماده.",
+    "credentials": "بيانات الاعتماد",
+    "credentialsDescription": "كل معرّف عميل يسجّل الدخول إلى هذا التطبيق، وطريقته.",
+    "noCredentials": "لا توجد بيانات اعتماد بعد.",
+    "clientId": "معرّف العميل",
+    "clientSecret": "سر العميل",
+    "grants": "أنواع المنح",
+    "lastUsed": "آخر استخدام",
+    "disable": "تعطيل",
+    "enable": "تفعيل",
+    "disabledDone": "تم تعطيل بيانات الاعتماد",
+    "enabledDone": "تم تفعيل بيانات الاعتماد",
+    "rotate": "تدوير السر",
+    "rotateTitle": "تدوير السر؟",
+    "rotateDescription": "يُنشأ سر جديد ويتوقف السر القديم عن العمل فورًا.",
+    "secretTitle": "انسخ السر الآن",
+    "secretDescription": "يظهر مرة واحدة فقط. احفظه في مكان آمن، مثل مدير الأسرار في خادمك.",
+    "secretSaved": "لقد حفظته",
+    "issuedDescription": "استخدم معرّف العميل هذا في إعدادات تسجيل الدخول للتطبيق.",
+    "secretWarning": "يظهر هذه المرة فقط. احفظه في مدير الأسرار في خادمك.",
+    "open": "فتح التطبيق",
+    "manage": "إدارة",
+    "states": {
+      "active": "نشط",
+      "disabled": "معطّل",
+      "revoked": "ملغى"
+    },
+    "revokedNote": "أُلغيت بيانات الاعتماد هذه ولن تسجل الدخول مرة أخرى، لذا لا إجراءات لها.",
+    "rotated": "تم تدوير السر"
+  },
+  "pageError": {
+    "forbidden": {
+      "title": "لا يوجد وصول",
+      "heading": "لا يمكنك فتح هذه الصفحة",
+      "description": "دورك لا يشملها. اطلب الوصول من مسؤول هذا الحساب."
+    },
+    "missing": {
+      "title": "غير موجود",
+      "heading": "هذا العنصر لم يعد موجودًا",
+      "description": "ربما أُزيل أو أُرشف، أو أن الرابط غير صحيح."
+    },
+    "failed": {
+      "title": "حدث خطأ ما",
+      "heading": "تعذّر تحميل هذه الصفحة",
+      "description": "تحقق من اتصالك وحاول مرة أخرى."
+    }
+  },
+  "roles": {
+    "owner": "المالك",
+    "admin": "مسؤول",
+    "editor": "محرر",
+    "viewer": "مشاهد",
+    "member": "عضو",
+    "service": "خدمة"
+  },
+  "details": {
+    "details": "التفاصيل",
+    "activity": "النشاط",
+    "identifiers": "المعرّفات",
+    "description": "كل ما يخص هذا السجل، وما يمكنك فعله به.",
+    "policyWhen": "متى",
+    "policyCount_zero": "{{count}} في {{kind}}",
+    "policyCount_one": "{{count}} في {{kind}}",
+    "policyCount_two": "{{count}} في {{kind}}",
+    "policyCount_few": "{{count}} في {{kind}}",
+    "policyCount_many": "{{count}} في {{kind}}",
+    "policyCount_other": "{{count}} في {{kind}}",
+    "policyWho": "مَن",
+    "policyWhat": "ماذا",
+    "policyState": "الآن",
+    "policyRules": "فقط عندما",
+    "policyNoRules": "دائمًا، بلا قواعد إضافية",
+    "policyStates": {
+      "live": "سارية",
+      "scheduled": "تبدأ لاحقًا",
+      "ended": "انتهت",
+      "off": "مؤرشفة"
+    }
+  },
+  "permissions": {
+    "search": "ابحث في الصلاحيات",
+    "everything": "كل شيء",
+    "everythingHint": "* · كل صلاحية، الآن ولاحقًا",
+    "custom": "صلاحياتك الخاصة",
+    "customPlaceholder": "invoices:approve",
+    "addCustom": "أضف صلاحية",
+    "add": "إضافة",
+    "allow": "سماح",
+    "deny": "منع",
+    "wholeResource": "كل {{resource}}",
+    "allowedCount": "{{count}} مسموح",
+    "deniedCount": "{{count}} ممنوع",
+    "inherited": {
+      "allow": "مسموح عبر المورد كله",
+      "deny": "ممنوع عبر المورد كله"
+    },
+    "resources": {
+      "accounts": "الحسابات",
+      "users": "المستخدمون",
+      "collaborators": "الأعضاء",
+      "invites": "الدعوات",
+      "roles": "الأدوار",
+      "policies": "السياسات",
+      "applications": "التطبيقات",
+      "credentials": "بيانات الاعتماد",
+      "sessions": "الجلسات",
+      "consents": "الموافقات"
+    },
+    "actions": {
+      "list": "عرض القائمة",
+      "read": "عرض التفاصيل",
+      "create": "إنشاء",
+      "update": "تعديل",
+      "archive": "أرشفة",
+      "remove": "إزالة",
+      "revoke": "إلغاء",
+      "rotate": "تدوير الأسرار",
+      "enable": "تشغيل وإيقاف"
+    }
+  },
+  "conditions": {
+    "always": "بلا شروط. تنطبق السياسة دائمًا ما دامت فعّالة.",
+    "mode": "طريقة دمج القواعد",
+    "modes": {
+      "and": "تحقق كل القواعد",
+      "or": "تحقق أي قاعدة"
+    },
+    "and": "و",
+    "or": "أو",
+    "not": "ليس",
+    "notLabel": "طبّق العكس",
+    "addRule": "أضف قاعدة",
+    "addGroup": "أضف مجموعة",
+    "removeRule": "احذف القاعدة",
+    "removeGroup": "احذف المجموعة",
+    "root": "السياق",
+    "field": "الحقل",
+    "operator": "المقارنة",
+    "value": "القيمة",
+    "valuePlaceholder": "team",
+    "listPlaceholder": "team, org",
+    "refPlaceholder": "user.attributes.region",
+    "compareField": "قارن بحقل",
+    "isSet": "موجود",
+    "isNotSet": "غير موجود",
+    "exists": "موجود",
+    "missing": "غير موجود",
+    "tooDeep": "كُتب هذا الشرط بتداخل أعمق مما يعرضه المحرر، ويُحفظ كما هو.",
+    "roots": {
+      "user": "المستخدم",
+      "account": "الحساب",
+      "collaborator": "العضو",
+      "role": "الدور",
+      "session": "الجلسة",
+      "app": "التطبيق",
+      "credential": "العميل",
+      "request": "الطلب",
+      "resource": "المورد",
+      "environment": "البيئة"
+    },
+    "operators": {
+      "eq": "يساوي",
+      "ne": "لا يساوي",
+      "gt": "أكبر من",
+      "gte": "على الأقل",
+      "lt": "أقل من",
+      "lte": "على الأكثر",
+      "in": "واحد من",
+      "nin": "ليس من",
+      "exists": "موجود",
+      "regex": "يطابق النمط"
+    },
+    "rootHints": {
+      "user": "الشخص الذي سجّل الدخول",
+      "account": "الحساب الذي يعمل فيه",
+      "collaborator": "عضويته في ذلك الحساب",
+      "role": "دوره في ذلك الحساب",
+      "session": "طريقة تسجيل دخوله",
+      "app": "التطبيق الذي يستخدمه",
+      "credential": "العميل الذي حصل على الرمز",
+      "request": "الطلب نفسه: الطريقة والمسار والوقت",
+      "resource": "السجل المعني، مثل منشور",
+      "environment": "قيم أخرى يمررها مسارك"
+    },
+    "rootHelp": {
+      "user": "حقول الشخص الذي سجّل الدخول، مثل id أو username أو attributes.department.",
+      "account": "حقول الحساب الحالي، مثل type أو isActive أو attributes.plan.",
+      "collaborator": "عضوية الشخص، مثل isOwner أو attributes.team.",
+      "role": "دور الشخص في هذا الحساب، مثل name.",
+      "session": "الجلسة، مثل authMethod وقيمتها password أو passkey أو magic_link أو sso.",
+      "app": "التطبيق، مثل name أو attributes.region.",
+      "credential": "العميل الذي صدر له الرمز، مثل name أو type.",
+      "request": "الطلب نفسه: method مثل GET، وpath مثل ‎/api/posts، وtimestamp بالمللي ثانية.",
+      "resource": "السجل الذي يفحصه مسارك ويمرره الحارس. اكتب اسم الحقل كما هو في السجل، مثل title أو ownerId، لا اسم المجموعة. والإذن يحدد نوع السجل، مثل posts:update. لتسمح للمالكين فقط، قارن ownerId بالحقل session.user.",
+      "environment": "أي قيم أخرى يمررها مسارك، مثل country أو deviceType."
+    }
+  },
+  "ids": {
+    "label": "المعرّفات",
+    "open": "معرّفاتك",
+    "you": "أنت",
+    "account": "الحساب"
+  },
+  "device": {
+    "title": "ربط جهاز",
+    "description": "وافق على تلفاز أو جهاز ألعاب أو سطر أوامر يعرض لك رمزًا.",
+    "enterTitle": "أدخل الرمز",
+    "enterDescription": "اكتب الرمز الذي يعرضه جهازك.",
+    "code": "رمز الجهاز",
+    "continue": "متابعة",
+    "asks": "يريد {{app}} تسجيل الدخول",
+    "codeIs": "الرمز",
+    "accessIntro": "يطلب هذا الوصول. أزل ما لا تريد منحه.",
+    "approve": "موافقة",
+    "deny": "رفض",
+    "approved": "تم ربط الجهاز",
+    "approvedDescription": "عد إلى جهازك، فسيسجّل الدخول وحده.",
+    "denied": "تم رفض الطلب",
+    "deniedDescription": "لم يسجّل الجهاز الدخول.",
+    "invalid": "هذا الرمز لا يعمل",
+    "invalidDescription": "ربما كُتب خطأ أو انتهت صلاحيته. اطلب رمزًا جديدًا من الجهاز.",
+    "unavailable": "تسجيل الدخول بالجهاز متوقف",
+    "unavailableDescription": "هذا الخادم لا يوفر تسجيل الدخول برمز جهاز.",
+    "failed": "لم ينجح ذلك. ربما انتهت صلاحية الرمز.",
+    "scopes": {
+      "openid": "معرفة هويتك",
+      "profile": "اسمك وملفك",
+      "email": "بريدك الإلكتروني",
+      "phone": "رقم هاتفك",
+      "offline_access": "البقاء متصلًا",
+      "api:read": "قراءة بياناتك",
+      "api:write": "تغيير بياناتك"
+    }
+  },
+  "providers": {
+    "title": "مزوّدو تسجيل الدخول",
+    "description": "اسمح للأشخاص بتسجيل الدخول إلى هذا التطبيق بحساب لديهم مسبقًا، مثل Google. يحدد المضيف المزوّدين المتاحين.",
+    "none": "لا يوجد مزوّدون متاحون",
+    "noneDescription": "لم يعتمد المضيف أي مزوّد تسجيل دخول لهذا التطبيق.",
+    "notAdded": "غير مضاف",
+    "on": "مفعّل",
+    "off": "متوقف",
+    "signUp": "يمكن للجدد التسجيل",
+    "add": "إضافة",
+    "added": "أُضيف المزوّد",
+    "manage": "إدارة",
+    "remove": "إزالة",
+    "removed": "أُزيل المزوّد",
+    "removeTitle": "إزالة {{name}}؟",
+    "removeDescription": "يختفي زره من صفحة تسجيل الدخول. يحتفظ المرتبطون بربطهم ويمكنهم الدخول مجددًا عند إضافته.",
+    "addTitle": "إضافة مزوّد تسجيل دخول",
+    "editTitle": "مزوّد تسجيل الدخول",
+    "name": "اسم الزر",
+    "nameHint": "يظهر في صفحة تسجيل الدخول، مثل «المتابعة باستخدام Google».",
+    "enabled": "مفعّل",
+    "enabledHint": "عند إيقافه يختفي زره ولا يمكن لأحد الدخول به.",
+    "registration": "يمكن للجدد التسجيل",
+    "registrationHint": "عند إيقافه لا يستخدمه إلا من لديه حساب هنا.",
+    "registrationLocked": "لا يسمح المضيف لهذا المزوّد بإنشاء حسابات، لذا يستخدمه الموجودون فقط."
+  }
+}
