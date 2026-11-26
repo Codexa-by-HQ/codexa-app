@@ -218,7 +218,7 @@ Tests live in `tests/`, grouped by plugin, and run with `deno task test`.
 | `tests/oauth/flow.test.ts` | the full OAuth flow against the real host, MongoDB and Redis, then the management lists (paging, order, joins, search), session revocation and the collaborator cap |
 | `tests/oauth/plugins.test.ts` | the optional plugins as core wires them: sign in methods, OAuth App page names, Google's redirect and callback, OIDC discovery and keys, Device client authentication |
 | `tests/oauth/delegation.test.ts` | delegated administration never escalates: a member trusted with policies, roles and invites cannot grant `*`, a permission or namespace they lack, deny the owner by role, global, account, user or member target, widen or archive a restriction on themselves, promote themselves or invite an administrator, while the owner keeps full authority |
-| `tests/codexa-app/client.test.ts` | the root redirect, `/app/config.json`, the `/app` security headers and the callback page |
+| `tests/codexa-app/client.test.ts` | the root page, `/app/config.json`, the `/app` security headers and the callback page |
 | `tests/oauth/catalog.test.ts` | the catalog's namespace rules and undo, plugins' settings kept apart and validated, and through the host: every plugin's entries listed, owners given their capabilities, new administrators given their permissions |
 | `tests/oauth/setup.test.ts` | the first run setup against a throwaway database: the plugins' scopes offered, any other refused, and administrators given every registered permission |
 | `tests/codexa-app/keys.test.ts` | reading and refusing key files without echoing them, the MFA ring order, generated OIDC keys, and re-sealing stored MFA secrets with a new key against the real database |
@@ -264,7 +264,7 @@ checks that OAuth App wears it in light and dark under the real CSP, then
 restores the original branding. The first drives a real headless Chrome or Edge
 through the actual screens:
 
-1. `/` opens the app signed out.
+1. `/app/` opens the app signed out.
 2. Sign in hands over to OAuth App.
 3. A new account is registered.
 4. Consent returns to the Overview, with its tab title.
@@ -300,7 +300,8 @@ The Codexa App frontend signs in as a public OAuth client, using the
 authorization code flow with PKCE. The code lives in `apps/dashboard/src/core/lib/oauth.ts`
 and `apps/dashboard/src/core/lib/session.ts`.
 
-1. Opening `/` redirects to `/app/`. Until signed in, every dashboard URL shows
+1. `/` only says the server is running and links to `/app/`, so the app opens
+   only when its path is visited. Until signed in, every dashboard URL shows
    the sign in page.
 2. The app reads its client from `/app/config.json`, creates a PKCE verifier and
    a `state`, and redirects to `/oauth/authorize`.

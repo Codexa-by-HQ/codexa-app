@@ -4,7 +4,7 @@ import { CODEXA_APP_REQUIRED_SCOPES } from '../../core/config/codexaApp.config.t
 import { PRODUCT_CATALOG } from '../../config/app.config.ts';
 
 /**
- * What the Codexa App frontend relies on from its plugin: the root redirect,
+ * What the Codexa App frontend relies on from its plugin: the root page,
  * the runtime config that names its OAuth client, and its security headers.
  */
 Deno.test({
@@ -13,14 +13,26 @@ Deno.test({
 	sanitizeResources: false,
 	async fn(t) {
 		await withHost(async (origin) => {
-			await t.step('root redirects to the app', async () => {
-				const response = await fetch(`${origin}/`, {
-					redirect: 'manual',
-				});
-				await response.body?.cancel();
-				assertEquals(response.status, 302);
-				assertEquals(response.headers.get('location'), '/app/');
-			});
+			await t.step(
+				'the root says the server is running, and never opens the app itself',
+				async () => {
+					const response = await fetch(`${origin}/`, {
+						redirect: 'manual',
+					});
+					assertEquals(response.status, 200);
+					assert(
+						response.headers.get('content-type')?.includes(
+							'text/html',
+						),
+					);
+					const page = await response.text();
+					assert(page.includes('The server is running.'));
+					assert(
+						page.includes('href="/app/"'),
+						'it links to the app',
+					);
+				},
+			);
 
 			await t.step('config.json names the sign in client', async () => {
 				const response = await fetch(`${origin}/app/config.json`);

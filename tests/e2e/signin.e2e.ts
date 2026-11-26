@@ -55,8 +55,8 @@ async function run(
 		await page.screenshot({ path: `${SCREENSHOTS}/${file}` });
 	};
 
-	await t.step('the root opens the app signed out', async () => {
-		await page.goto(`${origin}/`);
+	await t.step('/app opens the app signed out', async () => {
+		await page.goto(`${origin}/app/`);
 		assert(new URL(page.url()).pathname === '/app/');
 		await page.getByRole('button', { name: 'Sign in', exact: true }).waitFor();
 		await capture('app-signed-out');

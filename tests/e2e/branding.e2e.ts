@@ -79,7 +79,7 @@ async function check(page: Page, origin: string, appName: string) {
 			name,
 		);
 
-	await page.goto(`${origin}/`);
+	await page.goto(`${origin}/app/`);
 	await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 	await page.waitForURL(/\/auth\/login\?authTxnId=/);
 	await page.getByRole('heading', { level: 1, name: 'Sign in', exact: true }).waitFor();

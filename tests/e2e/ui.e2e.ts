@@ -112,7 +112,7 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 	const username = 'ui_' + crypto.randomUUID().slice(0, 8);
 	const password = 'UiTest' + crypto.randomUUID().slice(0, 6) + '9';
 
-	await page.goto(`${origin}/`);
+	await page.goto(`${origin}/app/`);
 	await page.locator('[data-shell="sign-in"]').waitFor();
 	await check('app-sign-in');
 
