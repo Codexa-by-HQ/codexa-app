@@ -37,7 +37,7 @@ configuration, providers, setup and dashboard UI live only inside them.
 
 ```sh
 cp .env.example .env              # then fill in the required values
-deno task plugins:local           # install the official plugins
+deno task install:plugins --base=version   # install every official plugin's latest release
 deno task keys:generate           # create the access token, MFA and OIDC keys in certs/
 deno task setup                   # first run wizard, with the host stopped
 deno task dev                     # start the host
@@ -61,7 +61,7 @@ again. `certs/README.md` describes each file and every option.
 |---|---|
 | `dev` | runs the host with watch mode |
 | `setup` | runs the OAuth first run wizard on the host address and database |
-| `plugins:local` | installs or refreshes the official plugins. `--source=oauth,oauth-sso` installs the named plugins from their sibling folders instead of their pinned commits, to test changes before they are pushed |
+| `install:plugins` | installs or refreshes the official plugins through the Codexa CLI. `--base=version` takes each latest release tag, `--base=commit` each latest commit, `--base=local` each folder in `LOCAL_PATHS`. `--name=<plugin>` installs only that plugin, optionally with `--version`, `--commit` or `--path`, and `--build=<folder>` after a `--name` builds that folder inside the named plugin's installed copy, such as `--name=oauth --build=app/setup`, never on its own. The header of `core/scripts/install-plugins.ts` lists every command |
 | `test` | runs the unit and integration tests in `tests/` |
 | `test:e2e` | signs in through a real browser, see Tests |
 
@@ -87,20 +87,22 @@ Page names live in `core/config/pages.config.ts`.
 
 | Plugin | Package | Installed from |
 |---|---|---|
-| `oauth` | `@codexa/oauth` | GitHub, pinned to a commit in `core/scripts/install-local.ts` |
-| `oauth-app` | `@codexa/oauth-app` | the sibling `../oauth-app` source folder |
+| `oauth` and the six optional OAuth plugins | `@codexa/oauth`, `@codexa/oauth-*` | GitHub, at their latest release tag |
+| `media` | `@codexa/media` | GitHub, at its latest release tag |
+| `oauth-app` | `@codexa/oauth-app` | GitHub, at its latest release tag |
 
 `host.ts` installs `oauth`, then `oauth-app`, then `codexa-app`. The
 requirements for the two official plugins are built in `core/config/`.
 
 Installed copies live in `plugins/`, with their registry in `.codexa/`. Both are
 managed by the Codexa CLI and ignored by git. Never edit them by hand.
-`plugins:local` refreshes them: the CLI cannot update an installed plugin yet, so
-the task reverses the previous install and installs again. A plugin already at
-its pinned commit is skipped.
+`install:plugins` refreshes them: the CLI cannot update an installed plugin yet,
+so the task reverses the previous install and installs again. A plugin already
+at the same release or commit is skipped. A release holds no built `dist`, so
+OAuth's setup wizard and OAuth App are built in their installed copies.
 
-To move OAuth to a newer release, update its commit in
-`core/scripts/install-local.ts` and run `deno task plugins:local`.
+To move to newer releases, tag them and run
+`deno task install:plugins --base=version`.
 
 ## Environment
 
@@ -524,5 +526,5 @@ Signing in from the dev server needs a redirect URI for its origin, such as
 `http://localhost:5173/app/callback`, registered on the client. The production
 build served by the host needs no extra redirect URI.
 
-After changing an official plugin, run `deno task plugins:local` and type check
+After changing an official plugin, run `deno task install:plugins` and type check
 again, so the host is verified against the installed copies.

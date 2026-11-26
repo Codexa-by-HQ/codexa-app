@@ -71,7 +71,7 @@
 	"tasks": {
 		"dev": "deno run --watch --allow-net --allow-read --allow-env --allow-sys main.ts",
 		"setup": "deno run --allow-net --allow-read --allow-env --allow-sys core/scripts/setup.ts",
-		"plugins:local": "deno run --allow-read --allow-write --allow-run=deno,git core/scripts/install-local.ts",
+		"install:plugins": "deno run --allow-read --allow-write --allow-run=deno,git,npm,npm.cmd core/scripts/install-plugins.ts",
 		"keys:generate": "deno run --allow-read --allow-write --allow-env --allow-net --allow-sys core/scripts/keys.ts generate",
 		"keys:rotate": "deno run --allow-read --allow-write --allow-env --allow-net --allow-sys core/scripts/keys.ts rotate",
 		"test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-sys tests/",
@@ -97,13 +97,13 @@
 	},
 	"minimumDependencyAge": "0",
 	"workspace": [
+		"./plugins/oauth",
 		"./plugins/oauth-mfa",
 		"./plugins/oauth-passkey",
 		"./plugins/oauth-magic-link",
 		"./plugins/oauth-sso",
-		"./plugins/oauth-device",
-		"./plugins/oauth",
 		"./plugins/oauth-oidc",
+		"./plugins/oauth-device",
 		"./plugins/media",
 		"./plugins/oauth-app"
 	]
