@@ -3,6 +3,7 @@ import { createOAuthBaseScripts } from '@codexa/oauth/scripts';
 import { DEVICE_CATALOG } from '@codexa/oauth-device/config';
 import { OIDC_CATALOG } from '@codexa/oauth-oidc/config';
 import { SSO_CATALOG } from '@codexa/oauth-sso/config';
+import { MEDIA_CATALOG } from '@codexa/media/config';
 import { PRODUCT_CATALOG } from '../../config/app.config.ts';
 import { createTokenLifetimes } from '../config/oauth.config.ts';
 import { loadMongodb } from '../lib/database.ts';
@@ -42,7 +43,13 @@ async function setup(): Promise<void> {
 		// Setup runs without the plugins, so it gets their catalogs, the same
 		// constants they register, to offer their scopes and grant administrators
 		// their permissions.
-		catalogs: [OIDC_CATALOG, SSO_CATALOG, DEVICE_CATALOG, PRODUCT_CATALOG],
+		catalogs: [
+			OIDC_CATALOG,
+			SSO_CATALOG,
+			DEVICE_CATALOG,
+			MEDIA_CATALOG,
+			PRODUCT_CATALOG,
+		],
 	});
 	await scripts.setup({
 		hostname: getListenerHostname(config),

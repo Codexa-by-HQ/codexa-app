@@ -16,6 +16,8 @@ import {
 import { ApiError } from "@/core/lib/request";
 import { applyBranding, readFilters } from "@/core/lib/utils";
 import type {
+  TApplication,
+  TApplicationRef,
   TApplicationData,
   TClientConfig,
   TDeviceData,
@@ -95,7 +97,10 @@ async function loadSession(url: URL): Promise<TSessionData> {
     }
   }
   const session = await readSession(config);
-  applyBranding(session?.application ?? null);
+  // Signed out, the app's own client names the application to wear.
+  applyBranding(
+    session ? session.application ?? null : config.clientId ? await applicationFor({ client_id: config.clientId }) : null,
+  );
   const memberships = session
     ? await authorized(config, (tokens) => api.memberships.execute(tokens)).catch(() => [])
     : [];
@@ -221,10 +226,32 @@ export async function reloadSession(): Promise<TSessionInfo | null> {
   return initial ? readSession((await initial).config) : null;
 }
 
-/** The session behind the cookie. */
+/** Each application's branding, read once per page load. */
+const applications = new Map<string, Promise<TApplication | null>>();
+
+/**
+ * An application's name and branding, from OAuth's one branding route.
+ * Branding is decoration, so a failure leaves the app's own theme. `fresh`
+ * reads it again, as after an edit.
+ */
+export function applicationFor(ref: TApplicationRef, fresh = false): Promise<TApplication | null> {
+  const key = "app" in ref ? `app:${ref.app}` : `client:${ref.client_id}`;
+  let pending = fresh ? undefined : applications.get(key);
+  if (!pending) {
+    pending = api.application.execute(ref, fresh).catch(() => {
+      applications.delete(key);
+      return null;
+    });
+    applications.set(key, pending);
+  }
+  return pending;
+}
+
+/** The session behind the cookie, with its application's branding. */
 async function readSession(config: TClientConfig): Promise<TSessionInfo | null> {
   try {
-    return await authorized(config, (tokens) => api.session.execute(tokens));
+    const session = await authorized(config, (tokens) => api.session.execute(tokens));
+    return { ...session, application: await applicationFor({ app: session.appId }) };
   } catch (error) {
     if (error instanceof SignInError) return null;
     throw error;

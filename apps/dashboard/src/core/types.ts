@@ -3,6 +3,7 @@ import type { RouteObject } from "react-router";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { z } from "zod";
 
+import type { BRANDING_COLORS } from "@/core/config/branding";
 import type {
   accountCreateSchema,
   applicationCreateSchema,
@@ -83,22 +84,7 @@ export type TThemeContext = {
 
 /* Branding, as OAuth stores it on each application */
 
-export type TColorToken =
-  | "background"
-  | "foreground"
-  | "card"
-  | "cardForeground"
-  | "popover"
-  | "popoverForeground"
-  | "muted"
-  | "mutedForeground"
-  | "accent"
-  | "accentForeground"
-  | "border"
-  | "input"
-  | "ring"
-  | "primary"
-  | "secondary";
+export type TColorToken = (typeof BRANDING_COLORS)[number];
 
 export type TBrandingTheme = Partial<Record<TColorToken, string>> & { radiusPx?: number };
 
@@ -110,7 +96,11 @@ export type TBranding = {
   fontFamily?: string;
 };
 
-export type TApplication = { name: string; branding?: TBranding };
+/** An application's public name and branding, from OAuth's one branding route. */
+export type TApplication = { appId: string; name: string; branding?: TBranding };
+
+/** Which application's branding to read: by id, or by a public client id before sign in. */
+export type TApplicationRef = { app: string } | { client_id: string };
 
 /* OAuth and the session */
 
@@ -132,7 +122,9 @@ export type TTokenResponse = { access_token: string; expires_in: number; account
 
 /** What OAuth reports about the signed in session. */
 export type TSessionInfo = {
-  application?: TApplication;
+  appId: string;
+  /** Read from the branding route by appId, so every page wears the app's theme. */
+  application?: TApplication | null;
   userId: string;
   accountId: string;
   oauthScopes: string[];

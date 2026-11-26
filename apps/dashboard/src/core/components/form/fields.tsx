@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/combobox";
 import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -101,6 +102,46 @@ export function TextField<T extends FieldValues>({
             className={cn(ltr && "text-start")}
             aria-invalid={fieldState.invalid}
           />
+        </Frame>
+      )}
+    />
+  );
+}
+
+/**
+ * A hex colour: a swatch that opens the system picker, beside the value as
+ * text. Left empty, the app's own colour stays.
+ */
+export function ColorField<T extends FieldValues>({ name, label }: TBaseProps<T>) {
+  const id = useId();
+  const { control } = useFormContext<T>();
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <Frame id={id} label={label} state={fieldState}>
+          <InputGroup>
+            <InputGroupAddon>
+              <Input
+                type="color"
+                tabIndex={-1}
+                aria-hidden="true"
+                value={/^#[0-9a-f]{6}$/i.test(field.value ?? "") ? field.value : "#000000"}
+                onChange={(event) => field.onChange(event.target.value)}
+                className="size-6 cursor-pointer rounded-md border-0 bg-transparent p-0 shadow-none"
+              />
+            </InputGroupAddon>
+            <InputGroupInput
+              {...field}
+              value={field.value ?? ""}
+              id={id}
+              placeholder="#16a34a"
+              dir="ltr"
+              className="text-start font-mono"
+              aria-invalid={fieldState.invalid}
+            />
+          </InputGroup>
         </Frame>
       )}
     />

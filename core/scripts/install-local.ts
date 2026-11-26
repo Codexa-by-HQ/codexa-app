@@ -16,24 +16,24 @@ type ManagedPlugin = { readonly id: string } & PluginSource;
  * names the plugin ID, its sibling source folder and its GitHub repository.
  */
 const PINNED = [
-	['oauth', 'oauth-base', '211396cb732fa0450533383dc43bb725225f1183'],
-	['oauth-mfa', 'oauth-mfa', 'b199766d58a0bb0f8f98e4542baf609f62823427'],
+	['oauth', 'oauth-base', 'f1d93de24684842bb50938ca41b1d1b14a8567eb'],
+	['oauth-mfa', 'oauth-mfa', '35e8e27eb3bb79217f010bac23952d73e1020cb5'],
 	[
 		'oauth-passkey',
 		'oauth-passkey',
-		'd57111cf8ee655ab2be72b62c1b191c138717105',
+		'90df1392a58fe0f201ecd0c8305d631100399e71',
 	],
 	[
 		'oauth-magic-link',
 		'oauth-magic-link',
-		'81147885238c63a605b863238acf8316eab25b09',
+		'e9556f437e674f1e74642aa7818ad1a6a51bcb74',
 	],
-	['oauth-sso', 'oauth-sso', 'a6cf4bc27d90823d631a3e3100e7c9f6270cae9d'],
-	['oauth-oidc', 'oauth-oidc', '8a00dff7070d145be758f399a768da857a792b5e'],
+	['oauth-sso', 'oauth-sso', '2f6bdfce81f11c504cdad244d9db483c9746967a'],
+	['oauth-oidc', 'oauth-oidc', 'f2cf259b7b328d95a69a45c0abf084ab9f6086ca'],
 	[
 		'oauth-device',
 		'oauth-device',
-		'86094d704f6f19c34972119a119dfe9571bab1ac',
+		'32f43e166e187dea0e5c9a7dcfb3241ede6e51bf',
 	],
 ] as const;
 
@@ -53,8 +53,9 @@ for (const id of fromSource) {
 }
 
 /**
- * Plugins this host installs, in dependency order. OAuth App installs from its
- * sibling source folder, so local edits reach the host on every run.
+ * Plugins this host installs, in dependency order. Media and OAuth App install
+ * from their sibling source folders, so local edits reach the host on every
+ * run. Media moves into PINNED once its repository is pushed.
  */
 const PLUGINS: readonly ManagedPlugin[] = [
 	...PINNED.map(([id, folder, ref]): ManagedPlugin =>
@@ -64,6 +65,7 @@ const PLUGINS: readonly ManagedPlugin[] = [
 			ref,
 		}
 	),
+	{ id: 'media', sourceDirectory: '../media' },
 	{ id: 'oauth-app', sourceDirectory: '../oauth-app' },
 ];
 

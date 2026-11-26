@@ -19,6 +19,7 @@ import {
 import { useTheme } from "@/core/contexts/Theme";
 import { features } from "@/core/lib/env";
 import { LANGUAGE_NAMES, LANGUAGES } from "@/core/i18n";
+import { codexa } from "@/core/lib/utils";
 
 const THEME_ORDER = ["light", "dark", "system"] as const;
 const THEME_ICON = { light: Sun03Icon, dark: Moon02Icon, system: ComputerIcon };
@@ -33,7 +34,7 @@ export function ThemeToggle() {
   return (
     <IconButton label={label} onClick={() => setTheme(next)}>
       {/* Keyed so the icon replays its entrance on every switch. */}
-      <HugeiconsIcon key={theme} icon={THEME_ICON[theme]} className="animate-pop" />
+      <HugeiconsIcon key={theme} icon={THEME_ICON[theme]} className={codexa.pop} />
     </IconButton>
   );
 }

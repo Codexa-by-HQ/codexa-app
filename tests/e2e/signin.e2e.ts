@@ -92,16 +92,6 @@ async function run(
 		await capture('app-overview');
 	});
 
-	await t.step('the user menu opens the shared session sheet', async () => {
-		await page.getByRole('button', { name: 'Account menu' }).click();
-		await page.getByRole('menuitem', { name: 'This sign in' }).click();
-		const sheet = page.getByRole('dialog', { name: 'Session' });
-		await sheet.getByRole('textbox', { name: 'User' }).waitFor();
-		await capture('app-session-sheet');
-		await page.keyboard.press('Escape');
-		await sheet.waitFor({ state: 'hidden' });
-	});
-
 	await t.step('the Settings section opens the session page', async () => {
 		await page.getByRole('link', { name: 'Settings' }).first().click();
 		await page.waitForURL((url) => /^\/app\/[a-f\d]{24}\/account$/.test(url.pathname));

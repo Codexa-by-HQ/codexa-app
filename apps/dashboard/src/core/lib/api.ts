@@ -1,6 +1,9 @@
+import { AUTH_VERSION_HEADER } from "@/core/lib/constants";
 import { env } from "@/core/lib/env";
 import { endpoint } from "@/core/lib/request";
 import type {
+  TApplication,
+  TApplicationRef,
   TAccountSwitchAuthorization,
   TCatalog,
   TClientConfig,
@@ -51,6 +54,15 @@ export const api = {
       form: { client_id: clientId },
     });
   }),
+
+  /** The one source of an application's name and branding. Public, before or after sign in. */
+  application: endpoint("application", (send, ref: TApplicationRef, fresh = false) =>
+    send<TApplication>({
+      url: `${env.authApiPath}/applications/branding?${new URLSearchParams(ref)}`,
+      headers: { [AUTH_VERSION_HEADER]: env.authApiVersion },
+      // Right after an edit, skip the minute browsers may keep it.
+      ...(fresh ? { cache: "reload" as const } : {}),
+    })),
 
   session: endpoint("session", (send, tokens: TTokens) =>
     send<TSessionInfo>({ url: `${env.authApiPath}/management/session`, headers: managementHeaders(tokens) })),
@@ -162,7 +174,7 @@ export const api = {
 /** Every management call names its API version, token and account. */
 function managementHeaders({ accessToken, accountId }: TTokens) {
   return {
-    "X-Auth-Version": env.authApiVersion,
+    [AUTH_VERSION_HEADER]: env.authApiVersion,
     authorization: `Bearer ${accessToken}`,
     "x-account-id": accountId,
   };

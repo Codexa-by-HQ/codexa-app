@@ -7,6 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAsyncAction } from "@/core/hooks/useAsyncAction";
 import { useSession } from "@/core/contexts/Session";
 import { AuthLayout } from "@/core/layouts/auth/AuthLayout";
+import { cn, codexa } from "@/core/lib/utils";
 
 /**
  * Shown in place of any dashboard page while signed out. Sign in leaves for
@@ -23,7 +24,7 @@ function SignIn() {
       heading={t("signIn.title")}
       description={t("signIn.description")}
     >
-      <div className="stagger flex flex-col gap-5 [animation-delay:150ms]">
+      <div className={cn(codexa.stagger, "flex flex-col gap-5 [animation-delay:150ms]")}>
         {failure && (
           <Alert variant="destructive" role="alert">
             <AlertDescription>{t(`signIn.failure.${failure}`)}</AlertDescription>

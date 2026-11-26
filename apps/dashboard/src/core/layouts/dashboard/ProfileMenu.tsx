@@ -4,9 +4,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AddCircleIcon,
   Building03Icon,
-  SecurityCheckIcon,
   ComputerIcon,
-  InformationCircleIcon,
   LanguageSkillIcon,
   Logout03Icon,
   Moon02Icon,
@@ -34,7 +32,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { LanguageSelect, ThemeToggle } from "@/core/components/Preferences";
-import { SessionDetails } from "@/core/components/SessionDetails";
 import { useSession, useSignedInSession } from "@/core/contexts/Session";
 import { sheet } from "@/core/contexts/Sheet";
 import { accountForm } from "@/core/pages/settings/forms";
@@ -83,13 +80,6 @@ export function ProfileMenu({ onBeforeOpen }: { onBeforeOpen?: () => void }) {
   };
   const showAccounts = memberships.length > 1 || canCreateAccount;
   const app = session.application?.name ?? t("session.appFallback");
-  const showSession = () =>
-    sheet.open({
-      title: t("session.title"),
-      description: t("session.description"),
-      icon: InformationCircleIcon,
-      body: <SessionDetails />,
-    });
 
   const avatar = (
     <Avatar className="size-8">
@@ -115,7 +105,6 @@ export function ProfileMenu({ onBeforeOpen }: { onBeforeOpen?: () => void }) {
             body: (
               <ProfilePanel
                 onManageAccount={manageAccount}
-                onSessionDetails={showSession}
                 onSignOut={signOut}
                 onChangeTenant={changeTenant}
                 onCreateAccount={canCreateAccount ? () => void newAccount() : undefined}
@@ -151,10 +140,6 @@ export function ProfileMenu({ onBeforeOpen }: { onBeforeOpen?: () => void }) {
           <DropdownMenuItem onClick={() => manageAccount()}>
             <HugeiconsIcon icon={UserCircleIcon} />
             {t("user.manageAccount")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={showSession} data-shell="session-details">
-            <HugeiconsIcon icon={SecurityCheckIcon} />
-            {t("user.sessionDetails")}
           </DropdownMenuItem>
           {showAccounts && (
             <DropdownMenuSub>
@@ -249,14 +234,12 @@ export function ProfileMenu({ onBeforeOpen }: { onBeforeOpen?: () => void }) {
 /** The phone's profile sheet: account actions, preferences, then sign out. */
 function ProfilePanel({
   onManageAccount,
-  onSessionDetails,
   onSignOut,
   onChangeTenant,
   onCreateAccount,
   switching,
 }: {
   onManageAccount: () => void;
-  onSessionDetails: () => void;
   onSignOut: () => void;
   onChangeTenant: (accountId: string) => void;
   onCreateAccount?: () => void;
@@ -317,10 +300,6 @@ function ProfilePanel({
         <Item render={<button type="button" onClick={onManageAccount} />} size="sm">
           <ItemMedia><HugeiconsIcon icon={UserCircleIcon} /></ItemMedia>
           <ItemContent><ItemTitle>{t("user.manageAccount")}</ItemTitle></ItemContent>
-        </Item>
-        <Item render={<button type="button" onClick={onSessionDetails} />} size="sm" data-shell="session-details">
-          <ItemMedia><HugeiconsIcon icon={SecurityCheckIcon} /></ItemMedia>
-          <ItemContent><ItemTitle>{t("user.sessionDetails")}</ItemTitle></ItemContent>
         </Item>
         {features.languageSwitcher && (
           <Item size="sm">

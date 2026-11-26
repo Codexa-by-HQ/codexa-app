@@ -78,6 +78,7 @@ and logs why one is off. Their settings have their own `.env` sections.
 | `oauth-sso` | the three `OAUTH_SSO_GOOGLE` values are set | login, signup, account Security |
 | `oauth-oidc` | `certs/oidc-signing.jwk.json` exists | `/auth/logout` |
 | `oauth-device` | always | `/app/device` |
+| `media` | `MEDIA_STORAGE_PROVIDER` is set | account Personal info, for the photo |
 
 Google's redirect URI is `<origin>/oauth/sso/callback/<OAUTH_SSO_GOOGLE_PROVIDER_ID>`.
 Page names live in `core/config/pages.config.ts`.
@@ -144,16 +145,23 @@ Setup reads the three lifetime variables too, so both agree.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `OAUTH_STORAGE_PROVIDER` | unset | `cloudinary` turns on signed uploads for pictures and the media service |
-| `OAUTH_CLOUDINARY_CLOUD_NAME` | required with Cloudinary | from the Cloudinary console |
-| `OAUTH_CLOUDINARY_API_KEY` | required with Cloudinary | from the Cloudinary console |
-| `OAUTH_CLOUDINARY_API_SECRET` | required with Cloudinary | never leaves the server |
-| `OAUTH_CLOUDINARY_FOLDER` | `oauth` | the folder every key starts with |
-| `OAUTH_PICTURE_TYPES` | `image/png,image/jpeg,image/webp` | what a profile picture may be. The account area saves the cropped photo as the first of WebP, JPEG and PNG that is allowed |
-| `OAUTH_PICTURE_MAX_BYTES` | `2097152` | the largest profile picture, from 10240 to 20971520 bytes |
 
-With Cloudinary on, OAuth App's CSP also allows `https://api.cloudinary.com`
-for the upload itself, and nothing else.
+### Media
+
+The media plugin stores uploads, such as profile photos, through Codexa Core
+storage. It is off while `MEDIA_STORAGE_PROVIDER` is unset, and then nothing can
+be uploaded. What may be uploaded, purpose by purpose, is set in
+`core/config/media.config.ts`, not in `.env`.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MEDIA_STORAGE_PROVIDER` | unset | `cloudinary` turns media on |
+| `MEDIA_CLOUDINARY_CLOUD_NAME` | required with Cloudinary | from the Cloudinary console |
+| `MEDIA_CLOUDINARY_API_KEY` | required with Cloudinary | from the Cloudinary console |
+| `MEDIA_CLOUDINARY_API_SECRET` | required with Cloudinary | never leaves the server |
+
+With media on, OAuth App's CSP also allows `https://api.cloudinary.com` for the
+upload itself, and nothing else.
 
 ### OAuth email delivery
 
@@ -217,7 +225,7 @@ Tests live in `tests/`, grouped by plugin, and run with `deno task test`.
 | `tests/oauth/security.test.ts` | a penetration pass: foreign account ids, bad tokens, injection, cross tenant reads and writes, mass assignment, open redirects, PKCE and code replay, disallowed grants, CORS, account switch escalation, password guessing, revoked sessions, security headers and idempotency |
 | `tests/oauth/tenancy.test.ts` | roles and policies stay inside the account that made them, built in roles stay shared and read only |
 | `tests/oauth/credentials.test.ts` | a machine credential with a role gets a service identity and a client credentials token, and every misuse is refused |
-| `tests/oauth/media.test.ts` | inlined pictures and their limits, device naming and client addresses, and with Cloudinary on a real signed upload, its check, another person's refusal, a fake file and deletion of replaced files |
+| `tests/oauth/media.test.ts` | OAuth keeping a picture only as an HTTPS URL, device naming and client addresses, and with Cloudinary on: media's catalog entries, its purposes, every refusal, a real signed upload and its check, another person's and another account's refusal, an account's filtered file list, a fake file, and deletion of a replaced or removed picture's file |
 | `tests/codexa-app/settings.test.ts` | every Settings list the session's capabilities allow answers `{ items, total }` |
 | `tests/oauth-app/account.test.ts` | the account area reads answer for a signed in user, and a plugin read answers 404 when that plugin is off |
 
@@ -258,13 +266,12 @@ through the actual screens:
 2. Sign in hands over to OAuth App.
 3. A new account is registered.
 4. Consent returns to the Overview, with its tab title.
-5. The user menu opens the shared session sheet.
-6. The sidebar opens the Session page.
-7. An unknown path shows the not found page.
-8. A reload keeps the session.
-9. Sign out asks first, then returns to sign in.
-10. A wrong password shows an error.
-11. Signing in again skips the remembered consent.
+5. The sidebar opens the Session page.
+6. An unknown path shows the not found page.
+7. A reload keeps the session.
+8. Sign out asks first, then returns to sign in.
+9. A wrong password shows an error.
+10. Signing in again skips the remembered consent.
 
 `tests/e2e/ui.e2e.ts` is the full UI review. It walks every screen in light and
 dark, English and Arabic, on a desktop and a phone, and fails on a second `h1`,
@@ -413,8 +420,8 @@ and you serve its `dist` with `serveStatic` under a route of your own.
 | `src/core/hooks/` | `useAsyncAction`, `useSignOut`, `useCopy`, `useDashboardNav` |
 | `src/core/config/navigation.ts` | the built in rail sections and the Settings lists, each with its management API path, columns, filters, create and edit capabilities and actions |
 | `src/core/config/permissions.ts` | the roots and fields the condition builder suggests. Permissions and scopes come from OAuth's catalog |
-| `src/core/layouts/dashboard/` | the admin shell: `IconRail`, `SectionSidebar` and `MobileNav`, which share `NavTree` for grouped pages, `PageBreadcrumb`, `SearchCommand` (Ctrl K), and `ProfileMenu` with the Language and Appearance submenus |
-| `src/core/pages/settings/Application.tsx` | one application: its details, credentials by kind with their state, and oauth-sso's sign in providers when the plugin is installed |
+| `src/core/layouts/dashboard/` | the admin shell on shadcn's `Sidebar`: `IconRail` and `SectionSidebar` as two nested sidebars that collapse to the rail, `MobileNav` inside the same sidebar's phone sheet, all sharing `NavTree` (`SidebarMenu` and `SidebarMenuSub`) for grouped pages, `PageBreadcrumb`, `SearchCommand` (Ctrl K), and `ProfileMenu` with the Language and Appearance submenus |
+| `src/core/pages/settings/Application.tsx` | one application: its details, its Branding sheet (logos, font and every colour of each theme, each empty field keeping the app's own), credentials by kind with their state, and oauth-sso's sign in providers when the plugin is installed |
 | `src/core/pages/ResourceList.tsx` | the one Settings list page: filters, paging, a table on a desktop, items on a phone, a create button, and details with Edit and actions in the sheet |
 | `src/core/pages/settings/` | `forms.tsx` (every create and edit form), `RecordDetails.tsx` (the details sheet and its confirmed actions) and `Application.tsx` (an app with its credentials) |
 | `src/core/components/form/` | `SheetForm` and the fields every form uses: text, text area, switch, select and chips |
@@ -440,7 +447,9 @@ export const routes: TRoutesOverride = {
 The built in keys are `overview` and `account`. Using one replaces that page,
 and adding `merge: true` keeps its icon and position while swapping the page.
 The dashboard wears the branding OAuth stores on the application, in light and
-dark mode. In Arabic and Urdu the sidebar and sheets sit on the right, and every
+dark mode, read from `GET /auth/applications/branding` by the session's
+`appId`, or before sign in by the client id in `/app/config.json`, so the sign
+in screen and OAuth App's pages wear the same theme. In Arabic and Urdu the sidebar and sheets sit on the right, and every
 link between pages cross fades with a view transition.
 
 Pages render inside the dashboard, signed in, so `useSessionInfo()` always has

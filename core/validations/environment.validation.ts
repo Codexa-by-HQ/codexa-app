@@ -32,7 +32,6 @@ function list() {
  * so neither one guesses a default name.
  */
 /** Image types a browser can encode a cropped photo as. */
-const PICTURE_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
 
 /** A path to a key file or folder, relative to where the host runs. */
 const keyPath = (fallback: string) =>
@@ -99,22 +98,18 @@ const OAuthEnvironmentSchema = z.object({
 	OAUTH_TRUSTED_CROSS_APP_ISSUER_APP_IDS: list(),
 	// How deep accounts nest below a root account.
 	OAUTH_ACCOUNT_MAX_DEPTH: z.coerce.number().int().min(0).max(20).default(5),
+});
 
-	// Media uploads through Codexa Core storage. Off while unset.
-	OAUTH_STORAGE_PROVIDER: z.enum(['cloudinary']).optional(),
-	OAUTH_CLOUDINARY_CLOUD_NAME: z.string().trim().min(1).optional(),
-	OAUTH_CLOUDINARY_API_KEY: z.string().trim().min(1).optional(),
-	OAUTH_CLOUDINARY_API_SECRET: z.string().trim().min(1).optional(),
-	OAUTH_CLOUDINARY_FOLDER: z.string().regex(/^[a-z0-9][a-z0-9_-]{0,63}$/)
-		.default('oauth'),
-	// What a profile picture may be. OAuth checks each stored file against it.
-	OAUTH_PICTURE_TYPES: z.string().default('image/png,image/jpeg,image/webp')
-		.transform((value) =>
-			value.split(',').map((type) => type.trim()).filter(Boolean)
-		)
-		.pipe(z.array(z.enum(PICTURE_TYPES)).min(1)),
-	OAUTH_PICTURE_MAX_BYTES: z.coerce.number().int().min(10_240)
-		.max(20_971_520).default(2_097_152),
+/**
+ * The media plugin's storage provider credentials, which the provider issues.
+ * Media is off while MEDIA_STORAGE_PROVIDER is unset. What may be uploaded is
+ * set in core/config/media.config.ts, not here.
+ */
+export const MediaEnvironmentSchema = z.object({
+	MEDIA_STORAGE_PROVIDER: z.enum(['cloudinary']).optional(),
+	MEDIA_CLOUDINARY_CLOUD_NAME: z.string().trim().min(1).optional(),
+	MEDIA_CLOUDINARY_API_KEY: z.string().trim().min(1).optional(),
+	MEDIA_CLOUDINARY_API_SECRET: z.string().trim().min(1).optional(),
 });
 
 const smtp = HostEmailConfigSchema.shape;
@@ -264,16 +259,17 @@ export const HostEnvironmentSchema = z.object({
 	REDIS_URL: z.string().trim().regex(/^rediss?:\/\//),
 	...OAuthEnvironmentSchema.shape,
 	...SmtpEnvironmentSchema.shape,
+	...MediaEnvironmentSchema.shape,
 	...OAuthAppEnvironmentSchema.shape,
 	...OAuthPluginsEnvironmentSchema.shape,
 	...CodexaAppEnvironmentSchema.shape,
 }).superRefine((config, ctx) => {
-	if (config.OAUTH_STORAGE_PROVIDER === 'cloudinary') {
+	if (config.MEDIA_STORAGE_PROVIDER === 'cloudinary') {
 		for (
 			const name of [
-				'OAUTH_CLOUDINARY_CLOUD_NAME',
-				'OAUTH_CLOUDINARY_API_KEY',
-				'OAUTH_CLOUDINARY_API_SECRET',
+				'MEDIA_CLOUDINARY_CLOUD_NAME',
+				'MEDIA_CLOUDINARY_API_KEY',
+				'MEDIA_CLOUDINARY_API_SECRET',
 			] as const
 		) {
 			if (config[name]) continue;

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { BrandLogo } from "@/core/components/BrandLogo";
+import { codexa } from "@/core/lib/utils";
 
 /**
  * The first paint, while the session loader settles who is signed in: the
@@ -11,7 +12,7 @@ export function Splash() {
   return (
     <main className="grid min-h-svh place-items-center bg-background" role="status">
       <h1 className="sr-only">{t("shell.loading")}</h1>
-      <div className="brand-loader">
+      <div className={codexa.loader}>
         <BrandLogo />
       </div>
     </main>

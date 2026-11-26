@@ -8,7 +8,7 @@ export const env = {
   oauthPath: import.meta.env.VITE_OAUTH_PATH || "/oauth",
   /** Where OAuth serves its versioned API, such as the session lookup. */
   authApiPath: import.meta.env.VITE_AUTH_API_PATH || "/auth",
-  /** Sent as X-Auth-Version on every versioned OAuth call. */
+  /** Sent as AUTH_VERSION_HEADER on every versioned OAuth call. */
   authApiVersion: import.meta.env.VITE_AUTH_API_VERSION || "1.0.0",
   /** Target of the "Powered by" link. */
   brandUrl: import.meta.env.VITE_BRAND_URL || "https://github.com/Codexa-by-HQ",

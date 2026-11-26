@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+import { BRANDING_COLORS } from "@/core/config/branding";
+import type { TBranding, TBrandingTheme, TColorToken } from "@/core/types";
+
 // The CSP has no 'unsafe-eval', so Zod must not compile validators with new Function.
 z.config({ jitless: true });
 
@@ -158,6 +161,47 @@ export const ssoProviderSchema = z.object({
   enabled: z.boolean(),
   allowRegistration: z.boolean(),
 });
+
+/** Empty, or a six digit hex colour such as #16a34a. */
+const hexColor = z.string().trim().refine((value) => value === "" || /^#[0-9a-f]{6}$/i.test(value), "validation.color");
+
+/** Empty, or one HTTPS or HTTP image URL. */
+const imageUrl = z.string().trim().refine(
+  (value) => value === "" || (URL.canParse(value) && /^https?:$/.test(new URL(value).protocol)),
+  "validation.imageUrl",
+);
+
+const brandingTheme = z.object({
+  ...(Object.fromEntries(BRANDING_COLORS.map((color) => [color, hexColor])) as Record<TColorToken, typeof hexColor>),
+  radiusPx: z.string().trim().refine((value) => value === "" || (/^d+$/.test(value) && Number(value) <= 24), "validation.radius"),
+});
+
+/** A theme with only the values filled in, so every empty one keeps the app's own. */
+const filledTheme = (theme: z.output<typeof brandingTheme>): TBrandingTheme | undefined => {
+  const { radiusPx, ...colors } = theme;
+  const filled: TBrandingTheme = Object.fromEntries(Object.entries(colors).filter(([, value]) => value));
+  if (radiusPx) filled.radiusPx = Number(radiusPx);
+  return Object.keys(filled).length ? filled : undefined;
+};
+
+/**
+ * An application's branding, as OAuth stores it. Every field may stay empty,
+ * and an empty one falls back to the app's own theme.
+ */
+export const brandingSchema = z.object({
+  logo: imageUrl,
+  darkLogo: imageUrl,
+  fontFamily: z.string().trim().max(100, "validation.tooLong")
+    .refine((value) => value === "" || /^[a-zA-Z][a-zA-Z0-9 ,'-]*$/.test(value), "validation.font"),
+  lightTheme: brandingTheme,
+  darkTheme: brandingTheme,
+}).transform((value): TBranding => ({
+  logo: value.logo || undefined,
+  darkLogo: value.darkLogo || undefined,
+  fontFamily: value.fontFamily || undefined,
+  lightTheme: filledTheme(value.lightTheme),
+  darkTheme: filledTheme(value.darkTheme),
+}));
 
 export const applicationSchema = z.object({
   name: text(100),

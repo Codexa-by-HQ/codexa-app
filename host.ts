@@ -1,6 +1,7 @@
 import { createApp, type ICodexaHttp } from '@codexa/http';
 import { installOAuthBasePlugin } from '@codexa/oauth';
 import { installOAuthAppPlugin } from '@codexa/oauth-app';
+import { installMediaPlugin } from '@codexa/media';
 import { installOAuthDevicePlugin } from '@codexa/oauth-device';
 import { installOAuthMagicLinkPlugin } from '@codexa/oauth-magic-link';
 import { installOAuthMfaPlugin } from '@codexa/oauth-mfa';
@@ -14,6 +15,7 @@ import {
 	type OAuthInstallContext,
 } from './core/config/oauth.config.ts';
 import { createCodexaAppInstallConfig } from './core/config/codexaApp.config.ts';
+import { createMediaInstallConfig } from './core/config/media.config.ts';
 import { createOAuthAppInstallConfig } from './core/config/oauthApp.config.ts';
 import { createOAuthDeviceInstallConfig } from './core/config/oauthDevice.config.ts';
 import { createOAuthMagicLinkInstallConfig } from './core/config/oauthMagicLink.config.ts';
@@ -184,6 +186,11 @@ async function installPlugins(app: ICodexaHttp, context: OAuthInstallContext) {
 	installOAuthDevicePlugin(
 		withOAuth,
 		createOAuthDeviceInstallConfig(deployment),
+	);
+	await installOptional(
+		'media',
+		createMediaInstallConfig(deployment),
+		(config) => installMediaPlugin(withOAuth, config),
 	);
 
 	const withOAuthApp = await installOAuthAppPlugin(

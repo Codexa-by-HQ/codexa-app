@@ -36,7 +36,7 @@ import { useSignedInSession } from "@/core/contexts/Session";
 import { sheet } from "@/core/contexts/Sheet";
 import { useAsyncAction } from "@/core/hooks/useAsyncAction";
 import { LIST_PAGE_SIZE, type listLoader } from "@/core/lib/loaders";
-import { cn, columnValue, preferences } from "@/core/lib/utils";
+import { cn, codexa, columnValue, preferences } from "@/core/lib/utils";
 import { RESOURCE_FORMS } from "@/core/pages/settings/forms";
 import { RecordDetails, runRecordAction } from "@/core/pages/settings/RecordDetails";
 import type { TFormOpener, TListItem, TListResource, TResourceAction } from "@/core/types";
@@ -233,9 +233,9 @@ function ResourceGrid({ resource, items, actions }: { resource: TListResource; i
   const { t } = useTranslation();
   const [primary, ...rest] = resource.columns;
   return (
-    <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label={t(`${resource.strings}.title`)}>
+    <ul className={cn(codexa.stagger, "grid gap-3 sm:grid-cols-2 xl:grid-cols-3")} aria-label={t(`${resource.strings}.title`)}>
       {items.map((item) => (
-        <li key={item._id} className="animate-enter">
+        <li key={item._id} className={codexa.enter}>
           {/* The title button stretches over the card, so the menu stays its own control. */}
           <Card size="sm" className="relative h-full transition-colors focus-within:border-primary/40 hover:border-primary/40">
             <CardHeader>

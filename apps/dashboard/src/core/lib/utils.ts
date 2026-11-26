@@ -39,6 +39,22 @@ function readableOn(hex: string): string {
   return (light + 0.05) / 0.05 > 1.05 / (light + 0.05) ? "#0a0a0a" : "#ffffff";
 }
 
+/** The prefix on every CSS class we define ourselves, beside Tailwind's and shadcn's. */
+const CODEXA_PREFIX = "codexa";
+
+/** Our own classes from index.css. Code names them only through this map. */
+export const codexa = {
+  enter: `${CODEXA_PREFIX}-enter`,
+  pop: `${CODEXA_PREFIX}-pop`,
+  shine: `${CODEXA_PREFIX}-shine`,
+  brandPanel: `${CODEXA_PREFIX}-brand-panel`,
+  halftone: `${CODEXA_PREFIX}-brand-panel-halftone`,
+  stagger: `${CODEXA_PREFIX}-stagger`,
+  staggerDeep: `${CODEXA_PREFIX}-stagger-deep`,
+  scrollArea: `${CODEXA_PREFIX}-scroll-area`,
+  loader: `${CODEXA_PREFIX}-loader`,
+} as const;
+
 function themeDeclarations(theme: TBrandingTheme): string[] {
   const color = (token: TColorToken) => {
     const value = theme[token];

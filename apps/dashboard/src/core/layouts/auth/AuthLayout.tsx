@@ -18,7 +18,7 @@ import { BrandLogo } from "@/core/components/BrandLogo";
 import { IconTile } from "@/core/components/IconTile";
 import { PoweredBy } from "@/core/components/PoweredBy";
 import { PreferenceControls } from "@/core/components/Preferences";
-import { cn } from "@/core/lib/utils";
+import { cn, codexa } from "@/core/lib/utils";
 
 type AuthLayoutProps = {
   /** Icon in the tile beside the heading. */
@@ -49,7 +49,7 @@ export function AuthLayout({ icon, heading, description, footer, children }: Aut
       <div className="relative isolate flex min-w-0 flex-1 flex-col overflow-hidden bg-background lg:rounded-frame lg:border">
         {/* Phones have no panel, so a faint halftone leaf sits behind the top. */}
         <div
-          className="brand-panel-halftone animate-shine -inset-e-16 top-20 bottom-auto w-64 opacity-60 lg:hidden"
+          className={cn(codexa.halftone, codexa.shine, "-inset-e-16 top-20 bottom-auto w-64 opacity-60 lg:hidden")}
           aria-hidden="true"
         />
 
@@ -62,10 +62,10 @@ export function AuthLayout({ icon, heading, description, footer, children }: Aut
           </div>
         </header>
 
-        <main className="scroll-area min-h-0 flex-1 overflow-y-auto [view-transition-name:page]">
+        <main className={cn(codexa.scrollArea, "min-h-0 flex-1 overflow-y-auto [view-transition-name:page]")}>
           <div className="mx-auto flex min-h-full w-full max-w-md flex-col justify-start px-4 pt-10 pb-8 sm:justify-center sm:px-6 sm:pt-0">
-            <section className="flex animate-enter flex-col gap-8">
-              <header className="stagger flex flex-col gap-3">
+            <section className={cn(codexa.enter, "flex flex-col gap-8")}>
+              <header className={cn(codexa.stagger, "flex flex-col gap-3")}>
                 <Item size="xs" className="p-0">
                   <IconTile icon={icon} className="sm:size-10" />
                   <ItemContent>
@@ -126,11 +126,11 @@ function BrandPanel() {
   const { t } = useTranslation();
 
   return (
-    <aside className="brand-panel order-last hidden w-1/2 max-w-3xl shrink-0 flex-col rounded-frame border px-12 py-7 text-foreground lg:flex xl:px-16">
-      <div className="brand-panel-halftone animate-shine" aria-hidden="true" />
+    <aside className={cn(codexa.brandPanel, "order-last hidden w-1/2 max-w-3xl shrink-0 flex-col rounded-frame border px-12 py-7 text-foreground lg:flex xl:px-16")}>
+      <div className={cn(codexa.halftone, codexa.shine)} aria-hidden="true" />
       <Brand size="lg" />
-      <div className="scroll-area flex min-h-0 flex-1 flex-col justify-center overflow-y-auto py-10">
-        <div className="flex animate-enter flex-col gap-8">
+      <div className={cn(codexa.scrollArea, "flex min-h-0 flex-1 flex-col justify-center overflow-y-auto py-10")}>
+        <div className={cn(codexa.enter, "flex flex-col gap-8")}>
           <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-semibold tracking-tight text-balance">
               {t("panel.title")}
@@ -139,7 +139,7 @@ function BrandPanel() {
               {t("panel.description")}
             </p>
           </div>
-          <ItemGroup className="stagger gap-4">
+          <ItemGroup className={cn(codexa.stagger, "gap-4")}>
             {PANEL_POINTS.map(({ key, icon }) => (
               <Item key={key} role="listitem" size="xs" className="p-0">
                 <IconTile icon={icon} tone="plain" size="sm" />

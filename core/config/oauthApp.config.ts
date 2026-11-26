@@ -1,5 +1,6 @@
 import type { OAuthAppInstallConfig } from '@codexa/oauth-app';
 import type { HostDeployment } from '../lib/environment.ts';
+import { storageUploadOrigins } from '../providers/storage.provider.ts';
 import type { HostRuntimeOptions } from '../types/host.types.ts';
 
 /** Everything installOAuthAppPlugin needs, built from the host environment. */
@@ -16,10 +17,8 @@ export function createOAuthAppInstallConfig(
 			mountPath: environment.OAUTH_APP_MOUNT_PATH,
 			assetsDirectory: options.oauthApp?.assetsDirectory ??
 				(assetsUrl ? new URL(assetsUrl) : undefined),
-			// Profile pictures upload from the page straight to the provider.
-			connectOrigins: environment.OAUTH_STORAGE_PROVIDER === 'cloudinary'
-				? ['https://api.cloudinary.com']
-				: [],
+			// Media uploads go from the page straight to the provider.
+			connectOrigins: storageUploadOrigins(environment),
 		},
 	};
 }

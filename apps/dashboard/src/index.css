@@ -171,74 +171,58 @@
 }
 
 /*
- * 
- * Motion. Use as Tailwind utilities: animate-enter, animate-pop, …
- * 
+ *
+ * Motion. Our own classes carry the codexa- prefix, read in code through the
+ * `codexa` map in lib/utils.ts: codexa-enter, codexa-pop, codexa-shine.
+ *
  */
 @theme {
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
 
-  --animate-enter: enter 0.5s var(--ease-out-soft) both;
-  --animate-enter-step: enter-step 0.35s var(--ease-out-soft) both;
-  --animate-pop: pop 0.5s var(--ease-out-soft) both;
-  --animate-shine: shine 9s ease-in-out infinite;
-
-  @keyframes enter {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    to {
-      opacity: 1;
-      transform: none;
-    }
+@keyframes codexa-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 
-  @keyframes enter-step {
-    from {
-      opacity: 0;
-      transform: translateX(calc(var(--step-direction, 1) * 14px));
-    }
-
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  /* A band of light slowly passing over the halftone dots. */
-  @keyframes shine {
-
-    0%,
-    15% {
-      background-position: 100% 0;
-    }
-
-    85%,
-    100% {
-      background-position: 0% 0;
-    }
-  }
-
-  @keyframes pop {
-    0% {
-      opacity: 0;
-      transform: scale(0.7);
-    }
-
-    60% {
-      opacity: 1;
-      transform: scale(1.05);
-    }
-
-    100% {
-      transform: scale(1);
-    }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
-@keyframes rise {
+/* A band of light slowly passing over the halftone dots. */
+@keyframes codexa-shine {
+
+  0%,
+  15% {
+    background-position: 100% 0;
+  }
+
+  85%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+@keyframes codexa-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes codexa-rise {
   from {
     opacity: 0;
     transform: translateY(var(--rise-distance));
@@ -250,26 +234,25 @@
   }
 }
 
-/* Step slide direction for `animate-enter-step`, mirrored in RTL. */
-[data-step-direction="back"] {
-  --step-direction: -1;
-}
-
-[dir="rtl"] [data-step-direction="forward"] {
-  --step-direction: -1;
-}
-
-[dir="rtl"] [data-step-direction="back"] {
-  --step-direction: 1;
-}
-
 /*
  * 
  * Brand panel: a single flat emerald surface.
  * 
  */
 @layer components {
-  .brand-panel {
+  .codexa-enter {
+    animation: codexa-enter 0.5s var(--ease-out-soft) both;
+  }
+
+  .codexa-pop {
+    animation: codexa-pop 0.5s var(--ease-out-soft) both;
+  }
+
+  .codexa-shine {
+    animation: codexa-shine 9s ease-in-out infinite;
+  }
+
+  .codexa-brand-panel {
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -278,7 +261,7 @@
   }
 
   /* The Codexa leaf as a dot-matrix halftone (src/assets/leaf-halftone.svg). */
-  .brand-panel-halftone {
+  .codexa-brand-panel-halftone {
     position: absolute;
     z-index: -1;
     bottom: -14%;
@@ -295,77 +278,77 @@
   }
 
   /*
-   * One-by-one entrance. .stagger animates its children; .stagger-deep
+   * One-by-one entrance. .codexa-stagger animates its children; .codexa-stagger-deep
    * animates its grandchildren (e.g. the fields inside a step's FieldGroup).
    * Re-mounting the container (a new key) replays it.
    */
-  .stagger>*,
-  .stagger-deep>*>* {
-    animation: rise 0.5s var(--ease-out-soft) both;
+  .codexa-stagger>*,
+  .codexa-stagger-deep>*>* {
+    animation: codexa-rise 0.5s var(--ease-out-soft) both;
   }
 
-  .stagger> :nth-child(1),
-  .stagger-deep>*> :nth-child(1) {
+  .codexa-stagger> :nth-child(1),
+  .codexa-stagger-deep>*> :nth-child(1) {
     animation-delay: calc(0 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(2),
-  .stagger-deep>*> :nth-child(2) {
+  .codexa-stagger> :nth-child(2),
+  .codexa-stagger-deep>*> :nth-child(2) {
     animation-delay: calc(1 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(3),
-  .stagger-deep>*> :nth-child(3) {
+  .codexa-stagger> :nth-child(3),
+  .codexa-stagger-deep>*> :nth-child(3) {
     animation-delay: calc(2 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(4),
-  .stagger-deep>*> :nth-child(4) {
+  .codexa-stagger> :nth-child(4),
+  .codexa-stagger-deep>*> :nth-child(4) {
     animation-delay: calc(3 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(5),
-  .stagger-deep>*> :nth-child(5) {
+  .codexa-stagger> :nth-child(5),
+  .codexa-stagger-deep>*> :nth-child(5) {
     animation-delay: calc(4 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(6),
-  .stagger-deep>*> :nth-child(6) {
+  .codexa-stagger> :nth-child(6),
+  .codexa-stagger-deep>*> :nth-child(6) {
     animation-delay: calc(5 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(7),
-  .stagger-deep>*> :nth-child(7) {
+  .codexa-stagger> :nth-child(7),
+  .codexa-stagger-deep>*> :nth-child(7) {
     animation-delay: calc(6 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(8),
-  .stagger-deep>*> :nth-child(8) {
+  .codexa-stagger> :nth-child(8),
+  .codexa-stagger-deep>*> :nth-child(8) {
     animation-delay: calc(7 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(9),
-  .stagger-deep>*> :nth-child(9) {
+  .codexa-stagger> :nth-child(9),
+  .codexa-stagger-deep>*> :nth-child(9) {
     animation-delay: calc(8 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(10),
-  .stagger-deep>*> :nth-child(10) {
+  .codexa-stagger> :nth-child(10),
+  .codexa-stagger-deep>*> :nth-child(10) {
     animation-delay: calc(9 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(11),
-  .stagger-deep>*> :nth-child(11) {
+  .codexa-stagger> :nth-child(11),
+  .codexa-stagger-deep>*> :nth-child(11) {
     animation-delay: calc(10 * var(--stagger-step));
   }
 
-  .stagger> :nth-child(12),
-  .stagger-deep>*> :nth-child(12) {
+  .codexa-stagger> :nth-child(12),
+  .codexa-stagger-deep>*> :nth-child(12) {
     animation-delay: calc(11 * var(--stagger-step));
   }
 
   /* Thin, theme-coloured scrollbars for inner scroll areas. */
-  .scroll-area {
+  .codexa-scroll-area {
     scrollbar-width: thin;
     scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
   }
@@ -393,7 +376,7 @@
  *
  * Route changes. Links pass `viewTransition`, so the browser snapshots the
  * page: the old content fades out while the new content rises in through
- * .stagger. Everything outside the named area holds still.
+ * .codexa-stagger. Everything outside the named area holds still.
  *
  */
 ::view-transition-old(root),
@@ -402,14 +385,14 @@
 }
 
 ::view-transition-old(page) {
-  animation: page-out 160ms var(--ease-out-soft) both;
+  animation: codexa-page-out 160ms var(--ease-out-soft) both;
 }
 
 ::view-transition-new(page) {
   animation: none;
 }
 
-@keyframes page-out {
+@keyframes codexa-page-out {
   to {
     opacity: 0;
     transform: translateY(-4px);
@@ -434,7 +417,7 @@
   }
 }
 /* The brand loader: the leaf breathes inside a ring that turns. */
-.brand-loader {
+.codexa-loader {
   position: relative;
   display: grid;
   place-items: center;
@@ -442,29 +425,29 @@
   height: 4.5rem;
 }
 
-.brand-loader::before {
+.codexa-loader::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 9999px;
   border: 2px solid color-mix(in oklch, var(--primary) 16%, transparent);
   border-top-color: var(--primary);
-  animation: brand-loader-spin 0.9s linear infinite;
+  animation: codexa-loader-spin 0.9s linear infinite;
 }
 
-.brand-loader > img {
+.codexa-loader > img {
   width: 2.25rem;
   height: 2.25rem;
-  animation: brand-loader-breathe 1.8s ease-in-out infinite;
+  animation: codexa-loader-breathe 1.8s ease-in-out infinite;
 }
 
-@keyframes brand-loader-spin {
+@keyframes codexa-loader-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes brand-loader-breathe {
+@keyframes codexa-loader-breathe {
   0%,
   100% {
     opacity: 0.5;

@@ -156,13 +156,10 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 		await check('app-user-menu-appearance');
 		await page.keyboard.press('Escape');
 		await page.locator('[data-slot="dropdown-menu-sub-content"]').waitFor({ state: 'hidden' });
-		if (!(await page.locator('[data-slot="dropdown-menu-item"]').first().isVisible())) await openProfile();
 	}
-	await page.locator('[data-shell="session-details"]:visible').click();
-	await page.getByRole('textbox').first().waitFor();
-	await check('app-session-sheet');
 	await page.keyboard.press('Escape');
 	await overlay.waitFor({ state: 'hidden' });
+	await page.locator('[data-slot="dropdown-menu-content"]').waitFor({ state: 'hidden' });
 
 	await page.goto(`${origin}/app/settings/users`);
 	await page.locator('main h1:not(.sr-only)').waitFor();
@@ -176,10 +173,12 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 
 	if (phone) {
 		await page.locator('[data-shell="menu"]').click();
-		await page.locator('[data-slot="sheet-content"]').waitFor();
+		// The menu is the shadcn sidebar, which a phone shows as its sheet.
+		const menu = page.locator('[data-slot="sidebar"][data-mobile="true"]');
+		await menu.waitFor();
 		await check('app-mobile-nav');
 		await page.keyboard.press('Escape');
-		await page.locator('[data-slot="sheet-content"]').waitFor({ state: 'hidden' });
+		await menu.waitFor({ state: 'hidden' });
 	}
 
 	await openProfile();

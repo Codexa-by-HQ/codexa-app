@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import {
   Building03Icon,
+  PaintBoardIcon,
   GridViewIcon,
   Key01Icon,
   Login03Icon,
@@ -13,7 +14,7 @@ import {
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 
-import { ChipsField, SelectField, SwitchField, TextAreaField, TextField } from "@/core/components/form/fields";
+import { ChipsField, ColorField, SelectField, SwitchField, TextAreaField, TextField } from "@/core/components/form/fields";
 import { FormSection, SheetForm } from "@/core/components/form/SheetForm";
 import { showCredentialIssued } from "@/core/pages/settings/CredentialIssued";
 import { showInviteSent } from "@/core/pages/settings/InviteSent";
@@ -21,8 +22,9 @@ import { ConditionBuilder } from "@/core/components/form/ConditionBuilder";
 import { PermissionMatrix } from "@/core/components/form/PermissionMatrix";
 import i18n from "@/core/i18n";
 import { api } from "@/core/lib/api";
-import { withTokens } from "@/core/lib/loaders";
-import { conditionToExpr, exprToCondition, type TExprNode, valueAt } from "@/core/lib/utils";
+import { BRANDING_COLORS } from "@/core/config/branding";
+import { applicationFor, reloadSession, withTokens } from "@/core/lib/loaders";
+import { applyBranding, conditionToExpr, exprToCondition, type TExprNode, valueAt } from "@/core/lib/utils";
 import {
   ACCOUNT_TYPES,
   CREDENTIAL_KINDS,
@@ -33,6 +35,7 @@ import {
   accountEditSchema,
   applicationCreateSchema,
   applicationSchema,
+  brandingSchema,
   credentialCreateSchema,
   credentialEditSchema,
   inviteCreateSchema,
@@ -44,6 +47,8 @@ import {
   userEditSchema,
 } from "@/core/lib/validation";
 import type {
+  TBranding,
+  TBrandingTheme,
   TCatalog,
   TCredentialCreateValues,
   TFormOpener,
@@ -541,6 +546,68 @@ export const editApplication: TFormOpener = async (done, item) => ({
     </SheetForm>
   ),
 });
+
+/** A theme's stored values as the editor's text fields, empty where unset. */
+const themeValues = (theme?: TBrandingTheme) => ({
+  ...Object.fromEntries(BRANDING_COLORS.map((color) => [color, theme?.[color] ?? ""])),
+  radiusPx: theme?.radiusPx === undefined ? "" : String(theme.radiusPx),
+});
+
+function ThemeFields({ theme }: { theme: "lightTheme" | "darkTheme" }) {
+  return (
+    <FormSection title={t(`forms.branding.${theme}`)} description={t("forms.branding.themeHint")}>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {BRANDING_COLORS.map((color) => (
+          <ColorField key={color} name={`${theme}.${color}`} label={t(`forms.branding.colors.${color}`)} />
+        ))}
+        <TextField name={`${theme}.radiusPx`} type="number" label={t("forms.branding.radius")} placeholder="12" description={t("forms.branding.radiusHint")} ltr />
+      </div>
+    </FormSection>
+  );
+}
+
+/**
+ * An application's branding: its logos, font and the colours of each theme,
+ * which every sign in page and this dashboard wear. Anything left empty keeps
+ * the app's own theme.
+ */
+export const editBranding: TFormOpener = async (done, item) => {
+  const branding = (item?.branding ?? {}) as TBranding;
+  return {
+    title: t("forms.branding.title"),
+    description: text(item?.name),
+    icon: PaintBoardIcon,
+    body: (
+      <SheetForm
+        schema={brandingSchema}
+        defaultValues={{
+          logo: branding.logo ?? "",
+          darkLogo: branding.darkLogo ?? "",
+          fontFamily: branding.fontFamily ?? "",
+          lightTheme: themeValues(branding.lightTheme),
+          darkTheme: themeValues(branding.darkTheme),
+        }}
+        submitLabel={t("forms.save")}
+        onSubmit={async (values) => {
+          await save("PATCH", "/management/oauth-apps", { id: item?._id, branding: values });
+          // Read the edited branding past any cached copy. The signed in app may
+          // be the one just branded, so wear the session's again.
+          await applicationFor({ app: String(item?._id) }, true);
+          applyBranding((await reloadSession())?.application ?? null);
+          done(t("forms.saved"));
+        }}
+      >
+        <FormSection title={t("forms.branding.identity")} description={t("forms.branding.identityHint")}>
+          <TextField name="logo" type="url" label={t("forms.branding.logo")} placeholder="https://example.com/logo.svg" optional ltr />
+          <TextField name="darkLogo" type="url" label={t("forms.branding.darkLogo")} placeholder="https://example.com/logo-dark.svg" description={t("forms.branding.darkLogoHint")} optional ltr />
+          <TextField name="fontFamily" label={t("forms.branding.font")} placeholder="Inter, sans-serif" description={t("forms.branding.fontHint")} optional ltr />
+        </FormSection>
+        <ThemeFields theme="lightTheme" />
+        <ThemeFields theme="darkTheme" />
+      </SheetForm>
+    ),
+  };
+};
 
 /**
  * A sign in provider for one app: add it, or change its name, whether it is

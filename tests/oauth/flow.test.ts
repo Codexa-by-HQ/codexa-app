@@ -8,6 +8,7 @@ import {
 import { host } from '../../host.ts';
 import { loadMongodb } from '../../core/lib/database.ts';
 import type { HostEnvironmentInput } from '../../core/validations/environment.validation.ts';
+import { AUTH_VERSION, AUTH_VERSION_HEADER } from '@codexa/oauth/config';
 
 /**
  * End to end OAuth flow against the real host, MongoDB and Redis from .env.
@@ -22,7 +23,10 @@ const REDIRECT_URI = dotenv.OAUTH_TEST_REDIRECT_URI ??
 // A separate port, so the test can run while the dev host is up.
 const PORT = dotenv.OAUTH_TEST_PORT ?? '8199';
 
-const VERSIONED = { 'X-Auth-Version': '1.0.0', 'x-oauth-interaction': 'json' };
+const VERSIONED = {
+	[AUTH_VERSION_HEADER]: AUTH_VERSION,
+	'x-oauth-interaction': 'json',
+};
 
 interface Json {
 	// deno-lint-ignore no-explicit-any
@@ -49,19 +53,22 @@ async function readJson(response: Response) {
 
 function client(base: string) {
 	return {
-		authorize: (challenge: string, state: string, scope = 'profile email') =>
-			fetch(
-				`${base}/oauth/authorize?${new URLSearchParams({
-					response_type: 'code',
-					client_id: CLIENT_ID,
-					redirect_uri: REDIRECT_URI,
-					scope,
-					state,
-					code_challenge: challenge,
-					code_challenge_method: 'S256',
-				})}`,
-				{ headers: { accept: 'application/json' } },
-			).then(readJson),
+		authorize: (
+			challenge: string,
+			state: string,
+			scope = 'profile email',
+		) => fetch(
+			`${base}/oauth/authorize?${new URLSearchParams({
+				response_type: 'code',
+				client_id: CLIENT_ID,
+				redirect_uri: REDIRECT_URI,
+				scope,
+				state,
+				code_challenge: challenge,
+				code_challenge_method: 'S256',
+			})}`,
+			{ headers: { accept: 'application/json' } },
+		).then(readJson),
 		post: (path: string, body: unknown) =>
 			fetch(base + path, {
 				method: 'POST',
@@ -89,25 +96,24 @@ function client(base: string) {
 			path: string,
 			tokens: Json,
 			input: Record<string, unknown> = {},
-		) =>
-			fetch(
-				base + path +
-					(method === 'GET'
-						? `?${new URLSearchParams(input as Record<string, string>)}`
-						: ''),
-				{
-					method,
-					headers: {
-						...VERSIONED,
-						authorization: `Bearer ${tokens.access_token}`,
-						'x-account-id': tokens.account_id,
-						...(method === 'GET'
-							? {}
-							: { 'content-type': 'application/json' }),
-					},
-					body: method === 'GET' ? undefined : JSON.stringify(input),
+		) => fetch(
+			base + path +
+				(method === 'GET'
+					? `?${new URLSearchParams(input as Record<string, string>)}`
+					: ''),
+			{
+				method,
+				headers: {
+					...VERSIONED,
+					authorization: `Bearer ${tokens.access_token}`,
+					'x-account-id': tokens.account_id,
+					...(method === 'GET'
+						? {}
+						: { 'content-type': 'application/json' }),
 				},
-			).then(readJson),
+				body: method === 'GET' ? undefined : JSON.stringify(input),
+			},
+		).then(readJson),
 		session: async (accessToken: string, accountId: string) => {
 			const response = await fetch(`${base}/auth/management/session`, {
 				headers: {
@@ -293,7 +299,11 @@ async function run(t: Deno.TestContext, api: ReturnType<typeof client>) {
 		);
 		assertEquals(authorize.status, 200, JSON.stringify(authorize.body));
 		const { authTxnId } = authorize.body;
-		await api.post('/auth/login/password', { authTxnId, username, password });
+		await api.post('/auth/login/password', {
+			authTxnId,
+			username,
+			password,
+		});
 		let consent = await api.consent(authTxnId);
 		if (consent.body.next === 'consent') {
 			consent = await api.post('/auth/consent/approve', {
@@ -353,7 +363,9 @@ async function run(t: Deno.TestContext, api: ReturnType<typeof client>) {
 		});
 		assertEquals(consentSearch.body.total, 1);
 		assertEquals(
-			(await list('/auth/management/consents', { search: 'no-such-client' }))
+			(await list('/auth/management/consents', {
+				search: 'no-such-client',
+			}))
 				.body.total,
 			0,
 		);
@@ -389,12 +401,20 @@ async function run(t: Deno.TestContext, api: ReturnType<typeof client>) {
 		// Revoking needs no separate lookup: the revoke itself reports a miss.
 		const target = second.body.items[0]._id;
 		const revoke = () =>
-			api.management('POST', '/auth/management/account-sessions/revoke', newer, {
-				id: target,
-			});
+			api.management(
+				'POST',
+				'/auth/management/account-sessions/revoke',
+				newer,
+				{
+					id: target,
+				},
+			);
 		assertEquals((await revoke()).body.revoked, true);
 		assertEquals((await revoke()).status, 404);
-		assertEquals(await api.session(older.access_token, older.account_id), 401);
+		assertEquals(
+			await api.session(older.access_token, older.account_id),
+			401,
+		);
 
 		await checkCollaboratorCap(api, newer);
 	});

@@ -69,7 +69,6 @@
   "user": {
     "menu": "Account menu",
     "signedIn": "Signed in",
-    "sessionDetails": "This sign in",
     "manageAccount": "Manage your account",
     "accountFailed": "Could not open your account. Please try again.",
     "userId": "User ID",
@@ -279,7 +278,11 @@
     "pickOne": "Choose at least one.",
     "conditionField": "Use a context and a field, such as account.type.",
     "afterStart": "Must be after the start.",
-    "pickPermission": "Allow or deny at least one permission."
+    "pickPermission": "Allow or deny at least one permission.",
+    "color": "Use a six digit hex colour, such as #16a34a.",
+    "imageUrl": "Enter a full image URL starting with https:// or http://.",
+    "radius": "Enter a whole number from 0 to 24.",
+    "font": "Use letters, numbers, spaces, commas, quotes and \"-\"."
   },
   "filters": {
     "active": "Active",
@@ -509,6 +512,39 @@
       "name": "Credential name",
       "nameHint": "For you, to tell its credentials apart.",
       "scopesHint": "Pick or type the scopes it may ask for."
+    },
+    "branding": {
+      "open": "Branding",
+      "title": "Branding",
+      "identity": "Logo and font",
+      "identityHint": "Shown on every sign in page and in the dashboard.",
+      "logo": "Logo URL",
+      "darkLogo": "Dark mode logo URL",
+      "darkLogoHint": "Used in dark mode. Without it the logo above is used.",
+      "font": "Font",
+      "fontHint": "A font installed on the device, such as Inter. The app's own font is used when it is missing.",
+      "lightTheme": "Light theme",
+      "darkTheme": "Dark theme",
+      "themeHint": "Leave a colour empty to keep the app's own.",
+      "radius": "Corner radius",
+      "radiusHint": "In pixels, from 0 to 24.",
+      "colors": {
+        "primary": "Primary",
+        "secondary": "Secondary",
+        "background": "Background",
+        "foreground": "Text",
+        "card": "Card",
+        "cardForeground": "Card text",
+        "popover": "Menu",
+        "popoverForeground": "Menu text",
+        "muted": "Muted",
+        "mutedForeground": "Muted text",
+        "accent": "Accent",
+        "accentForeground": "Accent text",
+        "border": "Border",
+        "input": "Input border",
+        "ring": "Focus ring"
+      }
     }
   },
   "application": {

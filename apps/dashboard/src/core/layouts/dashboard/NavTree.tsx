@@ -4,6 +4,14 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+} from "@/components/ui/sidebar";
 import { cn } from "@/core/lib/utils";
 import type { TNavItem } from "@/core/types";
 
@@ -42,9 +50,18 @@ export function NavTree({
     !guide ? undefined : currentTop < 0 || index > currentTop ? "after" : index < currentTop ? "before" : "current";
 
   return (
-    <div className={cn("flex flex-col", !guide && "gap-0.5")}>
+    <SidebarMenu className={guide ? "gap-0" : "gap-0.5"}>
       {loose.map((item, index) => (
-        <NavRow key={item.key} item={item} onNavigate={onNavigate} size={size} line={lineAt(index)} last={index === lastTop} />
+        <SidebarMenuItem key={item.key}>
+          <NavRow
+            item={item}
+            active={isCurrent(item)}
+            onNavigate={onNavigate}
+            size={size}
+            line={lineAt(index)}
+            last={index === lastTop}
+          />
+        </SidebarMenuItem>
       ))}
 
       {grouped.map(([group, entries], position) => {
@@ -57,19 +74,27 @@ export function NavTree({
             // Remounted when a search starts or ends, so its open state resets.
             key={`${group}:${searching}`}
             defaultOpen={searching || holdsCurrent}
-            className={cn(
-              "relative flex flex-col",
-              line && GROUP_LINE[size][line],
-              line === "current" && index !== lastTop && GROUP_LINE[size].onward,
-            )}
+            render={
+              <SidebarMenuItem
+                className={cn(
+                  "flex flex-col",
+                  line && GROUP_LINE[size][line],
+                  line === "current" && index !== lastTop && GROUP_LINE[size].onward,
+                )}
+              />
+            }
           >
             <CollapsibleTrigger
-              className={cn(
-                "group/trigger relative flex items-center gap-2 rounded-lg text-muted-foreground transition-colors hover:text-foreground",
-                guide ? "ps-5 pe-3" : "px-3",
-                size === "lg" ? "min-h-11 text-[0.9375rem]" : "min-h-9 text-sm",
-                holdsCurrent && "font-medium text-foreground",
-              )}
+              render={
+                <SidebarMenuButton
+                  className={cn(
+                    "group/trigger relative h-auto gap-2 rounded-lg py-0 text-muted-foreground hover:bg-transparent hover:text-foreground active:bg-transparent",
+                    guide ? "ps-5 pe-3" : "px-3",
+                    size === "lg" ? "min-h-11 text-[0.9375rem]" : "min-h-9 text-sm",
+                    holdsCurrent && "font-medium text-foreground",
+                  )}
+                />
+              }
             >
               {/* Closed, a bar marks the group holding the current page, unless
                   the guide line already leads to it. Open, a connector runs from
@@ -91,22 +116,27 @@ export function NavTree({
                 className="size-4 transition-transform ltr:-rotate-90 rtl:rotate-90 group-data-[panel-open]/trigger:rotate-0!"
               />
             </CollapsibleTrigger>
-            <CollapsibleContent className={cn("flex flex-col", guide ? "ms-6" : "ms-4")}>
-              {entries.map((item, index) => (
-                <NavRow
-                  key={item.key}
-                  item={item}
-                  onNavigate={onNavigate}
-                  size={size}
-                  line={!holdsCurrent || index > current ? "after" : index < current ? "before" : "current"}
-                  last={index === entries.length - 1}
-                />
-              ))}
+            <CollapsibleContent>
+              <SidebarMenuSub className={cn("mx-0 translate-x-0 gap-0 border-s-0 px-0 py-0", guide ? "ms-6" : "ms-4")}>
+                {entries.map((item, index) => (
+                  <SidebarMenuSubItem key={item.key}>
+                    <NavRow
+                      item={item}
+                      active={index === current}
+                      onNavigate={onNavigate}
+                      size={size}
+                      line={!holdsCurrent || index > current ? "after" : index < current ? "before" : "current"}
+                      last={index === entries.length - 1}
+                      sub
+                    />
+                  </SidebarMenuSubItem>
+                ))}
+              </SidebarMenuSub>
             </CollapsibleContent>
           </Collapsible>
         );
       })}
-    </div>
+    </SidebarMenu>
   );
 }
 
@@ -141,45 +171,48 @@ const GROUP_LINE = {
   },
 };
 
-/** A page link. Inside a group it has no pill, and the current page is bold. */
+/**
+ * A page link. Inside a group or on a guide line it has no pill and the
+ * current page is bold. A row inside a group is a sub menu button.
+ */
 function NavRow({
   item,
+  active,
   onNavigate,
   size,
   line,
   last,
+  sub = false,
 }: {
   item: TNavItem;
+  active: boolean;
   onNavigate?: () => void;
   size: "md" | "lg";
   /** Where the row sits on its group's guide line, for nested rows. */
   line?: keyof typeof LINE;
   last?: boolean;
+  sub?: boolean;
 }) {
-  const nested = line !== undefined;
   const { t } = useTranslation();
+  const nested = line !== undefined;
+  const Row = sub ? SidebarMenuSubButton : SidebarMenuButton;
   return (
-    <NavLink
-      to={item.to}
-      end={item.end}
-      viewTransition
-      onClick={onNavigate}
-      className={({ isActive }) =>
-        cn(
-          "relative flex items-center gap-2.5 text-muted-foreground transition-colors hover:text-foreground",
-          size === "lg" ? "min-h-11 text-[0.9375rem] [&_svg]:size-5" : "min-h-9 text-sm [&_svg]:size-4.5",
-          nested
-            ? "ps-5 pe-3"
-            : "rounded-lg px-3 hover:bg-accent/60",
-          !nested && isActive && "bg-accent font-medium text-foreground",
-          line && LINE[line],
-          // The line carries on past the current page, unless it ends the group.
-          line === "current" && !last && "after:absolute after:start-0 after:top-1/2 after:bottom-0 after:border-s after:border-border",
-          nested && isActive && "font-medium text-foreground [&_svg]:text-primary",
-        )}
+    <Row
+      isActive={active}
+      render={<NavLink to={item.to} end={item.end} viewTransition onClick={onNavigate} />}
+      className={cn(
+        "relative h-auto gap-2.5 py-0 text-muted-foreground hover:text-foreground",
+        size === "lg" ? "min-h-11 text-[0.9375rem]" : "min-h-9 text-sm",
+        nested
+          ? "translate-x-0 rounded-none ps-5 pe-3 hover:bg-transparent active:bg-transparent data-active:bg-transparent"
+          : "rounded-lg px-3 hover:bg-accent/60 data-active:bg-accent",
+        "data-active:font-medium data-active:text-foreground",
+        line && LINE[line],
+        // The line carries on past the current page, unless it ends the group.
+        line === "current" && !last && "after:absolute after:start-0 after:top-1/2 after:bottom-0 after:border-s after:border-border",
+      )}
     >
-      {item.icon && <HugeiconsIcon icon={item.icon} />}
       <span className="truncate">{t(item.name)}</span>
-    </NavLink>
+    </Row>
   );
 }

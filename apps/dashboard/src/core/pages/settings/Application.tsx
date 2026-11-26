@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router";
 import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, Key01Icon, PencilEdit02Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon, Key01Icon, PaintBoardIcon, PencilEdit02Icon } from "@hugeicons/core-free-icons";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import { api } from "@/core/lib/api";
 import { type applicationLoader, withTokens } from "@/core/lib/loaders";
 import { failureMessage } from "@/core/lib/utils";
 import { showCredentialIssued } from "@/core/pages/settings/CredentialIssued";
-import { createCredential, editApplication, editCredential } from "@/core/pages/settings/forms";
+import { createCredential, editApplication, editBranding, editCredential } from "@/core/pages/settings/forms";
 import { ProvidersCard } from "@/core/pages/settings/ProvidersCard";
 import { RecordSummary, runRecordAction } from "@/core/pages/settings/RecordDetails";
 import type { TListItem, TResourceAction } from "@/core/types";
@@ -88,6 +88,11 @@ function Application() {
     { error: t("form.unexpected") },
   );
 
+  const [brand, branding] = useAsyncAction(
+    async () => sheet.open(await editBranding(changed, application)),
+    { error: t("form.unexpected") },
+  );
+
   const [addCredential, adding] = useAsyncAction(
     async () => sheet.open(await createCredential(application._id, () => void revalidator.revalidate())),
     { error: t("form.unexpected") },
@@ -114,6 +119,12 @@ function Application() {
           <>
             {can(ARCHIVE_APP.capability) && application.enabled !== false && (
               <Button variant="outline" onClick={archive}>{t("settings.actions.archive.label")}</Button>
+            )}
+            {can("applications:update") && (
+              <Button variant="outline" onClick={() => brand()} disabled={branding}>
+                {branding ? <Spinner /> : <HugeiconsIcon icon={PaintBoardIcon} />}
+                {t("forms.branding.open")}
+              </Button>
             )}
             {can("applications:update") && (
               <Button onClick={() => edit()} disabled={editing}>
