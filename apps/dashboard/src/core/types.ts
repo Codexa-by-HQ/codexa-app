@@ -130,6 +130,8 @@ export type TSessionInfo = {
   oauthScopes: string[];
   /** What OAuth lets this session manage, evaluated by OAuth's own guards. */
   capabilities: string[];
+  /** Holds `*`, as OAuth evaluates it, so it may write application wide policies. */
+  platformAdministrator?: boolean;
 };
 
 /** Why a sign in did not complete, used as a translation key. */
@@ -338,12 +340,17 @@ export type TListItem = Record<string, unknown> & { _id: string };
 /** A page of a management list, as OAuth answers it. */
 export type TListPage = { items: TListItem[]; total: number; limit: number; offset: number };
 
-/** An OAuth app with its credentials, for the application page. */
 /** A scope or permission in OAuth's catalog, with the plugin that registered it. */
 export type TCatalogItem = { name: string; description?: string; plugin: string };
 
+/**
+ * A permission, marked by OAuth: `grantable` when this person holds it outright
+ * and so may put it in a policy, `baseline` when everyone signed in holds it.
+ */
+export type TCatalogPermission = TCatalogItem & { grantable: boolean; baseline: boolean };
+
 /** Every scope and permission OAuth, its plugins and the product registered. */
-export type TCatalog = { scopes: TCatalogItem[]; permissions: TCatalogItem[] };
+export type TCatalog = { scopes: TCatalogItem[]; permissions: TCatalogPermission[] };
 
 /** A sign in provider oauth-sso offers an app, with that app's own settings. */
 export type TSsoProvider = {

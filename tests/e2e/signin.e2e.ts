@@ -1,7 +1,8 @@
 import { assert } from '@std/assert';
 import type { Page } from 'playwright-core';
 import { E2E_PORT, executablePath, withPage } from '../support/browser.ts';
-import { dotenv, withHost } from '../support/host.ts';
+import { dotenv } from '../support/host.ts';
+import { withOwners } from '../support/oauth.ts';
 
 /**
  * Sign in through a real browser, clicking the actual screens: Codexa App
@@ -24,8 +25,9 @@ Deno.test({
 	async fn(t) {
 		const username = 'e2e_' + crypto.randomUUID().slice(0, 8);
 		const password = 'E2eTest' + crypto.randomUUID().slice(0, 6) + '9';
-		await withHost(
-			(origin) => withPage((page) => run(t, page, origin, username, password)),
+		await withOwners(
+			(origin) =>
+				withPage((page) => run(t, page, origin, username, password)),
 			E2E_PORT,
 		);
 	},
@@ -42,7 +44,8 @@ async function run(
 	const signedIn = () =>
 		page.getByRole('button', { name: 'Account menu' }).waitFor();
 	/** The dashboard root of the signed in account, /app/<accountId>/. */
-	const atDashboardRoot = () => /^\/app\/[a-f\d]{24}\/?$/.test(new URL(page.url()).pathname);
+	const atDashboardRoot = () =>
+		/^\/app\/[a-f\d]{24}\/?$/.test(new URL(page.url()).pathname);
 
 	let shots = 0;
 	/** Save the current screen when E2E_SCREENSHOT_DIR is set. */
@@ -58,14 +61,17 @@ async function run(
 	await t.step('/app opens the app signed out', async () => {
 		await page.goto(`${origin}/app/`);
 		assert(new URL(page.url()).pathname === '/app/');
-		await page.getByRole('button', { name: 'Sign in', exact: true }).waitFor();
+		await page.getByRole('button', { name: 'Sign in', exact: true })
+			.waitFor();
 		await capture('app-signed-out');
 	});
 
 	await t.step('Sign in hands over to OAuth App', async () => {
-		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+		await page.getByRole('button', { name: 'Sign in', exact: true })
+			.click();
 		await page.waitForURL(/\/auth\/login\?authTxnId=/);
-		await page.getByRole('heading', { name: 'Sign in', exact: true }).waitFor();
+		await page.getByRole('heading', { name: 'Sign in', exact: true })
+			.waitFor();
 		await capture('oauth-sign-in');
 	});
 
@@ -80,32 +86,45 @@ async function run(
 	});
 
 	await t.step('consent returns to the app signed in', async () => {
-		await page.getByRole('heading', { level: 1, name: 'Codexa App wants to access your Codexa account' }).waitFor();
+		await page.getByRole('heading', {
+			level: 1,
+			// The client and application are named by whoever ran setup.
+			name: /wants to access your .+ account/,
+		}).waitFor();
 		await capture('oauth-consent');
 		await page.getByRole('button', { name: 'Allow' }).click();
 		await signedIn();
 		// The callback replaced its URL, so the one time code left history.
 		assert(atDashboardRoot(), page.url());
-		await page.getByRole('heading', { level: 1, name: 'Overview' }).waitFor();
-		await page.getByText('You are signed in to Codexa.').waitFor();
-		assert((await page.title()) === 'Overview · Codexa App', await page.title());
+		await page.getByRole('heading', { level: 1, name: 'Overview' })
+			.waitFor();
+		await page.getByText(/^You are signed in to .+.$/).waitFor();
+		assert(
+			(await page.title()).startsWith('Overview · '),
+			await page.title(),
+		);
 		await capture('app-overview');
 	});
 
 	await t.step('the Settings section opens the session page', async () => {
 		await page.getByRole('link', { name: 'Settings' }).first().click();
-		await page.waitForURL((url) => /^\/app\/[a-f\d]{24}\/account$/.test(url.pathname));
-		await page.getByRole('heading', { level: 1, name: 'Session' }).waitFor();
+		await page.waitForURL((url) =>
+			/^\/app\/[a-f\d]{24}\/account$/.test(url.pathname)
+		);
+		await page.getByRole('heading', { level: 1, name: 'Session' })
+			.waitFor();
 		await capture('app-account');
 	});
 
 	await t.step('an unknown path shows the not found page', async () => {
 		await page.goto(`${origin}/app/missing-page`);
 		await signedIn();
-		await page.getByRole('heading', { level: 1, name: 'Page not found' }).waitFor();
+		await page.getByRole('heading', { level: 1, name: 'Page not found' })
+			.waitFor();
 		await capture('app-not-found');
 		await page.getByRole('link', { name: 'Back to overview' }).click();
-		await page.getByRole('heading', { level: 1, name: 'Overview' }).waitFor();
+		await page.getByRole('heading', { level: 1, name: 'Overview' })
+			.waitFor();
 	});
 
 	await t.step('a reload keeps the session', async () => {
@@ -116,28 +135,34 @@ async function run(
 	await t.step('sign out asks first, then returns to sign in', async () => {
 		await page.getByRole('button', { name: 'Account menu' }).click();
 		await page.getByRole('menuitem', { name: 'Sign out' }).click();
-		const dialog = page.getByRole('alertdialog', { name: 'Sign out of Codexa App?' });
+		const dialog = page.getByRole('alertdialog', {
+			name: 'Sign out of Codexa App?',
+		});
 		await capture('app-sign-out-confirm');
 		await dialog.getByRole('button', { name: 'Sign out' }).click();
-		await page.getByRole('button', { name: 'Sign in', exact: true }).waitFor();
+		await page.getByRole('button', { name: 'Sign in', exact: true })
+			.waitFor();
 		await dialog.waitFor({ state: 'hidden' });
 	});
 
 	await t.step('a wrong password shows an error', async () => {
-		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+		await page.getByRole('button', { name: 'Sign in', exact: true })
+			.click();
 		await page.waitForURL(/\/auth\/login\?authTxnId=/);
 		await page.getByLabel('Username').fill(username);
 		await page.getByLabel('Password', { exact: true }).fill(password + 'x');
-		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+		await page.getByRole('button', { name: 'Sign in', exact: true })
+			.click();
 		await page.getByText('Username or password is incorrect.').waitFor();
 		await capture('oauth-wrong-password');
 	});
 
 	await t.step('signing in again skips the remembered consent', async () => {
 		await page.getByLabel('Password', { exact: true }).fill(password);
-		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+		await page.getByRole('button', { name: 'Sign in', exact: true })
+			.click();
 		await signedIn();
 		assert(atDashboardRoot(), page.url());
-		await page.getByText('You are signed in to Codexa.').waitFor();
+		await page.getByText(/^You are signed in to .+.$/).waitFor();
 	});
 }

@@ -82,7 +82,7 @@ export function TextField<T extends FieldValues>({
   type = "text",
   ltr,
   autoFocus,
-}: TBaseProps<T> & { placeholder: string; type?: "text" | "email" | "url" | "number" | "datetime-local"; ltr?: boolean; autoFocus?: boolean }) {
+}: TBaseProps<T> & { placeholder: string; type?: "text" | "email" | "url" | "number" | "password" | "datetime-local"; ltr?: boolean; autoFocus?: boolean }) {
   const id = useId();
   const { control } = useFormContext<T>();
   return (

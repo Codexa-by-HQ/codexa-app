@@ -78,7 +78,7 @@ export const api = {
       send<{ redirectUri: string }>({
         url: `${env.oauthPath}/account-switch`,
         method: "POST",
-        headers: { authorization: `Bearer ${tokens.accessToken}` },
+        headers: managementHeaders(tokens),
         json: { accountId, authorization },
       }),
   ),

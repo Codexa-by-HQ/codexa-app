@@ -189,6 +189,8 @@ export const SETTINGS_RESOURCES: (TListResource & {
     describe: describePolicy,
     create: "policies:create",
     edit: "policies:update",
+    // A system policy is provisioning's, and OAuth refuses any change to it.
+    editable: (item) => !item.system,
     filters: [
       column.text("name", "fields.name"),
       column.option("target", "forms.policies.appliesTo", ["role", "user", "account", "collaborator", "global"], "filters.targets"),
@@ -196,7 +198,13 @@ export const SETTINGS_RESOURCES: (TListResource & {
       column.status(),
       column.date("createdAt", "fields.created"),
     ],
-    actions: [{ key: "archive", capability: "policies:archive", path: "/management/policies/archive", destructive: true, when: isActive }],
+    actions: [{
+      key: "archive",
+      capability: "policies:archive",
+      path: "/management/policies/archive",
+      destructive: true,
+      when: (item) => isActive(item) && !item.system,
+    }],
     columns: [
       { key: "name", label: "fields.name" },
       { key: "description", label: "fields.description" },
@@ -282,7 +290,7 @@ export const ACCOUNT_ICON = UserCircleIcon;
 /** What a policy grants, to whom and when, for its details sheet. */
 function describePolicy(item: TListItem) {
   const t = i18n.t.bind(i18n);
-  const permissions = (item.permissions ?? []) as { effect: string; scope: string }[];
+  const permissions = (item.permissions ?? []) as { effect: string; permission: string }[];
   const target = (item.target ?? {}) as { targetType?: string; roles?: string[]; collaborators?: string[]; accounts?: string[] };
   const chips = (values: string[], destructive = false) =>
     values.length === 0
@@ -307,8 +315,8 @@ function describePolicy(item: TListItem) {
     : until !== undefined && until <= now
     ? "ended"
     : "live";
-  const allowed = permissions.filter((entry) => entry.effect === "allow").map((entry) => entry.scope);
-  const denied = permissions.filter((entry) => entry.effect === "deny").map((entry) => entry.scope);
+  const allowed = permissions.filter((entry) => entry.effect === "allow").map((entry) => entry.permission);
+  const denied = permissions.filter((entry) => entry.effect === "deny").map((entry) => entry.permission);
   return [
     {
       title: t("details.policyWho"),

@@ -53,14 +53,8 @@ export function createClientRouter(
 	router.route({
 		method: ['GET', 'HEAD'],
 		path: '/',
-		handler: () =>
-			new Response(welcome, {
-				status: 200,
-				headers: {
-					'content-type': 'text/html; charset=utf-8',
-					'cache-control': 'no-store',
-				},
-			}),
+		handler: (ctx) =>
+			ctx.html(welcome, { headers: { 'cache-control': 'no-store' } }),
 		options: { name: 'codexa-app.root', openapi: { exclude: true } },
 	});
 

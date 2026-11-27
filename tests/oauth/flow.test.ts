@@ -6,6 +6,7 @@ import {
 	getCollaboratorCollection,
 } from '@codexa/oauth/models';
 import { host } from '../../host.ts';
+import { grantOwners } from '../support/oauth.ts';
 import { loadMongodb } from '../../core/lib/database.ts';
 import type { HostEnvironmentInput } from '../../core/validations/environment.validation.ts';
 import { AUTH_VERSION, AUTH_VERSION_HEADER } from '@codexa/oauth/config';
@@ -56,7 +57,8 @@ function client(base: string) {
 		authorize: (
 			challenge: string,
 			state: string,
-			scope = 'profile email',
+			// Every authenticated route needs an API scope, reading one's own session too.
+			scope = 'profile email api:read',
 		) => fetch(
 			`${base}/oauth/authorize?${new URLSearchParams({
 				response_type: 'code',
@@ -147,7 +149,12 @@ Deno.test({
 			signal: controller.signal,
 			onListening: async (origin) => {
 				try {
-					await run(t, client(origin));
+					const restore = await grantOwners(origin);
+					try {
+						await run(t, client(origin));
+					} finally {
+						await restore();
+					}
 				} catch (error) {
 					failures.push(error);
 				} finally {

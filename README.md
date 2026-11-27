@@ -206,6 +206,8 @@ Read only by `deno task test`. The host ignores them.
 |---|---|---|
 | `OAUTH_TEST_CLIENT_ID` | unset | public client created by setup. The flow test is skipped while unset |
 | `OAUTH_TEST_REDIRECT_URI` | `http://localhost:8000/app/callback` | a redirect URI registered on that client |
+| `OAUTH_TEST_ADMIN_USERNAME` | unset | the platform administrator setup created. Tests sign in as this person to write the policies they need |
+| `OAUTH_TEST_ADMIN_PASSWORD` | unset | that person's password. Kept only in `.env` |
 | `OAUTH_TEST_PORT` | `8199` | port the test host uses, so tests run alongside the dev host |
 
 ## Tests
@@ -219,8 +221,9 @@ Tests live in `tests/`, grouped by plugin, and run with `deno task test`.
 | `tests/oauth/plugins.test.ts` | the optional plugins as core wires them: sign in methods, OAuth App page names, Google's redirect and callback, OIDC discovery and keys, Device client authentication |
 | `tests/oauth/delegation.test.ts` | delegated administration never escalates: a member trusted with policies, roles and invites cannot grant `*`, a permission or namespace they lack, deny the owner by role, global, account, user or member target, widen or archive a restriction on themselves, promote themselves or invite an administrator, while the owner keeps full authority |
 | `tests/codexa-app/client.test.ts` | the root page, `/app/config.json`, the `/app` security headers and the callback page |
-| `tests/oauth/catalog.test.ts` | the catalog's namespace rules and undo, plugins' settings kept apart and validated, and through the host: every plugin's entries listed, owners given their capabilities, new administrators given their permissions |
-| `tests/oauth/setup.test.ts` | the first run setup against a throwaway database: the plugins' scopes offered, any other refused, and administrators given every registered permission |
+| `tests/oauth/catalog.test.ts` | the catalog's namespace rules and undo, plugins' settings kept apart and validated, and through the host: every plugin's entries listed, owners given capabilities by a policy, and a new application provisioned whole, with copied roles, the creator link and its own administrator signing in |
+| `tests/oauth/setup.test.ts` | the first run setup against a throwaway database: the plugins' scopes offered, any other refused, a client without an API scope refused, and only the two system policies and empty roles created |
+| `tests/oauth/system.test.ts` | a new person holds only the baseline, no deny overrides a system policy, system policies cannot be changed, every route is in the catalog with its permission, and only the platform administrator writes application wide policies |
 | `tests/codexa-app/keys.test.ts` | reading and refusing key files without echoing them, the MFA ring order, generated OIDC keys, and re-sealing stored MFA secrets with a new key against the real database |
 | `tests/oauth/conditions.test.ts` | policy conditions are enforced as written: every comparison, and, or, not, nested groups, field references, a conditional deny and the active window, and malformed conditions refused |
 | `tests/oauth/listFilters.test.ts` | every filter operator to MongoDB and back, literal text, refused malformed filters, and on the accounts list the hierarchy filters, the tenant boundary and the depth limit |
@@ -232,7 +235,11 @@ Tests live in `tests/`, grouped by plugin, and run with `deno task test`.
 | `tests/oauth-app/account.test.ts` | the account area reads answer for a signed in user, and a plugin read answers 404 when that plugin is off |
 
 `tests/support/host.ts` boots the real host on `OAUTH_TEST_PORT` for any test
-that needs it, and `tests/support/browser.ts` finds a browser and opens pages
+that needs it. Nobody holds anything a policy does not give, so tests act as the
+platform administrator through `tests/support/oauth.ts`: `signInAdmin`,
+`grant` and `revoke` write application wide policies, and `withOwners` runs
+a test where account owners hold the catalog's permissions, archived again
+afterwards. and `tests/support/browser.ts` finds a browser and opens pages
 for the browser tests.
 
 ### Browser tests
@@ -383,7 +390,17 @@ condition builder over the signed in person, account, membership, role and
 session, and an active window. The matrix and the credential forms read
 OAuth's catalog from `GET /auth/management/catalog`, so every permission and
 scope OAuth, its plugins and your product register is offered, and nothing is
-copied. A permission not registered yet can still be typed in.
+copied. The matrix offers only the permissions OAuth marks `grantable` for
+you, plus any the policy already names. The platform administrator also sees
+"Whole application", which writes an application wide policy. System policies
+are listed read only.
+
+Settings > Applications > New application provisions a whole application, as
+setup provisions the first: its administrator, account, first client, the
+custom roles to copy, and whether you are recorded as its creator. Afterwards
+every id and the client secret, once, show with copy buttons. To use it, set
+its client id as `CODEXA_APP_OAUTH_CLIENT_ID` and sign in as its
+administrator.
 
 Your product's own scopes and permissions are declared once in
 `config/app.config.ts` as `PRODUCT_CATALOG`. Codexa App registers it at

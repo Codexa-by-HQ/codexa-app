@@ -61,7 +61,9 @@ Deno.test({
 		} finally {
 			await apps.updateOne(
 				{ _id: app._id },
-				app.branding ? { $set: { branding: app.branding } } : { $unset: { branding: '' } },
+				app.branding
+					? { $set: { branding: app.branding } }
+					: { $unset: { branding: '' } },
 			);
 			await connection.disconnect();
 		}
@@ -71,32 +73,44 @@ Deno.test({
 async function check(page: Page, origin: string, appName: string) {
 	const violations: string[] = [];
 	page.on('console', (message) => {
-		if (/Content Security Policy/i.test(message.text())) violations.push(message.text());
+		if (/Content Security Policy/i.test(message.text())) {
+			violations.push(message.text());
+		}
 	});
 	const token = (name: string) =>
 		page.evaluate(
-			(variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim(),
+			(variable) =>
+				getComputedStyle(document.documentElement).getPropertyValue(
+					variable,
+				).trim(),
 			name,
 		);
 
 	await page.goto(`${origin}/app/`);
 	await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 	await page.waitForURL(/\/auth\/login\?authTxnId=/);
-	await page.getByRole('heading', { level: 1, name: 'Sign in', exact: true }).waitFor();
+	await page.getByRole('heading', { level: 1, name: 'Sign in', exact: true })
+		.waitFor();
 
 	// The header names the application instead of Codexa OAuth.
 	assert(await page.getByText(appName, { exact: true }).first().isVisible());
 	assertEquals(await token('--primary'), LIGHT_PRIMARY);
 	assertEquals(await token('--primary-foreground'), '#ffffff');
 	assertEquals(await token('--radius'), '6px');
-	if (SCREENSHOTS) await page.screenshot({ path: `${SCREENSHOTS}/branding-light.png` });
+	if (SCREENSHOTS) {
+		await page.screenshot({ path: `${SCREENSHOTS}/branding-light.png` });
+	}
 
 	// Dark mode switches by class alone, with no request or re-render.
-	await page.evaluate(() => document.documentElement.classList.replace('light', 'dark'));
+	await page.evaluate(() =>
+		document.documentElement.classList.replace('light', 'dark')
+	);
 	assertEquals(await token('--primary'), DARK_PRIMARY);
 	// The radius was branded for light mode only, so dark keeps the theme's own.
 	assert(await token('--radius') !== '6px');
-	if (SCREENSHOTS) await page.screenshot({ path: `${SCREENSHOTS}/branding-dark.png` });
+	if (SCREENSHOTS) {
+		await page.screenshot({ path: `${SCREENSHOTS}/branding-dark.png` });
+	}
 
 	assertEquals(violations, []);
 }

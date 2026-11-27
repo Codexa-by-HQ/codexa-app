@@ -23,7 +23,9 @@ export const E2E_PORT = dotenv.SERVER_PORT ?? '8000';
 const TIMEOUT = 30_000;
 
 /** Run `steps` in a fresh headless page, closing the browser afterwards. */
-export async function withPage(steps: (page: Page) => Promise<void>): Promise<void> {
+export async function withPage(
+	steps: (page: Page) => Promise<void>,
+): Promise<void> {
 	let browser: Browser | undefined;
 	try {
 		browser = await chromium.launch({ executablePath, headless: true });

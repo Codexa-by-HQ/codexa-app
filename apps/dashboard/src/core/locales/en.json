@@ -282,7 +282,10 @@
     "color": "Use a six digit hex colour, such as #16a34a.",
     "imageUrl": "Enter a full image URL starting with https:// or http://.",
     "radius": "Enter a whole number from 0 to 24.",
-    "font": "Use letters, numbers, spaces, commas, quotes and \"-\"."
+    "font": "Use letters, numbers, spaces, commas, quotes and \"-\".",
+    "username": "Use 3 to 32 letters, digits, dots, dashes or underscores.",
+    "password": "Use at least 8 characters.",
+    "passwordMatch": "The passwords do not match."
   },
   "filters": {
     "active": "Active",
@@ -465,11 +468,13 @@
       "permissions": "Permissions",
       "activeFrom": "Active from",
       "activeUntil": "Active until",
-      "createAnother": "Create and add another"
+      "createAnother": "Create and add another",
+      "applicationWide": "Whole application",
+      "applicationWideHint": "Applies to everyone it targets in every account of this application, not only this one. Only the platform administrator can choose this."
     },
     "applications": {
       "createTitle": "New application",
-      "createDescription": "An app people sign in to, with the credential it signs in with.",
+      "createDescription": "A separate application with its own administrator, account and first client, ready to sign in to.",
       "editTitle": "Edit application",
       "namePlaceholder": "Customer portal",
       "created": "Application created",
@@ -477,7 +482,40 @@
       "aboutDescription": "The name people see when they sign in and approve access.",
       "descriptionPlaceholder": "What people use it for",
       "signInTitle": "How it signs in",
-      "signInDescription": "Its first credential. You can add more later from the application's page."
+      "signInDescription": "Its first credential. You can add more later from the application's page.",
+      "administratorTitle": "Its administrator",
+      "administratorDescription": "The person who runs this application. They hold everything in it and sign in to it with the client below.",
+      "username": "Username",
+      "usernamePlaceholder": "acme_admin",
+      "email": "Email",
+      "emailPlaceholder": "admin@acme.com",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "passwordPlaceholder": "At least 8 characters",
+      "accountTitle": "Its first account",
+      "accountDescription": "The administrator's own account inside the new application.",
+      "accountPlaceholder": "Acme",
+      "slug": "Slug",
+      "clientType": "Client type",
+      "clientTypes": {
+        "public": "Browser or mobile app",
+        "confidential": "Server with a secret"
+      },
+      "serviceAccountName": "Service account name",
+      "serviceAccountPlaceholder": "Acme service",
+      "serviceUsername": "Service username",
+      "scopesHint": "Keep api:read or api:write, or nobody could manage the application through this client.",
+      "rolesTitle": "Roles and ownership",
+      "rolesDescription": "Built in roles are always created, granting nothing until its administrator writes policies.",
+      "copyRoles": "Copy custom roles",
+      "copyRolesPlaceholder": "Pick roles from this account",
+      "noRoles": "This account has no custom roles to copy.",
+      "link": "Record me as its creator",
+      "linkHint": "Everything in the new application names you as its creator. Otherwise its administrator does.",
+      "appId": "Application ID",
+      "administratorId": "Administrator ID",
+      "accountId": "Account ID",
+      "accountName": "Account name"
     },
     "credentials": {
       "add": "Add credential",

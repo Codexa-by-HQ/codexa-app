@@ -17,6 +17,8 @@ type TIssued = {
   secret?: string;
   /** The application page, offered when the credential came with a new application. */
   applicationHref?: string;
+  /** Further identifiers to copy, such as a new application's and its administrator's. */
+  identifiers?: { key: string; label: string; value: string }[];
 };
 
 /** Shows a new credential's client ID, and its secret once, ready to copy. */
@@ -29,7 +31,7 @@ export function showCredentialIssued(issued: TIssued) {
   });
 }
 
-function CredentialIssued({ clientId, secret, applicationHref }: TIssued) {
+function CredentialIssued({ clientId, secret, applicationHref, identifiers = [] }: TIssued) {
   const { t } = useTranslation();
   return (
     <>
@@ -46,6 +48,7 @@ function CredentialIssued({ clientId, secret, applicationHref }: TIssued) {
           ...(secret
             ? [{ key: "secret", label: t("application.clientSecret"), value: <CopyField label={t("application.clientSecret")} value={secret} /> }]
             : []),
+          ...identifiers.map(({ key, label, value }) => ({ key, label, value: <CopyField label={label} value={value} /> })),
         ]}
       />
       <SheetActions>

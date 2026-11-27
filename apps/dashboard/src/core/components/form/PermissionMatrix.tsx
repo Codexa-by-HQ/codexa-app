@@ -53,10 +53,10 @@ export function PermissionMatrix<T extends FieldValues>({
       name={name}
       render={({ field, fieldState }) => {
         const value = (field.value ?? {}) as TPermissions;
-        const set = (scope: string, effect: TEffect | undefined) => {
+        const set = (permission: string, effect: TEffect | undefined) => {
           const next = { ...value };
-          if (effect) next[scope] = effect;
-          else delete next[scope];
+          if (effect) next[permission] = effect;
+          else delete next[permission];
           field.onChange(next);
         };
         const needle = query.trim().toLowerCase();
@@ -70,7 +70,7 @@ export function PermissionMatrix<T extends FieldValues>({
             ),
           }))
           .filter((group) => group.actions.length > 0);
-        const custom = Object.keys(value).filter((scope) => !known.has(scope));
+        const custom = Object.keys(value).filter((permission) => !known.has(permission));
 
         return (
           <Field data-invalid={fieldState.invalid} className="gap-2">
@@ -92,7 +92,7 @@ export function PermissionMatrix<T extends FieldValues>({
               <PermissionRow
                 title={t("permissions.everything")}
                 hint={t("permissions.everythingHint")}
-                scope="*"
+                permission="*"
                 effect={value["*"]}
                 onChange={(effect) => set("*", effect)}
                 strong
@@ -110,19 +110,19 @@ export function PermissionMatrix<T extends FieldValues>({
               {custom.length > 0 && (
                 <div className="flex flex-col divide-y rounded-xl border">
                   <p className="px-3 py-2 text-xs font-medium text-muted-foreground">{t("permissions.custom")}</p>
-                  {custom.map((scope) => (
+                  {custom.map((permission) => (
                     <PermissionRow
-                      key={scope}
-                      title={scope}
-                      scope={scope}
-                      effect={value[scope]}
-                      onChange={(effect) => set(scope, effect)}
+                      key={permission}
+                      title={permission}
+                      permission={permission}
+                      effect={value[permission]}
+                      onChange={(effect) => set(permission, effect)}
                       removable
                     />
                   ))}
                 </div>
               )}
-              <CustomPermission onAdd={(scope) => set(scope, value[scope] ?? "allow")} />
+              <CustomPermission onAdd={(permission) => set(permission, value[permission] ?? "allow")} />
             </div>
             <FieldError errors={fieldState.error?.message ? [{ message: t(fieldState.error.message) }] : undefined} />
           </Field>
@@ -143,13 +143,13 @@ function ResourceGroup({
   resource: string;
   actions: TPermissionGroup["actions"];
   value: TPermissions;
-  set: (scope: string, effect: TEffect | undefined) => void;
+  set: (permission: string, effect: TEffect | undefined) => void;
   open: boolean;
 }) {
   const { t } = useTranslation();
-  const scopes = actions.map(({ action }) => `${resource}:${action}`);
-  const allowed = scopes.filter((scope) => value[scope] === "allow").length;
-  const denied = scopes.filter((scope) => value[scope] === "deny").length;
+  const names = actions.map(({ action }) => `${resource}:${action}`);
+  const allowed = names.filter((permission) => value[permission] === "allow").length;
+  const denied = names.filter((permission) => value[permission] === "deny").length;
   const title = t(`permissions.resources.${resource}`, { defaultValue: resource });
 
   return (
@@ -172,7 +172,7 @@ function ResourceGroup({
           <PermissionRow
             key={action}
             title={t(`permissions.actions.${action}`, { defaultValue: description ?? action })}
-            scope={`${resource}:${action}`}
+            permission={`${resource}:${action}`}
             effect={value[`${resource}:${action}`]}
             onChange={(effect) => set(`${resource}:${action}`, effect)}
             covered={value[resource]}
@@ -186,7 +186,7 @@ function ResourceGroup({
 function PermissionRow({
   title,
   hint,
-  scope,
+  permission,
   effect,
   onChange,
   covered,
@@ -195,7 +195,7 @@ function PermissionRow({
 }: {
   title: string;
   hint?: string;
-  scope: string;
+  permission: string;
   effect?: TEffect;
   onChange: (effect: TEffect | undefined) => void;
   /** The whole resource's own setting, which this row inherits when it has none. */
@@ -209,13 +209,13 @@ function PermissionRow({
       <div className="flex min-w-0 flex-1 flex-col">
         <span className={cn("truncate text-sm", strong && "font-medium")}>{title}</span>
         <code dir="ltr" className="truncate text-start font-mono text-xs text-muted-foreground">
-          {hint ?? scope}
+          {hint ?? permission}
           {!effect && covered && ` · ${t(`permissions.inherited.${covered}`)}`}
         </code>
       </div>
       <EffectToggle label={title} effect={effect} onChange={onChange} />
       {removable && (
-        <Button type="button" variant="ghost" size="icon-sm" aria-label={t("form.remove", { value: scope })} onClick={() => onChange(undefined)}>
+        <Button type="button" variant="ghost" size="icon-sm" aria-label={t("form.remove", { value: permission })} onClick={() => onChange(undefined)}>
           <HugeiconsIcon icon={Cancel01Icon} />
         </Button>
       )}
@@ -256,14 +256,14 @@ function EffectToggle({ label, effect, onChange }: { label: string; effect?: TEf
 }
 
 /** A permission the list does not offer, such as one of your product's. Enter adds it. */
-function CustomPermission({ onAdd }: { onAdd: (scope: string) => void }) {
+function CustomPermission({ onAdd }: { onAdd: (permission: string) => void }) {
   const { t } = useTranslation();
   const [text, setText] = useState("");
-  const scope = text.trim();
-  const valid = PERMISSION_PATTERN.test(scope);
+  const permission = text.trim();
+  const valid = PERMISSION_PATTERN.test(permission);
   const add = () => {
     if (!valid) return;
-    onAdd(scope);
+    onAdd(permission);
     setText("");
   };
   return (
@@ -281,7 +281,7 @@ function CustomPermission({ onAdd }: { onAdd: (scope: string) => void }) {
           }}
           placeholder={t("permissions.customPlaceholder")}
           aria-label={t("permissions.addCustom")}
-          aria-invalid={scope.length > 0 && !valid}
+          aria-invalid={permission.length > 0 && !valid}
         />
         <InputGroupAddon align="inline-end">
           <InputGroupButton type="button" onClick={add} disabled={!valid}>
@@ -290,7 +290,7 @@ function CustomPermission({ onAdd }: { onAdd: (scope: string) => void }) {
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
-      {scope.length > 0 && !valid && <p className="text-xs text-destructive">{t("form.cannotAdd")}</p>}
+      {permission.length > 0 && !valid && <p className="text-xs text-destructive">{t("form.cannotAdd")}</p>}
     </div>
   );
 }

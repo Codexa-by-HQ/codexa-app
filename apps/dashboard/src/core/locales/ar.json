@@ -282,7 +282,10 @@
     "color": "استخدم لونًا سداسيًا مثل #16a34a.",
     "imageUrl": "أدخل رابط صورة كاملًا يبدأ بـ https:// أو http://.",
     "radius": "أدخل عددًا صحيحًا من 0 إلى 24.",
-    "font": "استخدم الحروف والأرقام والمسافات والفواصل وعلامات الاقتباس و\"-\"."
+    "font": "استخدم الحروف والأرقام والمسافات والفواصل وعلامات الاقتباس و\"-\".",
+    "username": "استخدم من 3 إلى 32 حرفًا أو رقمًا أو نقطة أو شرطة أو شرطة سفلية.",
+    "password": "استخدم 8 أحرف على الأقل.",
+    "passwordMatch": "كلمتا المرور غير متطابقتين."
   },
   "filters": {
     "active": "نشط",
@@ -469,11 +472,13 @@
       "permissions": "الصلاحيات",
       "activeFrom": "فعّالة من",
       "activeUntil": "فعّالة حتى",
-      "createAnother": "أنشئ وأضف أخرى"
+      "createAnother": "أنشئ وأضف أخرى",
+      "applicationWide": "التطبيق بأكمله",
+      "applicationWideHint": "تنطبق على كل من تستهدفهم في جميع حسابات هذا التطبيق، وليس هذا الحساب فقط. يمكن لمسؤول المنصة فقط اختيار ذلك."
     },
     "applications": {
       "createTitle": "تطبيق جديد",
-      "createDescription": "تطبيق يسجّل الناس الدخول إليه، مع بيانات الاعتماد التي يستخدمها.",
+      "createDescription": "تطبيق منفصل بمسؤوله وحسابه وأول عميل له، جاهز لتسجيل الدخول إليه.",
       "editTitle": "تعديل التطبيق",
       "namePlaceholder": "بوابة العملاء",
       "created": "تم إنشاء التطبيق",
@@ -481,7 +486,40 @@
       "aboutDescription": "الاسم الذي يراه الناس عند تسجيل الدخول والموافقة على الوصول.",
       "descriptionPlaceholder": "ما يستخدمه الناس من أجله",
       "signInTitle": "طريقة تسجيل الدخول",
-      "signInDescription": "أول بيانات اعتماد له. يمكنك إضافة المزيد لاحقًا من صفحة التطبيق."
+      "signInDescription": "أول بيانات اعتماد له. يمكنك إضافة المزيد لاحقًا من صفحة التطبيق.",
+      "administratorTitle": "مسؤوله",
+      "administratorDescription": "الشخص الذي يدير هذا التطبيق. يملك كل شيء فيه ويسجّل الدخول إليه بالعميل أدناه.",
+      "username": "اسم المستخدم",
+      "usernamePlaceholder": "acme_admin",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "admin@acme.com",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "passwordPlaceholder": "8 أحرف على الأقل",
+      "accountTitle": "حسابه الأول",
+      "accountDescription": "حساب المسؤول الخاص داخل التطبيق الجديد.",
+      "accountPlaceholder": "Acme",
+      "slug": "المعرّف",
+      "clientType": "نوع العميل",
+      "clientTypes": {
+        "public": "تطبيق متصفح أو جوال",
+        "confidential": "خادم بسرّ"
+      },
+      "serviceAccountName": "اسم حساب الخدمة",
+      "serviceAccountPlaceholder": "خدمة Acme",
+      "serviceUsername": "اسم مستخدم الخدمة",
+      "scopesHint": "أبقِ api:read أو api:write، وإلا لن يتمكن أحد من إدارة التطبيق عبر هذا العميل.",
+      "rolesTitle": "الأدوار والملكية",
+      "rolesDescription": "تُنشأ الأدوار المدمجة دائمًا، ولا تمنح شيئًا حتى يكتب مسؤوله السياسات.",
+      "copyRoles": "نسخ الأدوار المخصصة",
+      "copyRolesPlaceholder": "اختر أدوارًا من هذا الحساب",
+      "noRoles": "لا توجد أدوار مخصصة في هذا الحساب لنسخها.",
+      "link": "سجّلني منشئًا له",
+      "linkHint": "كل شيء في التطبيق الجديد يذكرك منشئًا له. وإلا فمسؤوله هو المنشئ.",
+      "appId": "معرّف التطبيق",
+      "administratorId": "معرّف المسؤول",
+      "accountId": "معرّف الحساب",
+      "accountName": "اسم الحساب"
     },
     "credentials": {
       "add": "إضافة بيانات اعتماد",

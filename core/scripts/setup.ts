@@ -4,6 +4,9 @@ import { DEVICE_CATALOG } from '@codexa/oauth-device/config';
 import { OIDC_CATALOG } from '@codexa/oauth-oidc/config';
 import { SSO_CATALOG } from '@codexa/oauth-sso/config';
 import { MEDIA_CATALOG } from '@codexa/media/config';
+import { MFA_CATALOG } from '@codexa/oauth-mfa/config';
+import { PASSKEY_CATALOG } from '@codexa/oauth-passkey/config';
+import { MAGIC_LINK_CATALOG } from '@codexa/oauth-magic-link/config';
 import { PRODUCT_CATALOG } from '../../config/app.config.ts';
 import { createTokenLifetimes } from '../config/oauth.config.ts';
 import { loadMongodb } from '../lib/database.ts';
@@ -41,9 +44,12 @@ async function setup(): Promise<void> {
 		connection: loadMongodb(config),
 		config: { tokenLifetimes: createTokenLifetimes(config) },
 		// Setup runs without the plugins, so it gets their catalogs, the same
-		// constants they register, to offer their scopes and grant administrators
-		// their permissions.
+		// constants they register, to offer their scopes and to write each
+		// one's baseline into the new application's protected baseline policy.
 		catalogs: [
+			MFA_CATALOG,
+			PASSKEY_CATALOG,
+			MAGIC_LINK_CATALOG,
 			OIDC_CATALOG,
 			SSO_CATALOG,
 			DEVICE_CATALOG,

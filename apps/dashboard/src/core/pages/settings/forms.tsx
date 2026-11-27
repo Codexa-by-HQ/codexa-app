@@ -49,6 +49,7 @@ import {
 import type {
   TBranding,
   TBrandingTheme,
+  TApplicationCreateValues,
   TCatalog,
   TCredentialCreateValues,
   TFormOpener,
@@ -349,7 +350,7 @@ type TPolicyDocument = {
   description?: string;
   priority?: number;
   target?: { targetType?: string; roles?: string[]; collaborators?: string[]; accounts?: string[] };
-  permissions?: { effect: "allow" | "deny"; scope: string }[];
+  permissions?: { effect: "allow" | "deny"; permission: string }[];
   condition?: TExprNode;
   activeFrom?: string;
   activeUntil?: string;
@@ -366,6 +367,7 @@ const localDateTime = (value?: string) => {
 function policyValues(policy: TPolicyDocument): TPolicyValues {
   const target = policy.target ?? {};
   return {
+    applicationWide: false,
     name: policy.name ?? "",
     description: policy.description ?? "",
     targetType: (POLICY_TARGETS as readonly string[]).includes(target.targetType ?? "")
@@ -374,7 +376,7 @@ function policyValues(policy: TPolicyDocument): TPolicyValues {
     roles: target.roles ?? [],
     collaborators: target.collaborators ?? [],
     accounts: target.accounts ?? [],
-    permissions: Object.fromEntries((policy.permissions ?? []).map((entry) => [entry.scope, entry.effect])),
+    permissions: Object.fromEntries((policy.permissions ?? []).map((entry) => [entry.permission, entry.effect])),
     condition: exprToCondition(policy.condition),
     activeFrom: localDateTime(policy.activeFrom),
     activeUntil: localDateTime(policy.activeUntil),
@@ -395,7 +397,7 @@ function policyDocument(values: ReturnType<typeof policySchema.parse>) {
     name: values.name,
     description: values.description || null,
     target,
-    permissions: Object.entries(values.permissions).map(([scope, effect]) => ({ scope, effect })),
+    permissions: Object.entries(values.permissions).map(([permission, effect]) => ({ permission, effect })),
     condition: conditionToExpr(values.condition) ?? null,
     activeFrom: values.activeFrom ? new Date(values.activeFrom).toISOString() : null,
     activeUntil: values.activeUntil ? new Date(values.activeUntil).toISOString() : null,
@@ -408,15 +410,17 @@ function policyDocument(values: ReturnType<typeof policySchema.parse>) {
  * and for how long. A new one can be saved and followed by another.
  */
 async function policyForm(done: (message: string) => void, item?: TListItem) {
-  const [roles, members, accounts, catalog, existing] = await Promise.all([
+  const [roles, members, accounts, catalog, existing, session] = await Promise.all([
     roleOptions(),
     memberOptions(),
     accountOptions(),
     loadCatalog(),
     item ? withTokens((tokens) => api.read.execute(tokens, "/management/policies/detail", { id: item._id })) : null,
+    reloadSession(),
   ]);
   const defaults = policyValues((existing ?? {}) as TPolicyDocument);
-  const create = (values: ReturnType<typeof policySchema.parse>) => save("POST", "/management/policies", { policy: policyDocument(values) });
+  const create = (values: ReturnType<typeof policySchema.parse>) =>
+    save("POST", "/management/policies", { policy: policyDocument(values), applicationWide: values.applicationWide });
   return {
     title: t(item ? "forms.policies.editTitle" : "forms.policies.createTitle"),
     description: item ? text(item.name) : t("forms.policies.createDescription"),
@@ -445,11 +449,25 @@ async function policyForm(done: (message: string) => void, item?: TListItem) {
           <TextAreaField name="description" label={t("fields.description")} placeholder={t("forms.descriptionPlaceholder")} optional />
         </FormSection>
         <FormSection title={t("forms.policies.whoTitle")} description={t("forms.policies.whoDescription")}>
+          {!item && session?.platformAdministrator
+            ? (
+              <SwitchField<TPolicyValues>
+                name="applicationWide"
+                label={t("forms.policies.applicationWide")}
+                description={t("forms.policies.applicationWideHint")}
+              />
+            )
+            : null}
           <SelectField name="targetType" label={t("forms.policies.appliesTo")} placeholder={t("forms.choose")} options={translated(POLICY_TARGETS, "forms.policies.targets")} />
           <PolicyTargetField roles={roles} members={members} accounts={accounts} />
         </FormSection>
         <FormSection title={t("forms.policies.whatTitle")} description={t("forms.policies.whatDescription")}>
-          <PermissionMatrix<TPolicyValues> name="permissions" label={t("forms.policies.permissions")} permissions={catalog.permissions} />
+          <PermissionMatrix<TPolicyValues>
+            name="permissions"
+            label={t("forms.policies.permissions")}
+            // Only what this person may hand out, plus what the policy already names.
+            permissions={catalog.permissions.filter((permission) => permission.grantable || permission.name in defaults.permissions)}
+          />
         </FormSection>
         <FormSection title={t("forms.policies.whenTitle")} description={t("forms.policies.whenDescription")}>
           <ConditionBuilder />
@@ -483,34 +501,61 @@ function PolicyTargetField({ roles, members, accounts }: { roles: TOption[]; mem
 /* Applications and credentials */
 
 /**
- * A new application together with its first credential, so it can sign
- * people in straight away. Its client ID, and a secret once, show afterwards.
+ * A new application provisioned whole, as setup provisions the first: its own
+ * administrator and account, its first client and the roles to copy. It is a
+ * separate realm that its administrator signs in to with its new client.
+ * Every identifier, and a secret once, shows afterwards ready to copy.
  */
 const createApplication: TFormOpener = async (done) => {
-  const [roles, catalog] = await Promise.all([roleOptions(), loadCatalog()]);
+  const [roles, catalog] = await Promise.all([listAll("/management/roles", { status: "active" }), loadCatalog()]);
+  // Only this account's own custom roles can be copied. Built in ones always exist.
+  const ownRoles = roles
+    .filter((role) => role.account && role.isSystem !== true)
+    .map((role) => ({ value: text(role.name), label: text(role.label) || text(role.name) }));
   return {
     title: t("forms.applications.createTitle"),
     description: t("forms.applications.createDescription"),
     icon: GridViewIcon,
+    wide: true,
     body: (
       <SheetForm
         schema={applicationCreateSchema}
-        defaultValues={{ name: "", description: "", credentialName: "", ...CREDENTIAL_DEFAULTS }}
+        defaultValues={{
+          name: "",
+          description: "",
+          adminUsername: "",
+          adminEmail: "",
+          adminPassword: "",
+          adminConfirm: "",
+          accountName: "",
+          accountSlug: "",
+          clientName: "",
+          clientType: "public",
+          redirectUris: "",
+          allowedScopes: ["profile", "api:read", "api:write"],
+          consentRequired: false,
+          serviceAccountName: "",
+          serviceAccountSlug: "",
+          serviceUsername: "",
+          copyRoles: [],
+          linkCreatedBy: true,
+        }}
         submitLabel={t("forms.create")}
-        onSubmit={async ({ name, description, credentialName, ...credential }) => {
-          const application = await save("POST", "/management/oauth-apps", { name, ...(description ? { description } : {}) }, onceKey());
-          const appId = text(application?._id);
-          const issued = await save("POST", "/management/oauth-credentials", {
-            ...credentialBody(credential),
-            name: credentialName,
-            appId,
-          }, onceKey());
+        onSubmit={async (values) => {
+          const created = await save("POST", "/management/oauth-apps", applicationRequest(values), onceKey());
+          const appId = text(created?.appId);
+          const credential = (created?.credential ?? {}) as Record<string, unknown>;
           done(t("forms.applications.created"));
           showCredentialIssued({
-            name,
-            clientId: text(issued?.clientId),
-            secret: text(issued?.clientSecret) || undefined,
+            name: values.name,
+            clientId: text(credential.clientId),
+            secret: text(credential.clientSecret) || undefined,
             applicationHref: `/settings/applications/${appId}`,
+            identifiers: [
+              { key: "appId", label: t("forms.applications.appId"), value: appId },
+              { key: "administrator", label: t("forms.applications.administratorId"), value: text(created?.administratorUserId) },
+              { key: "account", label: t("forms.applications.accountId"), value: text(created?.accountId) },
+            ],
           });
         }}
       >
@@ -518,14 +563,113 @@ const createApplication: TFormOpener = async (done) => {
           <TextField name="name" label={t("fields.name")} placeholder={t("forms.applications.namePlaceholder")} autoFocus />
           <TextAreaField name="description" label={t("fields.description")} placeholder={t("forms.applications.descriptionPlaceholder")} optional />
         </FormSection>
+        <FormSection title={t("forms.applications.administratorTitle")} description={t("forms.applications.administratorDescription")}>
+          <TextField name="adminUsername" label={t("forms.applications.username")} placeholder={t("forms.applications.usernamePlaceholder")} ltr />
+          <TextField name="adminEmail" type="email" label={t("forms.applications.email")} placeholder={t("forms.applications.emailPlaceholder")} ltr />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <TextField name="adminPassword" type="password" label={t("forms.applications.password")} placeholder={t("forms.applications.passwordPlaceholder")} ltr />
+            <TextField name="adminConfirm" type="password" label={t("forms.applications.confirmPassword")} placeholder={t("forms.applications.passwordPlaceholder")} ltr />
+          </div>
+        </FormSection>
+        <FormSection title={t("forms.applications.accountTitle")} description={t("forms.applications.accountDescription")}>
+          <TextField name="accountName" label={t("forms.applications.accountName")} placeholder={t("forms.applications.accountPlaceholder")} />
+          <TextField name="accountSlug" label={t("forms.applications.slug")} placeholder="acme" ltr />
+        </FormSection>
         <FormSection title={t("forms.applications.signInTitle")} description={t("forms.applications.signInDescription")}>
-          <TextField name="credentialName" label={t("forms.credentials.name")} placeholder={t("forms.credentials.namePlaceholder")} description={t("forms.credentials.nameHint")} />
-          <CredentialFields roles={roles} scopes={scopeOptions(catalog)} />
+          <TextField name="clientName" label={t("forms.credentials.name")} placeholder={t("forms.credentials.namePlaceholder")} description={t("forms.credentials.nameHint")} />
+          <ApplicationClientFields scopes={scopeOptions(catalog)} />
+        </FormSection>
+        <FormSection title={t("forms.applications.rolesTitle")} description={t("forms.applications.rolesDescription")}>
+          {ownRoles.length
+            ? <ChipsField name="copyRoles" label={t("forms.applications.copyRoles")} placeholder={t("forms.applications.copyRolesPlaceholder")} options={ownRoles} optional />
+            : <p className="text-sm text-muted-foreground">{t("forms.applications.noRoles")}</p>}
+          <SwitchField
+            name="linkCreatedBy"
+            label={t("forms.applications.link")}
+            description={t("forms.applications.linkHint")}
+          />
         </FormSection>
       </SheetForm>
     ),
   };
 };
+
+/** The provisioning request OAuth takes, from the form. */
+function applicationRequest(values: ReturnType<typeof applicationCreateSchema.parse>) {
+  return {
+    business: { name: values.name, ...(values.description ? { description: values.description } : {}) },
+    administrator: {
+      username: values.adminUsername,
+      email: values.adminEmail,
+      password: values.adminPassword,
+      confirmPassword: values.adminConfirm,
+    },
+    account: { name: values.accountName, slug: values.accountSlug },
+    credential: values.clientType === "public"
+      ? {
+        type: "public",
+        name: values.clientName,
+        redirectUris: values.redirectUris,
+        allowedScopes: values.allowedScopes,
+        consentRequired: values.consentRequired,
+      }
+      : {
+        type: "confidential",
+        name: values.clientName,
+        allowedScopes: values.allowedScopes,
+        serviceAccountName: values.serviceAccountName,
+        serviceAccountSlug: values.serviceAccountSlug,
+        serviceUsername: values.serviceUsername,
+      },
+    copyRoles: values.copyRoles,
+    linkCreatedBy: values.linkCreatedBy,
+  };
+}
+
+/** A browser client needs where to return. A server client gets its own service identity. */
+function ApplicationClientFields({ scopes }: { scopes: TOption[] }) {
+  const { t } = useTranslation();
+  const type = useWatch<TApplicationCreateValues, "clientType">({ name: "clientType" });
+  return (
+    <>
+      <SelectField
+        name="clientType"
+        label={t("forms.applications.clientType")}
+        placeholder={t("forms.choose")}
+        options={translated(["public", "confidential"], "forms.applications.clientTypes")}
+      />
+      {type === "public"
+        ? (
+          <>
+            <TextAreaField
+              name="redirectUris"
+              label={t("forms.credentials.redirectUris")}
+              placeholder="https://app.example.com/callback"
+              description={t("forms.credentials.urlsHint")}
+              ltr
+            />
+            <SwitchField name="consentRequired" label={t("forms.credentials.consent")} description={t("forms.credentials.consentHint")} />
+          </>
+        )
+        : (
+          <>
+            <TextField name="serviceAccountName" label={t("forms.applications.serviceAccountName")} placeholder={t("forms.applications.serviceAccountPlaceholder")} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <TextField name="serviceAccountSlug" label={t("forms.applications.slug")} placeholder="acme-service" ltr />
+              <TextField name="serviceUsername" label={t("forms.applications.serviceUsername")} placeholder="acme_service" ltr />
+            </div>
+          </>
+        )}
+      <ChipsField
+        name="allowedScopes"
+        label={t("forms.credentials.scopes")}
+        placeholder={t("forms.credentials.scopePlaceholder")}
+        options={scopes}
+        description={t("forms.applications.scopesHint")}
+      />
+    </>
+  );
+}
 
 export const editApplication: TFormOpener = async (done, item) => ({
   title: t("forms.applications.editTitle"),

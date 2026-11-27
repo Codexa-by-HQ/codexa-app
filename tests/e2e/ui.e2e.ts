@@ -3,7 +3,8 @@
 import { assert, assertEquals } from '@std/assert';
 import { type Browser, chromium, type Page } from 'playwright-core';
 import { E2E_PORT, executablePath } from '../support/browser.ts';
-import { dotenv, withHost } from '../support/host.ts';
+import { dotenv } from '../support/host.ts';
+import { withOwners } from '../support/oauth.ts';
 
 /**
  * Every official screen, in light and dark, English and Arabic, on a desktop
@@ -27,7 +28,11 @@ type Variant = {
 
 const VARIANTS: Variant[] = (['light', 'dark'] as const).flatMap((theme) =>
 	(['en', 'ar'] as const).flatMap((language) =>
-		(['desktop', 'phone'] as const).map((device) => ({ theme, language, device }))
+		(['desktop', 'phone'] as const).map((device) => ({
+			theme,
+			language,
+			device,
+		}))
 	)
 );
 
@@ -42,21 +47,37 @@ Deno.test({
 	sanitizeOps: false,
 	sanitizeResources: false,
 	async fn(t) {
-		await withHost(async (origin) => {
-			const browser = await chromium.launch({ executablePath, headless: true });
-			try {
-				for (const variant of VARIANTS) {
-					const name = `${variant.theme}-${variant.language}-${variant.device}`;
-					await t.step(name, () => journey(browser, origin, variant, name));
+		await withOwners(
+			async (origin) => {
+				const browser = await chromium.launch({
+					executablePath,
+					headless: true,
+				});
+				try {
+					for (const variant of VARIANTS) {
+						const name =
+							`${variant.theme}-${variant.language}-${variant.device}`;
+						await t.step(
+							name,
+							() => journey(browser, origin, variant, name),
+						);
+					}
+				} finally {
+					await browser.close();
 				}
-			} finally {
-				await browser.close();
-			}
-		}, E2E_PORT, 15 * 60_000);
+			},
+			E2E_PORT,
+			15 * 60_000,
+		);
 	},
 });
 
-async function journey(browser: Browser, origin: string, variant: Variant, name: string) {
+async function journey(
+	browser: Browser,
+	origin: string,
+	variant: Variant,
+	name: string,
+) {
 	const context = await browser.newContext({
 		viewport: VIEWPORTS[variant.device],
 		locale: variant.language,
@@ -73,9 +94,14 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 
 	const problems: string[] = [];
 	page.on('console', (message) => {
-		if (message.type() === 'error') problems.push(`${page.url()} ${message.text()}`);
+		if (message.type() === 'error') {
+			problems.push(`${page.url()} ${message.text()}`);
+		}
 	});
-	page.on('pageerror', (error) => problems.push(`${page.url()} ${error.message}`));
+	page.on(
+		'pageerror',
+		(error) => problems.push(`${page.url()} ${error.message}`),
+	);
 
 	let shot = 0;
 	const check = async (screen: string) => {
@@ -83,13 +109,23 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 		await page.waitForTimeout(700);
 		const layout = await page.evaluate(() => ({
 			h1: document.querySelectorAll('h1').length,
-			overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+			overflow: document.documentElement.scrollWidth -
+				document.documentElement.clientWidth,
 			dir: document.documentElement.dir,
-			theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+			theme: document.documentElement.classList.contains('dark')
+				? 'dark'
+				: 'light',
 		}));
 		assertEquals(layout.h1, 1, `${name} ${screen}: one h1`);
-		assert(layout.overflow <= 1, `${name} ${screen}: scrolls sideways by ${layout.overflow}px`);
-		assertEquals(layout.dir, variant.language === 'ar' ? 'rtl' : 'ltr', `${name} ${screen}: dir`);
+		assert(
+			layout.overflow <= 1,
+			`${name} ${screen}: scrolls sideways by ${layout.overflow}px`,
+		);
+		assertEquals(
+			layout.dir,
+			variant.language === 'ar' ? 'rtl' : 'ltr',
+			`${name} ${screen}: dir`,
+		);
 		assertEquals(layout.theme, variant.theme, `${name} ${screen}: theme`);
 		if (SCREENSHOTS) {
 			const directory = `${SCREENSHOTS}/ui/${name}`;
@@ -100,13 +136,17 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 	};
 	const phone = variant.device === 'phone';
 	// A desktop sheet slides in from the side. A phone's rises as a drawer.
-	const overlay = page.locator('[data-slot="sheet-content"], [data-slot="drawer-content"]').first();
+	const overlay = page.locator(
+		'[data-slot="sheet-content"], [data-slot="drawer-content"]',
+	).first();
 	// The profile menu is a dropdown on a desktop and a drawer on a phone.
 	const openProfile = async () => {
 		await page.locator('[data-shell="profile"]:visible').click();
 		await (phone
-			? page.locator('[data-slot="drawer-content"] [data-slot="item"]').first()
-			: page.locator('[data-slot="dropdown-menu-item"]').first()).waitFor();
+			? page.locator('[data-slot="drawer-content"] [data-slot="item"]')
+				.first()
+			: page.locator('[data-slot="dropdown-menu-item"]').first())
+			.waitFor();
 	};
 
 	const username = 'ui_' + crypto.randomUUID().slice(0, 8);
@@ -136,7 +176,9 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 	await check('oauth-consent');
 	await page.locator('button[value="allow"]').click();
 
-	await page.waitForURL((url) => /^\/app\/[a-f\d]{24}\/?$/.test(url.pathname));
+	await page.waitForURL((url) =>
+		/^\/app\/[a-f\d]{24}\/?$/.test(url.pathname)
+	);
 	await page.locator('main h1:not(.sr-only)').waitFor();
 	await check('app-overview');
 
@@ -151,15 +193,20 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 	await openProfile();
 	await check('app-user-menu');
 	if (!phone) {
-		await page.locator('[data-slot="dropdown-menu-sub-trigger"]').last().hover();
+		await page.locator('[data-slot="dropdown-menu-sub-trigger"]').last()
+			.hover();
 		await page.locator('[data-slot="dropdown-menu-sub-content"]').waitFor();
 		await check('app-user-menu-appearance');
 		await page.keyboard.press('Escape');
-		await page.locator('[data-slot="dropdown-menu-sub-content"]').waitFor({ state: 'hidden' });
+		await page.locator('[data-slot="dropdown-menu-sub-content"]').waitFor({
+			state: 'hidden',
+		});
 	}
 	await page.keyboard.press('Escape');
 	await overlay.waitFor({ state: 'hidden' });
-	await page.locator('[data-slot="dropdown-menu-content"]').waitFor({ state: 'hidden' });
+	await page.locator('[data-slot="dropdown-menu-content"]').waitFor({
+		state: 'hidden',
+	});
 
 	await page.goto(`${origin}/app/settings/users`);
 	await page.locator('main h1:not(.sr-only)').waitFor();
@@ -169,7 +216,9 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 	await page.locator('[data-slot="command-input"]').waitFor();
 	await check('app-search');
 	await page.keyboard.press('Escape');
-	await page.locator('[data-slot="command-input"]').waitFor({ state: 'hidden' });
+	await page.locator('[data-slot="command-input"]').waitFor({
+		state: 'hidden',
+	});
 
 	if (phone) {
 		await page.locator('[data-shell="menu"]').click();
@@ -183,11 +232,15 @@ async function journey(browser: Browser, origin: string, variant: Variant, name:
 
 	await openProfile();
 	await (phone
-		? page.locator('[data-slot="drawer-content"] [data-slot="button"]').last()
-		: page.locator('[data-slot="dropdown-menu-item"][data-variant="destructive"]')).click();
+		? page.locator('[data-slot="drawer-content"] [data-slot="button"]')
+			.last()
+		: page.locator(
+			'[data-slot="dropdown-menu-item"][data-variant="destructive"]',
+		)).click();
 	await page.locator('[role="alertdialog"]').waitFor();
 	await check('app-sign-out-confirm');
-	await page.locator('[role="alertdialog"] [data-slot="button"]').last().click();
+	await page.locator('[role="alertdialog"] [data-slot="button"]').last()
+		.click();
 	await page.locator('[data-shell="sign-in"]').waitFor();
 	await check('app-signed-out');
 

@@ -119,6 +119,8 @@ const conditionGroup = z.object({
 });
 
 export const policySchema = z.object({
+  /** Applies to the whole application, not this account. Only on create. */
+  applicationWide: z.boolean(),
   name: text(100),
   description: optionalText(500),
   targetType: z.enum(POLICY_TARGETS),
@@ -240,12 +242,47 @@ function checkCredential(credential: TCredentialShape, context: z.RefinementCtx)
 export const credentialCreateSchema = z.object({ name: text(100), ...credentialFields }).superRefine(checkCredential);
 
 /** A new application with its first credential, so it can sign people in straight away. */
+/**
+ * A new application, provisioned whole as setup provisions the first: the
+ * business, its own administrator and account, its first client, the custom
+ * roles to copy, and whether this person is recorded as its creator.
+ */
 export const applicationCreateSchema = z.object({
   name: text(100),
   description: optionalText(500),
-  credentialName: text(100),
-  ...credentialFields,
-}).superRefine(checkCredential);
+  adminUsername: z.string().trim().regex(/^[a-zA-Z0-9][a-zA-Z0-9_.-]{2,31}$/, "validation.username"),
+  adminEmail: z.email("validation.email"),
+  adminPassword: z.string().min(8, "validation.password").max(128, "validation.tooLong"),
+  adminConfirm: z.string(),
+  accountName: text(100),
+  accountSlug: z.string().trim().regex(/^[a-z0-9-]{1,60}$/, "validation.slug"),
+  clientName: text(100),
+  clientType: z.enum(["public", "confidential"]),
+  redirectUris: urlLines,
+  allowedScopes: z.array(z.string()).min(1, "validation.pickOne"),
+  consentRequired: z.boolean(),
+  serviceAccountName: z.string().trim().max(100, "validation.tooLong"),
+  serviceAccountSlug: z.string().trim(),
+  serviceUsername: z.string().trim(),
+  copyRoles: z.array(z.string()),
+  linkCreatedBy: z.boolean(),
+}).superRefine((values, context) => {
+  if (values.adminPassword !== values.adminConfirm) {
+    context.addIssue({ code: "custom", path: ["adminConfirm"], message: "validation.passwordMatch" });
+  }
+  if (values.clientType === "public" && values.redirectUris.length === 0) {
+    context.addIssue({ code: "custom", path: ["redirectUris"], message: "validation.required" });
+  }
+  if (values.clientType === "confidential") {
+    if (!values.serviceAccountName) context.addIssue({ code: "custom", path: ["serviceAccountName"], message: "validation.required" });
+    if (!/^[a-z0-9-]{1,60}$/.test(values.serviceAccountSlug)) {
+      context.addIssue({ code: "custom", path: ["serviceAccountSlug"], message: "validation.slug" });
+    }
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9_.-]{2,31}$/.test(values.serviceUsername)) {
+      context.addIssue({ code: "custom", path: ["serviceUsername"], message: "validation.username" });
+    }
+  }
+});
 
 export const credentialEditSchema = z.object({
   name: text(100),
